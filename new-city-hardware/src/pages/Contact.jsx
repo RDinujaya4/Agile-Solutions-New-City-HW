@@ -14,7 +14,7 @@ export default function Contact() {
           {/* Contact Info */}
           <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl border border-white/10 space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Our Office</h2>
+              <h2 className="text-xl font-semibold mb-2">Our Store</h2>
               <p className="flex items-start gap-2 text-sm text-slate-200">
                 <FiMapPin className="mt-1" />
                 No 33/1, Hanwella Road, Kirindiwela
