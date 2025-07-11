@@ -7,6 +7,7 @@ import Products from './pages/Product';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admindash" element={<AdminDashboard />} />
       </Routes>
       <Footer />
     </Router>

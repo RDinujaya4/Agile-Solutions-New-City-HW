@@ -32,9 +32,12 @@ function Header() {
             <FiShoppingCart size={18} />
           </Link>
           <Link to="/login" className="hover:text-blue-400 flex items-center gap-1">
-           
             <FiUserPlus size={18} />
           </Link>
+          <Link to="/admindash" className="hover:text-blue-400 flex items-center gap-1">
+  <FiUserPlus size={18} /> Admin
+</Link>
+
         </nav>
 
         {/* Mobile Toggle Button */}
@@ -57,9 +60,10 @@ function Header() {
             <FiShoppingCart size={18} /> Cart
           </Link>
           <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400 flex items-center gap-2">
-          
             <FiUserPlus size={18} /> Login
           </Link>
+         <Link to="/admindash" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">Admin</Link>
+
         </div>
       )}
     </header>
