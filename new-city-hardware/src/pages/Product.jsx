@@ -68,7 +68,7 @@ export default function Products() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm">{cat.name}</h4>
-                    <p className="text-xs text-slate-300">{cat.items} items</p>
+                    <p className="text-xs text-black-100">{cat.items} items</p>
                   </div>
                 </div>
               </div>
