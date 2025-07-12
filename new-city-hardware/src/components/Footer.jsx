@@ -33,7 +33,7 @@ function Footer() {
           <div className="flex space-x-4 mb-3">
             <a href="#" className="hover:text-blue-400">Facebook</a>
             <a href="#" className="hover:text-blue-400">Instagram</a>
-            <a href="#" className="hover:text-blue-400">LinkedIn</a>
+            <a href="#" className="hover:text-blue-400">Email</a>
           </div>
           <p className="text-xs text-slate-400">&copy; 2025 New City Hardware. All rights reserved.</p>
         </div>
