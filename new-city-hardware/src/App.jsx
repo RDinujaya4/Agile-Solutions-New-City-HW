@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminAddProduct from './pages/AdminAddProduct';
 import AdminUpdateItems from './pages/AdminUpdateItems';
+import LowStockAlerts from './pages/LowStockAlerts';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
         <Route path="/admindash" element={<AdminDashboard />} />
         <Route path="/add-product" element={<AdminAddProduct />} />
         <Route path="/update-product" element={<AdminUpdateItems />} />
+        <Route path="/update-product" element={<AdminUpdateItems />} />
+         <Route path="/lowstock" element={<LowStockAlerts />} />
       </Routes>
       <Footer />
     </Router>
