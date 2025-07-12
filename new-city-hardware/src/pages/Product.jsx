@@ -102,28 +102,28 @@ export default function Products() {
             <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-6 flex flex-wrap justify-between items-center gap-4">
               {/* Search */}
               <div className="flex items-center bg-white/20 px-4 py-2 rounded-xl flex-1 min-w-[200px] max-w-md">
-                <FiSearch className="text-white mr-2" />
+                <FiSearch className="text-black mr-2" />
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="bg-transparent text-white placeholder-slate-300 focus:outline-none w-full"
+                  className="bg-transparent text-slate-800 placeholder-slate-800 focus:outline-none w-full"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
 
               {/* Dropdowns */}
-              <select className="bg-white/20 text-white px-4 py-2 rounded-xl focus:outline-none">
+              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
                 <option>All Brands</option>
                 <option>Brand A</option>
                 <option>Brand B</option>
               </select>
-              <select className="bg-white/20 text-white px-4 py-2 rounded-xl focus:outline-none">
+              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
                 <option>All Prices</option>
                 <option>Under $50</option>
                 <option>$50–$100</option>
               </select>
-              <select className="bg-white/20 text-white px-4 py-2 rounded-xl focus:outline-none">
+              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
                 <option>Featured</option>
                 <option>Newest</option>
                 <option>Best Selling</option>
