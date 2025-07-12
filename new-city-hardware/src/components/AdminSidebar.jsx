@@ -24,8 +24,11 @@ export default function AdminSidebar() {
         >
           <FiPlus /> Low Stock Alerts
         </button>
-        <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-          <FiList /> Customer Orders
+         <button
+          onClick={() => navigate('/PreOrder')}
+          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md"
+        >
+          <FiPlus /> Pre Order Items
         </button>
         <button
           onClick={() => navigate('/add-product')}
