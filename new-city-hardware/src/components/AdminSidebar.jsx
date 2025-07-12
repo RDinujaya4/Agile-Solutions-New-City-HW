@@ -30,8 +30,11 @@ export default function AdminSidebar() {
         >
           <FiPlus /> Add Item
         </button>
-        <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-          <FiEdit /> Update Item
+     <button
+          onClick={() => navigate('/update-product')}
+          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md"
+        >
+          <FiPlus /> Update Item
         </button>
         <button className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-100 rounded-md mt-8">
           <FiLogOut /> Log Out
