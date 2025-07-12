@@ -5,6 +5,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { useNavigate } from 'react-router-dom';
 
 
 // Category Images
@@ -14,8 +15,11 @@ import plumbing from '../assets/plumbing.png';
 import electrical from '../assets/electrical.png';
 import paints from '../assets/paints.png';
 import fasteners from '../assets/fasteners.png';
+import Homebg from '../assets/Homebg.jpg'; // Background image
 
 function Home() {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState('');
 
   const categories = [
@@ -28,29 +32,36 @@ function Home() {
   ];
 
   return (
-     <main className="text-slate-100">
-      {/* Hero with Search */}
-      <section className="bg-slate-900 py-20 px-4 text-center">
-        <h2 className="text-4xl font-bold text-white-100">
-          Welcome to New City Hardware
-        </h2>
-        <p className="mt-4 text-lg max-w-2xl mx-auto">
-          Your one-stop destination for quality tools, building materials, and hardware essentials.
-        </p>
+    <main className="text-slate-100">
+     {/* Hero Section with Background */}
+<section
+  className="mt-4 py-32 px-4 text-center bg-cover bg-center bg-no-repeat relative"
+  style={{
+    backgroundImage: `url(${Homebg})`,
+  }}
+>
 
-        {/* Search Bar with Icon */}
-        <div className="mt-8 max-w-xl mx-auto relative">
-          <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products..."
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+        <div className="absolute inset-0 bg-slate bg-opacity-50"></div>
+           {/* Content Box with transparent background */}
+    <div className="relative z-10 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+      <h2 className="text-4xl font-bold text-black">
+        Trusted for over 35 years
+      </h2>
+      <p className="mt-4 text-lg text-black-200">
+        Your one-stop destination for quality tools, building materials, and hardware essentials.
+      </p>
+          <div className="mt-8 max-w-xl mx-auto relative">
+            <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
         </div>
       </section>
-
 
       {/* Stats Section */}
       <section className="bg-white py-16 px-4">
@@ -78,7 +89,7 @@ function Home() {
         </div>
       </section>
 
-       {/* Our Services */}
+      {/* Services Section */}
       <section className="bg-white py-16 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center">
           <div className="p-6 border border-slate-200 rounded-xl shadow-sm">
@@ -95,15 +106,15 @@ function Home() {
           </div>
         </div>
       </section>
-      
-      {/* Popular Categories */}
+
+      {/* Categories */}
       <section className="max-w-6xl mx-auto px-4 py-16">
         <h3 className="text-2xl text-slate-600 font-semibold mb-8 text-center">Popular Categories</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {categories.map((cat) => (
             <div
               key={cat.name}
-              className="bg-white text-slate-600  rounded-xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden"
+              className="bg-white text-slate-600 rounded-xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden"
             >
               <img src={cat.image} alt={cat.name} className="w-full h-40 object-cover" />
               <div className="p-4 text-center">
@@ -116,7 +127,6 @@ function Home() {
           ))}
         </div>
       </section>
-
 
       {/* Visit Section */}
       <section className="bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white py-20 px-4">
@@ -139,7 +149,6 @@ function Home() {
                 <h4 className="text-lg font-semibold">Our Location</h4>
               </div>
               <p className="mb-2">No 33/1, Hanwella Road, <br /> Kirindiwela</p>
-              
             </div>
 
             {/* Store Hours */}
@@ -160,7 +169,7 @@ function Home() {
                 <div className="bg-purple-100 p-3 rounded-xl text-purple-600 text-xl mr-3">
                   <FiPhone size={24} />
                 </div>
-                <h4 className="text-lg  font-semibold">Contact Us</h4>
+                <h4 className="text-lg font-semibold">Contact Us</h4>
               </div>
               <p className="mb-2"> (555) 123-4567 / 0767795630 <br />
                 <span className="inline-flex items-center gap-2 mt-1">
@@ -168,19 +177,22 @@ function Home() {
                   newcity.hardware.sl@gmail.com 
                 </span>
               </p>
-              
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-white-600 text-black py-14 text-center px-4">
+      {/* CTA */}
+      <section className="bg-white text-black py-14 text-center px-4">
         <h3 className="text-2xl font-bold">Need help finding the right tool?</h3>
         <p className="mt-2">Visit our store or contact us for expert advice.</p>
-        <button className="mt-4 px-6 py-2 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-100 transition">
-          Contact Us
-        </button>
+     <button
+  onClick={() => navigate('/contact')}
+  className="mt-4 px-6 py-2 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-100 hover:text-black transition"
+>
+  Contact Us
+</button>
+
       </section>
     </main>
   );
