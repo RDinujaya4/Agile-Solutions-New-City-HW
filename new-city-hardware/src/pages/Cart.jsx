@@ -71,7 +71,7 @@ export default function Cart() {
                   ${total.toFixed(2)}
                 </p>
                 <button className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition">
-                  Proceed to Checkout
+                  Proceed to Pre Order
                 </button>
               </div>
             </div>
