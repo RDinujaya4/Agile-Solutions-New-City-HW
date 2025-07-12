@@ -8,7 +8,7 @@ import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
-
+import AdminAddProduct from './pages/AdminAddProduct';
 
 function App() {
   return (
@@ -22,6 +22,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admindash" element={<AdminDashboard />} />
+        <Route path="/add-product" element={<AdminAddProduct />} />
       </Routes>
       <Footer />
     </Router>

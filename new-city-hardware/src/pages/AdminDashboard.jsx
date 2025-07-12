@@ -1,8 +1,7 @@
-import { FiUsers, FiBox, FiLogOut, FiAlertCircle, FiList, FiPlus, FiEdit } from 'react-icons/fi';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import drillImg from '../assets/Drill.png';
-import logo from '../assets/Logo.png';
+import AdminSidebar from '../components/AdminSidebar';
 
 const visitorsData = {
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -20,42 +19,16 @@ const visitorsData = {
 const AdminDashboard = () => {
   return (
     <div className="flex min-h-screen bg-gray-200 text-gray-800">
-
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-300 p-6 space-y-6">
-        <div className="text-center">
-        
-          <p className="font-bold">Administrator</p>
-          <p className="text-xs text-gray-500">administrator@mail.com</p>
-        </div>
-
-        <nav className="space-y-2 text-sm font-medium">
-          <button className="w-full flex items-center gap-2 px-4 py-2 bg-blue-200 text-blue-800 rounded-md">
-            <FiUsers /> Dashboard
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-            <FiAlertCircle /> Low Stock Alerts
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-            <FiList /> Customer Orders
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-            <FiPlus /> Add Item
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-            <FiEdit /> Update Item
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-100 rounded-md mt-8">
-            <FiLogOut /> Log Out
-          </button>
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       {/* Main Content */}
-      <main className="flex-1 p-8 space-y-8">
+      <main className="flex-1 p-8 space-y-8 overflow-y-auto">
         <header className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <button className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Print Sales</button>
+          <button className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+            Print Sales
+          </button>
         </header>
 
         {/* Summary Cards */}
@@ -80,8 +53,8 @@ const AdminDashboard = () => {
       </main>
 
       {/* Most Viewed Products */}
-      <aside className="w-80 bg-gray-300 p-6 space-y-4 rounded-l-xl">
-        <h3 className="text-lg font-semibold">Most View Products</h3>
+      <aside className="w-80 bg-gray-300 p-6 space-y-4 rounded-l-xl overflow-y-auto">
+        <h3 className="text-lg font-semibold">Most Viewed Products</h3>
         {[...Array(4)].map((_, i) => (
           <div key={i} className="bg-white rounded-lg p-3 flex gap-3 items-center shadow">
             <img src={drillImg} alt="Drill" className="w-16 h-16 object-cover rounded" />
