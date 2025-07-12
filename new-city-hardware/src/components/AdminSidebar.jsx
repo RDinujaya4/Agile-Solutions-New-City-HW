@@ -18,8 +18,11 @@ export default function AdminSidebar() {
         >
           <FiUsers /> Dashboard
         </button>
-        <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
-          <FiAlertCircle /> Low Stock Alerts
+        <button
+          onClick={() => navigate('/lowstock')}
+          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md"
+        >
+          <FiPlus /> Low Stock Alerts
         </button>
         <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md">
           <FiList /> Customer Orders
