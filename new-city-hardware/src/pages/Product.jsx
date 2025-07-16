@@ -16,16 +16,7 @@ import {
   FiMenu,
 } from 'react-icons/fi';
 import useProducts from '../hooks/useProducts';
-
-const categories = [
-  { name: 'All Products', items: 156, icon: FiSettings, color: 'bg-slate-600' },
-  { name: 'Power Tools', items: 45, icon: FiTool, color: 'bg-cyan-500' },
-  { name: 'Hand Tools', items: 38, icon: FiEdit3, color: 'bg-emerald-500' },
-  { name: 'Paint & Supplies', items: 29, icon: FiDroplet, color: 'bg-pink-500' },
-  { name: 'Fasteners', items: 22, icon: FiAnchor, color: 'bg-orange-500' },
-  { name: 'Smart Tools', items: 18, icon: FiZap, color: 'bg-yellow-500' },
-  { name: 'Eco-Friendly', items: 14, icon: FiFeather, color: 'bg-green-500' },
-];
+import useCategories from '../hooks/useCategories';
 
 export default function Products() {
   const [layout, setLayout] = useState('grid');
@@ -38,7 +29,28 @@ export default function Products() {
     category: 'All Products',
   });
 
+  const categoryIcons = {
+    'All Products': FiSettings,
+    'Power Tools': FiTool,
+    'Hand Tools': FiEdit3,
+    'Paint & Supplies': FiDroplet,
+    'Fasteners': FiAnchor,
+    'Smart Tools': FiZap,
+    'Eco-Friendly': FiFeather,
+  };
+
+  const categoryColors = {
+    'All Products': 'bg-slate-600',
+    'Power Tools': 'bg-cyan-500',
+    'Hand Tools': 'bg-emerald-500',
+    'Paint & Supplies': 'bg-pink-500',
+    'Fasteners': 'bg-orange-500',
+    'Smart Tools': 'bg-yellow-500',
+    'Eco-Friendly': 'bg-green-500',
+  };
+
   const { products, loading } = useProducts(filters);
+  const { categories, loading: catLoading } = useCategories();
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(filters.search.toLowerCase())
@@ -55,26 +67,32 @@ export default function Products() {
               <FiX size={20} />
             </button>
           </div>
-          {categories.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <div
-                key={cat.name}
-                onClick={() => setFilters(prev => ({ ...prev, category: cat.name }))}
-                className="group cursor-pointer rounded-xl px-4 py-4 border border-white/10 hover:border-cyan-400 transition-all duration-300 bg-white/5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg text-white text-lg ${cat.color} shadow-md`}>
-                    <Icon />
+          {catLoading ? (
+            <p className="text-sm text-slate-200">Loading categories...</p>
+            ) : (
+              categories.map((cat) => {
+                const Icon = categoryIcons[cat.name] || FiSettings;
+                const color = categoryColors[cat.name] || 'bg-slate-500';
+
+                return (
+                  <div
+                    key={cat.name}
+                    onClick={() => setFilters(prev => ({ ...prev, category: cat.name }))}
+                    className="group cursor-pointer rounded-xl px-4 py-4 border border-white/10 hover:border-cyan-400 transition-all duration-300 bg-white/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg text-white text-lg ${color} shadow-md`}>
+                        <Icon />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">{cat.name}</h4>
+                        <p className="text-xs text-black-100">{cat.items} items</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-sm">{cat.name}</h4>
-                    <p className="text-xs text-black-100">{cat.items} items</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })
+            )}
         </aside>
       )}
 
@@ -178,7 +196,7 @@ export default function Products() {
             <p className="text-center text-xl">Loading products...</p>
           ) : (
             <div
-              className={`grid gap-8 ${
+              className={`grid gap-25 ${
                 layout === 'grid' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'
               }`}
             >
@@ -194,10 +212,10 @@ export default function Products() {
                   />
                   <div className="p-5">
                     <h2 className="text-lg font-semibold">{product.name}</h2>
-                    <p className="text-sm text-slate-300 mt-1">{product.description}</p>
+                    <p className="text-sm text-slate-280 mt-1">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
-                      <span className="text-blue-400 font-bold">${product.price}</span>
-                      <button className="flex items-center gap-1 text-blue-400 hover:text-blue-200 text-sm">
+                      <span className="text-white-400 font-bold">${product.price}</span>
+                      <button className="flex items-center gap-1 text-white-400 hover:text-blue-200 text-sm">
                         <FiShoppingCart /> Add to Cart
                       </button>
                     </div>
