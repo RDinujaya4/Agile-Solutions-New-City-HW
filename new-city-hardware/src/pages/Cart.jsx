@@ -12,6 +12,7 @@ import {
 import { db } from '../firebase';
 import { auth } from '../firebase';
 import { useAuthState } from '../hooks/useAuthState';
+import toast from 'react-hot-toast';
 
 export default function Cart() {
   const { user, authLoading } = useAuthState();
@@ -45,7 +46,7 @@ export default function Cart() {
     const itemData = itemSnap.data();
 
     if (newQty > itemData.stocks) {
-      alert(`Only ${itemData.stocks} items in stock.`);
+      toast.error(`Only ${itemData.stocks} items in stock.`);
       return;
     }
 
@@ -78,7 +79,7 @@ export default function Cart() {
       const productSnap = await getDoc(productRef);
       const stockAvailable = productSnap.data().stocks;
       if (item.quantity > stockAvailable) {
-        alert(`"${item.name}" has only ${stockAvailable} in stock.`);
+        toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
         return;
       }
     }
@@ -119,7 +120,7 @@ export default function Cart() {
     }
 
     setCartItems([]);
-    alert(`Your Order placed successfully!`);
+    toast.success(`Your Order placed successfully!`);
   };
 
   return (
