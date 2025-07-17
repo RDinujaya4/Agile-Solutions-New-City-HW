@@ -15,33 +15,45 @@ import {
   FiX,
   FiMenu,
 } from 'react-icons/fi';
-
-const sampleProducts = [
-  { id: 1, name: 'Cordless Drill', description: 'Powerful 18V cordless drill with two batteries.', image: '/products/cordless-drill.jpg', price: '$129.99' },
-  { id: 2, name: 'Adjustable Wrench Set', description: 'Set of 4 chrome-vanadium adjustable wrenches.', image: '/products/wrench-set.jpg', price: '$49.99' },
-  { id: 3, name: 'Pipe Cutter', description: 'Precision pipe cutter for PVC and copper pipes.', image: '/products/pipe-cutter.jpg', price: '$24.99' },
-  { id: 4, name: 'Pipe Cutter', description: 'Precision pipe cutter for PVC and copper pipes.', image: '/products/pipe-cutter.jpg', price: '$24.99' },
-  { id: 5, name: 'Pipe Cutter', description: 'Precision pipe cutter for PVC and copper pipes.', image: '/products/pipe-cutter.jpg', price: '$24.99' },
-  { id: 6, name: 'Pipe Cutter', description: 'Precision pipe cutter for PVC and copper pipes.', image: '/products/pipe-cutter.jpg', price: '$24.99' },
-];
-
-const categories = [
-  { name: 'All Products', items: 156, icon: FiSettings, color: 'bg-slate-600' },
-  { name: 'Power Tools', items: 45, icon: FiTool, color: 'bg-cyan-500' },
-  { name: 'Hand Tools', items: 38, icon: FiEdit3, color: 'bg-emerald-500' },
-  { name: 'Paint & Supplies', items: 29, icon: FiDroplet, color: 'bg-pink-500' },
-  { name: 'Fasteners', items: 22, icon: FiAnchor, color: 'bg-orange-500' },
-  { name: 'Smart Tools', items: 18, icon: FiZap, color: 'bg-yellow-500' },
-  { name: 'Eco-Friendly', items: 14, icon: FiFeather, color: 'bg-green-500' },
-];
+import useProducts from '../hooks/useProducts';
+import useCategories from '../hooks/useCategories';
 
 export default function Products() {
-  const [search, setSearch] = useState('');
   const [layout, setLayout] = useState('grid');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [filters, setFilters] = useState({
+    search: '',
+    brand: 'All Brands',
+    price: '',
+    sort: 'Featured',
+    category: 'All Products',
+  });
 
-  const filteredProducts = sampleProducts.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
+  const categoryIcons = {
+    'All Products': FiSettings,
+    'Power Tools': FiTool,
+    'Hand Tools': FiEdit3,
+    'Paint & Supplies': FiDroplet,
+    'Fasteners': FiAnchor,
+    'Smart Tools': FiZap,
+    'Eco-Friendly': FiFeather,
+  };
+
+  const categoryColors = {
+    'All Products': 'bg-slate-600',
+    'Power Tools': 'bg-cyan-500',
+    'Hand Tools': 'bg-emerald-500',
+    'Paint & Supplies': 'bg-pink-500',
+    'Fasteners': 'bg-orange-500',
+    'Smart Tools': 'bg-yellow-500',
+    'Eco-Friendly': 'bg-green-500',
+  };
+
+  const { products, loading } = useProducts(filters);
+  const { categories, loading: catLoading } = useCategories();
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(filters.search.toLowerCase())
   );
 
   return (
@@ -55,25 +67,32 @@ export default function Products() {
               <FiX size={20} />
             </button>
           </div>
-          {categories.map((cat) => {
-            const Icon = cat.icon;
-            return (
-              <div
-                key={cat.name}
-                className="group cursor-pointer rounded-xl px-4 py-4 border border-white/10 hover:border-cyan-400 transition-all duration-300 bg-white/5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg text-white text-lg ${cat.color} shadow-md`}>
-                    <Icon />
+          {catLoading ? (
+            <p className="text-sm text-slate-200">Loading categories...</p>
+            ) : (
+              categories.map((cat) => {
+                const Icon = categoryIcons[cat.name] || FiSettings;
+                const color = categoryColors[cat.name] || 'bg-slate-500';
+
+                return (
+                  <div
+                    key={cat.name}
+                    onClick={() => setFilters(prev => ({ ...prev, category: cat.name }))}
+                    className="group cursor-pointer rounded-xl px-4 py-4 border border-white/10 hover:border-cyan-400 transition-all duration-300 bg-white/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg text-white text-lg ${color} shadow-md`}>
+                        <Icon />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">{cat.name}</h4>
+                        <p className="text-xs text-black-100">{cat.items} items</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-sm">{cat.name}</h4>
-                    <p className="text-xs text-black-100">{cat.items} items</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })
+            )}
         </aside>
       )}
 
@@ -107,23 +126,35 @@ export default function Products() {
                   type="text"
                   placeholder="Search products..."
                   className="bg-transparent text-slate-800 placeholder-slate-800 focus:outline-none w-full"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
 
               {/* Dropdowns */}
-              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
+              <select
+                value={filters.brand}
+                onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+                className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none"
+              >
                 <option>All Brands</option>
                 <option>Brand A</option>
                 <option>Brand B</option>
               </select>
-              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
-                <option>All Prices</option>
+              <select
+                value={filters.price}
+                onChange={(e) => setFilters(prev => ({ ...prev, price: e.target.value }))}
+                className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none"
+              >
+                <option value="">All Prices</option>
                 <option>Under $50</option>
                 <option>$50–$100</option>
               </select>
-              <select className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none">
+              <select
+                value={filters.sort}
+                onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value }))}
+                className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none"
+              >
                 <option>Featured</option>
                 <option>Newest</option>
                 <option>Best Selling</option>
@@ -150,7 +181,10 @@ export default function Products() {
               </div>
 
               {/* Clear */}
-              <button className="flex items-center gap-2 px-5 py-2 bg-white/20 text-white rounded-xl hover:bg-white/30 transition">
+              <button
+                onClick={() => setFilters({ search: '', brand: 'All Brands', price: '', sort: 'Featured', category: 'All Products' })}
+                className="flex items-center gap-2 px-5 py-2 bg-white/20 text-white rounded-xl hover:bg-white/30 transition"
+              >
                 <FiFilter />
                 <span className="font-semibold">Clear</span>
               </button>
@@ -158,34 +192,38 @@ export default function Products() {
           </section>
 
           {/* Product Grid/List */}
-          <div
-            className={`grid gap-8 ${
-              layout === 'grid' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'
-            }`}
-          >
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-5">
-                  <h2 className="text-lg font-semibold">{product.name}</h2>
-                  <p className="text-sm text-slate-300 mt-1">{product.description}</p>
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-blue-400 font-bold">{product.price}</span>
-                    <button className="flex items-center gap-1 text-blue-400 hover:text-blue-200 text-sm">
-                      <FiShoppingCart /> Add to Cart
-                    </button>
+          {loading ? (
+            <p className="text-center text-xl">Loading products...</p>
+          ) : (
+            <div
+              className={`grid gap-25 ${
+                layout === 'grid' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'
+              }`}
+            >
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-5">
+                    <h2 className="text-lg font-semibold">{product.name}</h2>
+                    <p className="text-sm text-slate-280 mt-1">{product.description}</p>
+                    <div className="flex justify-between items-center mt-4">
+                      <span className="text-white-400 font-bold">${product.price}</span>
+                      <button className="flex items-center gap-1 text-white-400 hover:text-blue-200 text-sm">
+                        <FiShoppingCart /> Add to Cart
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>
