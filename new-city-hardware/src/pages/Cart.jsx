@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
-import { collection, getDocs, doc, updateDoc, deleteDoc, collectionGroup, setDoc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  getDoc
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
 import { useAuthState } from '../hooks/useAuthState';
@@ -33,8 +41,15 @@ export default function Cart() {
     if (!userId || newQty < 1) return;
 
     const itemRef = doc(db, 'carts', userId, 'items', id);
-    await updateDoc(itemRef, { quantity: newQty });
+    const itemSnap = await getDoc(itemRef);
+    const itemData = itemSnap.data();
 
+    if (newQty > itemData.stocks) {
+      alert(`Only ${itemData.stocks} items in stock.`);
+      return;
+    }
+
+    await updateDoc(itemRef, { quantity: newQty });
     setCartItems(prev =>
       prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
     );
@@ -57,9 +72,19 @@ export default function Cart() {
     const userId = auth.currentUser?.uid;
     if (!userId || cartItems.length === 0) return;
 
+    // Step 1: check all stocks first
+    for (const item of cartItems) {
+      const productRef = doc(db, 'products', item.category, 'items', item.id);
+      const productSnap = await getDoc(productRef);
+      const stockAvailable = productSnap.data().stocks;
+      if (item.quantity > stockAvailable) {
+        alert(`"${item.name}" has only ${stockAvailable} in stock.`);
+        return;
+      }
+    }
+
     const userDocRef = doc(db, 'Orders', userId);
     const userDocSnap = await getDoc(userDocRef);
-
     let orderNumber = 1;
     if (userDocSnap.exists()) {
       orderNumber = userDocSnap.data().lastOrder + 1;
@@ -70,18 +95,25 @@ export default function Cart() {
 
     const orderId = `order${orderNumber}`;
 
-    // Save each cart item in the new order subcollection
     for (const item of cartItems) {
       const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
       await setDoc(orderItemRef, {
         name: item.name,
         price: item.price,
         image: item.image,
-        quantity: item.quantity,
+        quantity: item.quantity
+      });
+
+      // Step 2: update stock
+      const productRef = doc(db, 'products', item.category, 'items', item.id);
+      const productSnap = await getDoc(productRef);
+      const currentStock = productSnap.data().stocks;
+      await updateDoc(productRef, {
+        stocks: currentStock - item.quantity
       });
     }
 
-    // Clear cart
+    // Step 3: clear cart
     for (const item of cartItems) {
       await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
     }
@@ -93,10 +125,8 @@ export default function Cart() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
       <div className="max-w-5xl mx-auto">
-        {/* Page Title */}
         <h1 className="text-4xl font-bold text-center mb-10">Your Cart</h1>
 
-        {/* Cart Items */}
         {cartItems.length === 0 ? (
           <p className="text-center text-slate-200">Your cart is empty.</p>
         ) : (
@@ -145,7 +175,6 @@ export default function Cart() {
               </div>
             ))}
 
-            {/* Total */}
             <div className="flex justify-end mt-8">
               <div className="text-right space-y-2">
                 <p className="text-xl font-semibold">Total:</p>

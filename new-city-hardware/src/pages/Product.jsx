@@ -15,7 +15,7 @@ import {
   FiX,
   FiMenu,
 } from 'react-icons/fi';
-import { doc, setDoc, getDoc, updateDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
 import useProducts from '../hooks/useProducts';
@@ -66,9 +66,15 @@ export default function Products() {
     const cartItemRef = doc(db, 'carts', userId, 'items', product.id.toString());
     const docSnap = await getDoc(cartItemRef);
 
+    const currentQty = docSnap.exists() ? docSnap.data().quantity : 0;
+
+    if (currentQty + 1 > product.stocks) {
+      return alert(`Only ${product.stocks} items in stock.`);
+    }
+
     if (docSnap.exists()) {
       await updateDoc(cartItemRef, {
-        quantity: docSnap.data().quantity + 1,
+        quantity: currentQty + 1,
       });
     } else {
       await setDoc(cartItemRef, {
@@ -76,6 +82,8 @@ export default function Products() {
         price: product.price,
         image: product.image,
         quantity: 1,
+        stocks: product.stocks,
+        category: product.category
       });
     }
   };
