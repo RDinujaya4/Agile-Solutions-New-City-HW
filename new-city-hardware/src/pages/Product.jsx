@@ -15,11 +15,12 @@ import {
   FiX,
   FiMenu,
 } from 'react-icons/fi';
-import { doc, setDoc, getDoc, updateDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
 import useProducts from '../hooks/useProducts';
 import useCategories from '../hooks/useCategories';
+import toast from 'react-hot-toast';
 
 export default function Products() {
   const [layout, setLayout] = useState('grid');
@@ -61,14 +62,21 @@ export default function Products() {
 
   const handleAddToCart = async (product) => {
     const userId = auth.currentUser?.uid;
-    if (!userId) return alert('You must be logged in to add items to cart.');
+    if (!userId) return toast.error('You must be logged in to add items to cart.');
+    
 
     const cartItemRef = doc(db, 'carts', userId, 'items', product.id.toString());
     const docSnap = await getDoc(cartItemRef);
 
+    const currentQty = docSnap.exists() ? docSnap.data().quantity : 0;
+
+    if (currentQty + 1 > product.stocks) {
+      return toast.error(`Only ${product.stocks} items in stock.`);
+    }
+
     if (docSnap.exists()) {
       await updateDoc(cartItemRef, {
-        quantity: docSnap.data().quantity + 1,
+        quantity: currentQty + 1,
       });
     } else {
       await setDoc(cartItemRef, {
@@ -76,6 +84,8 @@ export default function Products() {
         price: product.price,
         image: product.image,
         quantity: 1,
+        stocks: product.stocks,
+        category: product.category
       });
     }
   };
@@ -240,10 +250,13 @@ export default function Products() {
                     <div className="flex justify-between items-center mt-4">
                       <span className="text-white-400 font-bold">${product.price}</span>
                       <button
+                        disabled={product.stocks === 0}
                         onClick={() => handleAddToCart(product)}
-                        className="flex items-center gap-1 text-white-400 hover:text-blue-200 text-sm"
+                        className={`flex items-center gap-1 text-white-400 text-sm ${
+                          product.stocks === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-200'
+                        }`}
                       >
-                        <FiShoppingCart /> Add to Cart
+                        <FiShoppingCart /> {product.stocks === 0 ? 'Out of Stock' : 'Add to Cart'}
                       </button>
                     </div>
                   </div>

@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { CartProvider } from './context/CartContext.jsx';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -15,23 +17,26 @@ import AdminCustomerOrders from './pages/AdminCustomerOrders';
 
 function App() {
   return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admindash" element={<AdminDashboard />} />
-        <Route path="/add-product" element={<AdminAddProduct />} />
-        <Route path="/update-product" element={<AdminUpdateItems />} /> 
-        <Route path="/lowstock" element={<LowStockAlerts />} />
-        <Route path="/PreOrder" element={<AdminCustomerOrders />} /> 
-      </Routes>
-      <Footer />
-    </Router>
+    <CartProvider>
+      <Router>
+        <Toaster position="top-center" />
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admindash" element={<AdminDashboard />} />
+          <Route path="/add-product" element={<AdminAddProduct />} />
+          <Route path="/update-product" element={<AdminUpdateItems />} />
+          <Route path="/lowstock" element={<LowStockAlerts />} />
+          <Route path="/PreOrder" element={<AdminCustomerOrders />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </CartProvider>
   );
 }
 

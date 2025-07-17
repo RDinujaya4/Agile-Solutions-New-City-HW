@@ -1,15 +1,26 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  getDoc
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
+import { useAuthState } from '../hooks/useAuthState';
+import toast from 'react-hot-toast';
 
 export default function Cart() {
+  const { user, authLoading } = useAuthState();
+  const userId = user?.uid;
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     const fetchCart = async () => {
-      const userId = auth.currentUser?.uid;
       if (!userId) return;
 
       const itemsRef = collection(db, 'carts', userId, 'items');
@@ -21,16 +32,25 @@ export default function Cart() {
       setCartItems(items);
     };
 
-    fetchCart();
-  }, []);
+    if (!authLoading) {
+      fetchCart();
+    }
+  }, [authLoading, userId]);
 
   const updateQuantity = async (id, newQty) => {
     const userId = auth.currentUser?.uid;
     if (!userId || newQty < 1) return;
 
     const itemRef = doc(db, 'carts', userId, 'items', id);
-    await updateDoc(itemRef, { quantity: newQty });
+    const itemSnap = await getDoc(itemRef);
+    const itemData = itemSnap.data();
 
+    if (newQty > itemData.stocks) {
+      toast.error(`Only ${itemData.stocks} items in stock.`);
+      return;
+    }
+
+    await updateDoc(itemRef, { quantity: newQty });
     setCartItems(prev =>
       prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
     );
@@ -49,13 +69,72 @@ export default function Cart() {
     0
   );
 
+  const handleCreateOrder = async () => {
+    const userId = auth.currentUser?.uid;
+    if (!userId || cartItems.length === 0) return;
+
+    // Step 1: check all stocks first
+    for (const item of cartItems) {
+      const productRef = doc(db, 'products', item.category, 'items', item.id);
+      const productSnap = await getDoc(productRef);
+      const stockAvailable = productSnap.data().stocks;
+      if (item.quantity > stockAvailable) {
+        toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
+        return;
+      }
+    }
+
+    const userDocRef = doc(db, 'Orders', userId);
+    const userDocSnap = await getDoc(userDocRef);
+    let orderNumber = 1;
+    if (userDocSnap.exists()) {
+      orderNumber = userDocSnap.data().lastOrder + 1;
+      await updateDoc(userDocRef, { lastOrder: orderNumber });
+    } else {
+      await setDoc(userDocRef, { lastOrder: orderNumber });
+    }
+
+    const orderId = `order${orderNumber}`;
+
+    for (const item of cartItems) {
+      const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
+      await setDoc(orderItemRef, {
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: item.quantity
+      });
+
+      // ✅ Add this to save order total
+      const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
+      await setDoc(orderMetaRef, {
+        total: total,
+        createdAt: new Date(),
+      });
+
+      // Step 2: update stock
+      const productRef = doc(db, 'products', item.category, 'items', item.id);
+      const productSnap = await getDoc(productRef);
+      const currentStock = productSnap.data().stocks;
+      await updateDoc(productRef, {
+        stocks: currentStock - item.quantity
+      });
+    }
+
+    // Step 3: clear cart
+    for (const item of cartItems) {
+      await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
+    }
+
+    setCartItems([]);
+    toast.success(`Your Order placed successfully!`);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
       <div className="max-w-5xl mx-auto">
-        {/* Page Title */}
         <h1 className="text-4xl font-bold text-center mb-10">Your Cart</h1>
 
-        {/* Cart Items */}
         {cartItems.length === 0 ? (
           <p className="text-center text-slate-200">Your cart is empty.</p>
         ) : (
@@ -104,14 +183,16 @@ export default function Cart() {
               </div>
             ))}
 
-            {/* Total */}
             <div className="flex justify-end mt-8">
               <div className="text-right space-y-2">
                 <p className="text-xl font-semibold">Total:</p>
                 <p className="text-2xl text-cyan-400 font-bold">
                   ${total.toFixed(2)}
                 </p>
-                <button className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition">
+                <button
+                  onClick={handleCreateOrder}
+                  className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition"
+                >
                   Proceed to Pre Order
                 </button>
               </div>
