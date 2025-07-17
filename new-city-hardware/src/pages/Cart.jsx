@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, collectionGroup, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
+import { useAuthState } from '../hooks/useAuthState';
 
 export default function Cart() {
+  const { user, authLoading } = useAuthState();
+  const userId = user?.uid;
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     const fetchCart = async () => {
-      const userId = auth.currentUser?.uid;
       if (!userId) return;
 
       const itemsRef = collection(db, 'carts', userId, 'items');
@@ -21,8 +23,10 @@ export default function Cart() {
       setCartItems(items);
     };
 
-    fetchCart();
-  }, []);
+    if (!authLoading) {
+      fetchCart();
+    }
+  }, [authLoading, userId]);
 
   const updateQuantity = async (id, newQty) => {
     const userId = auth.currentUser?.uid;
@@ -48,6 +52,43 @@ export default function Cart() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  const handleCreateOrder = async () => {
+    const userId = auth.currentUser?.uid;
+    if (!userId || cartItems.length === 0) return;
+
+    const userDocRef = doc(db, 'Orders', userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    let orderNumber = 1;
+    if (userDocSnap.exists()) {
+      orderNumber = userDocSnap.data().lastOrder + 1;
+      await updateDoc(userDocRef, { lastOrder: orderNumber });
+    } else {
+      await setDoc(userDocRef, { lastOrder: orderNumber });
+    }
+
+    const orderId = `order${orderNumber}`;
+
+    // Save each cart item in the new order subcollection
+    for (const item of cartItems) {
+      const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
+      await setDoc(orderItemRef, {
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: item.quantity,
+      });
+    }
+
+    // Clear cart
+    for (const item of cartItems) {
+      await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
+    }
+
+    setCartItems([]);
+    alert(`Your Order placed successfully!`);
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
@@ -111,7 +152,10 @@ export default function Cart() {
                 <p className="text-2xl text-cyan-400 font-bold">
                   ${total.toFixed(2)}
                 </p>
-                <button className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition">
+                <button
+                  onClick={handleCreateOrder}
+                  className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition"
+                >
                   Proceed to Pre Order
                 </button>
               </div>
