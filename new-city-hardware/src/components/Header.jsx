@@ -1,15 +1,17 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiUserPlus, FiMenu, FiX } from 'react-icons/fi';
-import logo from '../assets/Logo.png';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { FiShoppingCart, FiUserPlus, FiMenu, FiX } from "react-icons/fi";
+import logo from "../assets/Logo.png";
+import { useCart } from "../context/CartContext";
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartItems } = useCart();
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <header className="bg-slate-900 text-white shadow h-16 z-50 relative">
       <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center overflow-hidden">
-
         {/* Logo + Brand Name */}
         <Link to="/" className="flex items-center space-x-2 h-full">
           <div className="h-full flex items-center overflow-hidden">
@@ -19,25 +21,49 @@ function Header() {
               className="h-20 w-auto object-contain -my-2"
             />
           </div>
-          <span className="text-lg font-semibold hidden sm:block">New City Hardware</span>
+          <span className="text-lg font-semibold hidden sm:block">
+            New City Hardware
+          </span>
         </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-6 text-sm">
-          <Link to="/" className="hover:text-blue-400">Home</Link>
-          <Link to="/products" className="hover:text-blue-400">Products</Link>
-          <Link to="/about" className="hover:text-blue-400">About</Link>
-          <Link to="/contact" className="hover:text-blue-400">Contact</Link>
-          <Link to="/cart" className="hover:text-blue-400 flex items-center gap-1">
-            <FiShoppingCart size={18} />
+          <Link to="/" className="hover:text-blue-400">
+            Home
           </Link>
-          <Link to="/login" className="hover:text-blue-400 flex items-center gap-1">
+          <Link to="/products" className="hover:text-blue-400">
+            Products
+          </Link>
+          <Link to="/about" className="hover:text-blue-400">
+            About
+          </Link>
+          <Link to="/contact" className="hover:text-blue-400">
+            Contact
+          </Link>
+          <Link
+            to="/cart"
+            className="hover:text-blue-400 relative flex items-center gap-1"
+          >
+            <FiShoppingCart size={18} />
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {itemCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            to="/login"
+            className="hover:text-blue-400 flex items-center gap-1"
+          >
             <FiUserPlus size={18} />
           </Link>
-          <Link to="/admindash" className="hover:text-blue-400 flex items-center gap-1">
-  <FiUserPlus size={18} /> Admin
-</Link>
-
+          <Link
+            to="/admindash"
+            className="hover:text-blue-400 flex items-center gap-1"
+          >
+            <FiUserPlus size={18} /> Admin
+          </Link>
         </nav>
 
         {/* Mobile Toggle Button */}
@@ -52,18 +78,55 @@ function Header() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-slate-800 text-sm flex flex-col items-start px-6 py-4 space-y-3">
-          <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">Home</Link>
-          <Link to="/products" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">Products</Link>
-          <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">About</Link>
-          <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">Contact</Link>
-          <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400 flex items-center gap-2">
+          <Link
+            to="/"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400"
+          >
+            Home
+          </Link>
+          <Link
+            to="/products"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400"
+          >
+            Products
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400"
+          >
+            About
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400"
+          >
+            Contact
+          </Link>
+          <Link
+            to="/cart"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400 flex items-center gap-2"
+          >
             <FiShoppingCart size={18} /> Cart
           </Link>
-          <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400 flex items-center gap-2">
+          <Link
+            to="/login"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400 flex items-center gap-2"
+          >
             <FiUserPlus size={18} /> Login
           </Link>
-         <Link to="/admindash" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-400">Admin</Link>
-
+          <Link
+            to="/admindash"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-blue-400"
+          >
+            Admin
+          </Link>
         </div>
       )}
     </header>
