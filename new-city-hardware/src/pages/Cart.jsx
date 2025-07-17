@@ -105,6 +105,13 @@ export default function Cart() {
         quantity: item.quantity
       });
 
+      // ✅ Add this to save order total
+      const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
+      await setDoc(orderMetaRef, {
+        total: total,
+        createdAt: new Date(),
+      });
+
       // Step 2: update stock
       const productRef = doc(db, 'products', item.category, 'items', item.id);
       const productSnap = await getDoc(productRef);
