@@ -7,7 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   setDoc,
-  getDoc
+  getDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
@@ -38,7 +38,6 @@ export default function Cart() {
   }, [authLoading, userId]);
 
   const updateQuantity = async (id, newQty) => {
-    const userId = auth.currentUser?.uid;
     if (!userId || newQty < 1) return;
 
     const itemRef = doc(db, 'carts', userId, 'items', id);
@@ -57,9 +56,7 @@ export default function Cart() {
   };
 
   const deleteItem = async (id) => {
-    const userId = auth.currentUser?.uid;
     if (!userId) return;
-
     await deleteDoc(doc(db, 'carts', userId, 'items', id));
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
@@ -70,23 +67,25 @@ export default function Cart() {
   );
 
   const handleCreateOrder = async () => {
-    const userId = auth.currentUser?.uid;
     if (!userId || cartItems.length === 0) return;
 
-    // Step 1: check all stocks first
+    // ✅ Step 1: Check stock availability
     for (const item of cartItems) {
       const productRef = doc(db, 'products', item.category, 'items', item.id);
       const productSnap = await getDoc(productRef);
       const stockAvailable = productSnap.data().stocks;
+
       if (item.quantity > stockAvailable) {
         toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
         return;
       }
     }
 
+    // ✅ Step 2: Create order document with incremented order number
     const userDocRef = doc(db, 'Orders', userId);
     const userDocSnap = await getDoc(userDocRef);
     let orderNumber = 1;
+
     if (userDocSnap.exists()) {
       orderNumber = userDocSnap.data().lastOrder + 1;
       await updateDoc(userDocRef, { lastOrder: orderNumber });
@@ -96,38 +95,40 @@ export default function Cart() {
 
     const orderId = `order${orderNumber}`;
 
+    // ✅ Step 3: Save each cart item to new order subcollection
     for (const item of cartItems) {
       const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
       await setDoc(orderItemRef, {
         name: item.name,
         price: item.price,
         image: item.image,
-        quantity: item.quantity
+        quantity: item.quantity,
       });
 
-      // ✅ Add this to save order total
-      const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
-      await setDoc(orderMetaRef, {
-        total: total,
-        createdAt: new Date(),
-      });
-
-      // Step 2: update stock
+      // 🔄 Update product stock
       const productRef = doc(db, 'products', item.category, 'items', item.id);
       const productSnap = await getDoc(productRef);
       const currentStock = productSnap.data().stocks;
+
       await updateDoc(productRef, {
-        stocks: currentStock - item.quantity
+        stocks: currentStock - item.quantity,
       });
     }
 
-    // Step 3: clear cart
+    // ✅ Step 4: Save order metadata (only once)
+    const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
+    await setDoc(orderMetaRef, {
+      total: total,
+      createdAt: new Date(),
+    });
+
+    // ✅ Step 5: Clear cart
     for (const item of cartItems) {
       await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
     }
 
     setCartItems([]);
-    toast.success(`Your Order placed successfully!`);
+    toast.success('Your Order placed successfully!');
   };
 
   return (

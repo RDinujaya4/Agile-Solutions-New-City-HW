@@ -3,6 +3,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 import {
   doc,
@@ -15,10 +17,10 @@ import {
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../firebase";
 import { useNavigate } from "react-router-dom";
-
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import authImage from "../assets/Signup.jpg";
+import toast from 'react-hot-toast';
 
 export default function Auth() {
   const [isSignup, setIsSignup] = useState(true);
@@ -32,7 +34,28 @@ export default function Auth() {
   });
   const [usernameAvailable, setUsernameAvailable] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docSnap = await getDoc(doc(db, "users", user.uid));
+          if (docSnap.exists()) {
+            setUserInfo(docSnap.data());
+          }
+        } catch (err) {
+          console.error("Error fetching user info:", err);
+        }
+      } else {
+        setUserInfo(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const checkUsername = async () => {
@@ -98,7 +121,7 @@ export default function Auth() {
           createdAt: new Date(),
         });
 
-        alert("Signup successful!");
+        toast.success("Signup successful!");
         navigate("/");
       } else {
         await signInWithEmailAndPassword(
@@ -106,7 +129,7 @@ export default function Auth() {
           formData.email,
           formData.password
         );
-        alert("Login successful!");
+        toast.success("Login successful!");
         navigate("/");
       }
     } catch (error) {
@@ -145,6 +168,29 @@ export default function Auth() {
       alert(error.message);
     }
   };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUserInfo(null);
+    toast.success("Logout successful!");
+  };
+
+  // Show welcome screen if logged in
+  if (userInfo) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-800">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-12 text-white text-center border border-white/10">
+          <h1 className="text-3xl font-bold mb-4">Welcome, {userInfo.username} 👋</h1>
+          <button
+            onClick={handleLogout}
+            className="mt-4 px-6 py-2 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">

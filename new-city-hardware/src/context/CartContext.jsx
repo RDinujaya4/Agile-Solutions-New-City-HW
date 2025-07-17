@@ -10,28 +10,41 @@ export function CartProvider({ children }) {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
+    let unsubscribeCart = null;
+
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserId(user.uid);
-
         const itemsRef = collection(db, 'carts', user.uid, 'items');
 
-        const unsubscribeCart = onSnapshot(itemsRef, (snapshot) => {
-          const items = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setCartItems(items);
-        });
-
-        return () => unsubscribeCart(); // clean up Firestore listener
+        unsubscribeCart = onSnapshot(
+          itemsRef,
+          (snapshot) => {
+            const items = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setCartItems(items);
+          },
+          (error) => {
+            console.error('Cart listener error:', error.message);
+          }
+        );
       } else {
         setUserId(null);
         setCartItems([]);
+        if (unsubscribeCart) {
+          unsubscribeCart();
+        }
       }
     });
 
-    return () => unsubscribeAuth(); // clean up auth listener
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeCart) {
+        unsubscribeCart(); // cleanup cart listener on unmount
+      }
+    };
   }, []);
 
   return (

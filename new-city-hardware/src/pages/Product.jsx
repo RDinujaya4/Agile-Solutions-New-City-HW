@@ -60,33 +60,45 @@ export default function Products() {
     product.name.toLowerCase().includes(filters.search.toLowerCase())
   );
 
+  const [addingId, setAddingId] = useState(null);
+
   const handleAddToCart = async (product) => {
     const userId = auth.currentUser?.uid;
     if (!userId) return toast.error('You must be logged in to add items to cart.');
+
+    if (product.stocks <= 0) return toast.error('This item is out of stock.');
     
+    setAddingId(product.id);
 
-    const cartItemRef = doc(db, 'carts', userId, 'items', product.id.toString());
-    const docSnap = await getDoc(cartItemRef);
+    try {
+      const cartItemRef = doc(db, 'carts', userId, 'items', product.id.toString());
+      const docSnap = await getDoc(cartItemRef);
 
-    const currentQty = docSnap.exists() ? docSnap.data().quantity : 0;
+      const currentQty = docSnap.exists() ? docSnap.data().quantity : 0;
 
-    if (currentQty + 1 > product.stocks) {
-      return toast.error(`Only ${product.stocks} items in stock.`);
-    }
+      if (currentQty + 1 > product.stocks) {
+        return toast.error(`Only ${product.stocks} items in stock.`);
+      }
 
-    if (docSnap.exists()) {
-      await updateDoc(cartItemRef, {
-        quantity: currentQty + 1,
-      });
-    } else {
-      await setDoc(cartItemRef, {
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity: 1,
-        stocks: product.stocks,
-        category: product.category
-      });
+      if (docSnap.exists()) {
+        await updateDoc(cartItemRef, {
+          quantity: currentQty + 1,
+        });
+      } else {
+        await setDoc(cartItemRef, {
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          quantity: 1,
+          stocks: product.stocks,
+          category: product.category
+        });
+      }toast.success(`${product.name} added to cart.`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add to cart.");
+    } finally {
+      setAddingId(null); // reset
     }
   };
 
