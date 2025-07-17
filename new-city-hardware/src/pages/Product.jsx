@@ -15,6 +15,9 @@ import {
   FiX,
   FiMenu,
 } from 'react-icons/fi';
+import { doc, setDoc, getDoc, updateDoc, collection } from 'firebase/firestore';
+import { db } from '../firebase';
+import { auth } from '../firebase';
 import useProducts from '../hooks/useProducts';
 import useCategories from '../hooks/useCategories';
 
@@ -55,6 +58,27 @@ export default function Products() {
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(filters.search.toLowerCase())
   );
+
+  const handleAddToCart = async (product) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return alert('You must be logged in to add items to cart.');
+
+    const cartItemRef = doc(db, 'carts', userId, 'items', product.id.toString());
+    const docSnap = await getDoc(cartItemRef);
+
+    if (docSnap.exists()) {
+      await updateDoc(cartItemRef, {
+        quantity: docSnap.data().quantity + 1,
+      });
+    } else {
+      await setDoc(cartItemRef, {
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+      });
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white flex">
@@ -215,7 +239,10 @@ export default function Products() {
                     <p className="text-sm text-slate-280 mt-1">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
                       <span className="text-white-400 font-bold">${product.price}</span>
-                      <button className="flex items-center gap-1 text-white-400 hover:text-blue-200 text-sm">
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="flex items-center gap-1 text-white-400 hover:text-blue-200 text-sm"
+                      >
                         <FiShoppingCart /> Add to Cart
                       </button>
                     </div>

@@ -1,23 +1,49 @@
-import { FiTrash2 } from 'react-icons/fi';
-
-const cartItems = [
-  {
-    id: 1,
-    name: 'Cordless Drill',
-    price: 129.99,
-    image: '/assets/drill.png',
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: 'Adjustable Wrench Set',
-    price: 49.99,
-    image: '/products/wrench-set.jpg',
-    quantity: 2,
-  },
-];
+import { useState, useEffect } from 'react';
+import { FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { auth } from '../firebase';
 
 export default function Cart() {
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+
+      const itemsRef = collection(db, 'carts', userId, 'items');
+      const snapshot = await getDocs(itemsRef);
+      const items = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setCartItems(items);
+    };
+
+    fetchCart();
+  }, []);
+
+  const updateQuantity = async (id, newQty) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId || newQty < 1) return;
+
+    const itemRef = doc(db, 'carts', userId, 'items', id);
+    await updateDoc(itemRef, { quantity: newQty });
+
+    setCartItems(prev =>
+      prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
+    );
+  };
+
+  const deleteItem = async (id) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    await deleteDoc(doc(db, 'carts', userId, 'items', id));
+    setCartItems(prev => prev.filter(item => item.id !== id));
+  };
+
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -47,16 +73,31 @@ export default function Cart() {
                   />
                   <div>
                     <h2 className="font-semibold text-lg">{item.name}</h2>
-                    <p className="text-slate-300 text-sm">
-                      ${item.price.toFixed(2)} × {item.quantity}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="text-white bg-white/10 p-1 rounded hover:bg-white/20"
+                      >
+                        <FiMinus />
+                      </button>
+                      <span className="text-slate-300">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="text-white bg-white/10 p-1 rounded hover:bg-white/20"
+                      >
+                        <FiPlus />
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="text-cyan-300 font-semibold text-lg">
                     ${(item.price * item.quantity).toFixed(2)}
                   </p>
-                  <button className="text-red-400 hover:text-red-300">
+                  <button
+                    className="text-red-400 hover:text-red-300"
+                    onClick={() => deleteItem(item.id)}
+                  >
                     <FiTrash2 size={20} />
                   </button>
                 </div>
