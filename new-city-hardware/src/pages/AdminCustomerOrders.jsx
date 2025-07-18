@@ -7,6 +7,7 @@ const sampleOrders = [
     name: 'Mr Rayan',
     email: 'rayan@gmail.Com',
     date: '25 June 25',
+    total_value: '$299', 
     items: ['Hammer 01', 'Sheets 05', 'Bolts 10', 'Glue Packs 02'],
     pickedUp: false,
   },
@@ -15,6 +16,16 @@ const sampleOrders = [
     name: 'Miss Dahami',
     email: 'dahami@gmail.Com',
     date: '25 June 25',
+    total_value: '$299', 
+    items: ['Hammer 01', 'Sheets 05', 'Bolts 10', 'Glue Packs 02'],
+    pickedUp: false,
+  },
+  {
+    id: 3,
+    name: 'Miss Dahami',
+    email: 'dahami@gmail.Com',
+    date: '25 June 25',
+    total_value: '$299', 
     items: ['Hammer 01', 'Sheets 05', 'Bolts 10', 'Glue Packs 02'],
     pickedUp: false,
   },
@@ -51,6 +62,7 @@ export default function CustomerOrders() {
 
         {/* Summary Card + Search */}
         <div className="flex items-center justify-between mb-6">
+          <button>
           <div className="bg-white p-4 rounded-lg shadow-md w-60">
             <h3 className="text-md font-semibold">Total Customer Orders</h3>
             <p className="text-2xl font-bold">{orders.length}</p>
@@ -58,6 +70,25 @@ export default function CustomerOrders() {
               Last Updated On <br /> {new Date().toUTCString()}
             </p>
           </div>
+          </button>
+          <button>
+          <div className="bg-white p-4 rounded-lg shadow-md w-60">
+            <h3 className="text-md font-semibold">Pending Orders</h3>
+            <p className="text-2xl font-bold">{orders.length}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Last Updated On <br /> {new Date().toUTCString()}
+            </p>
+          </div>
+          </button>
+          <button>
+          <div className="bg-white p-4 rounded-lg shadow-md w-60">
+            <h3 className="text-md font-semibold">Picked up Orders</h3>
+            <p className="text-2xl font-bold">{orders.length}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Last Updated On <br /> {new Date().toUTCString()}
+            </p>
+          </div>
+          </button>
           <input
             type="text"
             placeholder="Search customer name or email..."
@@ -75,6 +106,7 @@ export default function CustomerOrders() {
               <p><strong>Customer Name:</strong> {order.name}</p>
               <p><strong>Customer Mail:</strong> {order.email}</p>
               <p><strong>Ordered Date:</strong> {order.date}</p>
+              <p><strong>Total Value:</strong> {order.total_value}</p>
 
               <div className="mt-3">
                 <strong>Ordered Items:</strong>
