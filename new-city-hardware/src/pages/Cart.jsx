@@ -67,69 +67,84 @@ export default function Cart() {
   );
 
   const handleCreateOrder = async () => {
-    if (!userId || cartItems.length === 0) return;
+  if (!userId || cartItems.length === 0) return;
 
-    // ✅ Step 1: Check stock availability
-    for (const item of cartItems) {
-      const productRef = doc(db, 'products', item.category, 'items', item.id);
-      const productSnap = await getDoc(productRef);
-      const stockAvailable = productSnap.data().stocks;
+  // ✅ Step 1: Check stock availability
+  for (const item of cartItems) {
+    const productRef = doc(db, 'products', item.category, 'items', item.id);
+    const productSnap = await getDoc(productRef);
+    const stockAvailable = productSnap.data().stocks;
 
-      if (item.quantity > stockAvailable) {
-        toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
-        return;
-      }
+    if (item.quantity > stockAvailable) {
+      toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
+      return;
     }
+  }
 
-    // ✅ Step 2: Create order document with incremented order number
-    const userDocRef = doc(db, 'Orders', userId);
-    const userDocSnap = await getDoc(userDocRef);
-    let orderNumber = 1;
+  // 🔢 Generate a readable unique order number
+  const generateOrderNumber = () => {
+    const random = Math.floor(100000 + Math.random() * 900000); // 6-digit number
+    return `ORD-${random}`;
+  };
 
-    if (userDocSnap.exists()) {
-      orderNumber = userDocSnap.data().lastOrder + 1;
-      await updateDoc(userDocRef, { lastOrder: orderNumber });
-    } else {
-      await setDoc(userDocRef, { lastOrder: orderNumber });
-    }
+  // ✅ Step 2: Create/increment user's order count
+  const orderCounterRef = doc(db, 'Orders', userId);
+  const orderCounterSnap = await getDoc(orderCounterRef);
+  let orderNumber = 1;
 
-    const orderId = `order${orderNumber}`;
+  if (orderCounterSnap.exists()) {
+    orderNumber = orderCounterSnap.data().lastOrder + 1;
+    await updateDoc(orderCounterRef, { lastOrder: orderNumber });
+  } else {
+    await setDoc(orderCounterRef, { lastOrder: orderNumber });
+  }
 
-    // ✅ Step 3: Save each cart item to new order subcollection
-    for (const item of cartItems) {
-      const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
-      await setDoc(orderItemRef, {
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        quantity: item.quantity,
-      });
+  const orderId = `order${orderNumber}`;
 
-      // 🔄 Update product stock
-      const productRef = doc(db, 'products', item.category, 'items', item.id);
-      const productSnap = await getDoc(productRef);
-      const currentStock = productSnap.data().stocks;
-
-      await updateDoc(productRef, {
-        stocks: currentStock - item.quantity,
-      });
-    }
-
-    // ✅ Step 4: Save order metadata (only once)
-    const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
-    await setDoc(orderMetaRef, {
-      total: total,
-      createdAt: new Date(),
+  // ✅ Step 3: Save each cart item to the order subcollection
+  for (const item of cartItems) {
+    const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
+    await setDoc(orderItemRef, {
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      quantity: item.quantity,
     });
 
-    // ✅ Step 5: Clear cart
-    for (const item of cartItems) {
-      await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
-    }
+    // 🔄 Update product stock
+    const productRef = doc(db, 'products', item.category, 'items', item.id);
+    const productSnap = await getDoc(productRef);
+    const currentStock = productSnap.data().stocks;
 
-    setCartItems([]);
-    toast.success('Your Order placed successfully!');
-  };
+    await updateDoc(productRef, {
+      stocks: currentStock - item.quantity,
+    });
+  }
+
+  // ✅ Step 4: Fetch user details (fix: renamed variable to avoid conflict)
+  const userDetailsSnap = await getDoc(doc(db, 'users', userId));
+  const userDetails = userDetailsSnap.exists() ? userDetailsSnap.data() : {};
+
+  // ✅ Step 5: Save order metadata
+  const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
+  await setDoc(orderMetaRef, {
+    orderNumber: generateOrderNumber(),
+    total: total,
+    createdAt: new Date(),
+    status: 'Pending',
+    username: userDetails.username || '',
+    email: userDetails.email || '',
+  });
+
+  // ✅ Step 6: Clear cart
+  for (const item of cartItems) {
+    await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
+  }
+
+  setCartItems([]);
+  toast.success('Your Order placed successfully!');
+};
+
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
