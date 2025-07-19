@@ -1,71 +1,61 @@
 import { useState, useEffect } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import AdminSidebar from '../../components/AdminSidebar';
 import {
   collectionGroup,
-  doc,
-  getDoc,
+  collection,
   getDocs,
+  getDoc,
+  doc,
   updateDoc,
   deleteDoc,
   setDoc,
-  collection,
 } from 'firebase/firestore';
-import { db } from '../firebase';
-import { auth } from '../firebase';
+import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
 
-export default function CustomerOrders() {
+export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [view, setView] = useState('all'); // 'all', 'pending', 'pickedup'
 
   useEffect(() => {
-    const checkAdminClaim = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const tokenResult = await user.getIdTokenResult();
-        console.log('Admin claim:', tokenResult.claims.admin); // 🔍 should be true
-      }
-    };
-
-    checkAdminClaim();
-  }, []);
-
-  useEffect(() => {
     const fetchOrders = async () => {
-      const orderDocs = await getDocs(collectionGroup(db, 'meta'));
-      const allOrders = [];
+      try {
+        const metaDocs = await getDocs(collectionGroup(db, 'meta'));
+        const allOrders = [];
 
-      for (const docSnap of orderDocs.docs) {
-        const data = docSnap.data();
-        const pathParts = docSnap.ref.path.split('/');
-        const userId = pathParts[1];
-        const orderId = pathParts[2];
+        for (const metaDoc of metaDocs.docs) {
+          const metaData = metaDoc.data();
+          const [_, userId, orderId] = metaDoc.ref.path.split('/');
 
-        // Fetch item list
-        const itemDocs = await getDocs(collection(db, 'Orders', userId, orderId));
-        const items = itemDocs.docs
-          .filter(doc => doc.id !== 'meta')
-          .map(doc => {
-            const d = doc.data();
-            return `${d.name} ${d.quantity}`;
+          // Fetch items for the order
+          const itemsSnap = await getDocs(collection(db, 'Orders', userId, orderId));
+          const items = itemsSnap.docs
+            .filter(doc => doc.id !== 'meta')
+            .map(doc => {
+              const d = doc.data();
+              return `${d.name} ${d.quantity}`;
+            });
+
+          allOrders.push({
+            userId,
+            orderId,
+            orderNumber: metaData.orderNumber,
+            name: metaData.username,
+            email: metaData.email,
+            date: metaData.createdAt?.toDate().toDateString(),
+            total_value: `$${metaData.total}`,
+            items,
+            status: metaData.status,
           });
+        }
 
-        allOrders.push({
-          userId,
-          orderId,
-          orderNumber: data.orderNumber,
-          name: data.username,
-          email: data.email,
-          date: data.createdAt?.toDate().toDateString(),
-          total_value: `$${data.total}`,
-          items,
-          status: data.status,
-        });
+        setOrders(allOrders);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        toast.error('Failed to fetch orders. Check your permissions or Firestore path.');
       }
-
-      setOrders(allOrders);
     };
 
     fetchOrders();
@@ -73,79 +63,95 @@ export default function CustomerOrders() {
 
   useEffect(() => {
     const filtered = orders.filter(order => {
-      const matchesSearch =
+      const matchSearch =
         order.name?.toLowerCase().includes(search.toLowerCase()) ||
         order.email?.toLowerCase().includes(search.toLowerCase()) ||
         order.orderNumber?.toLowerCase().includes(search.toLowerCase());
 
-      const matchesView =
-        view === 'all' || (view === 'pending' && order.status === 'Pending') || (view === 'pickedup' && order.status === 'PickedUp');
+      const matchView =
+        view === 'all' ||
+        (view === 'pending' && order.status === 'Pending') ||
+        (view === 'pickedup' && order.status === 'PickedUp');
 
-      return matchesSearch && matchesView;
+      return matchSearch && matchView;
     });
 
     setFilteredOrders(filtered);
   }, [orders, search, view]);
 
   const handlePickUp = async (order) => {
-    const metaRef = doc(db, 'Orders', order.userId, order.orderId, 'meta');
-    const metaSnap = await getDoc(metaRef);
-    if (!metaSnap.exists()) return;
+    if (!window.confirm(`Confirm mark ${order.orderNumber} as picked up?`)) return;
 
-    const data = metaSnap.data();
-    await updateDoc(metaRef, { status: 'PickedUp' });
+    try {
+      const metaRef = doc(db, 'Orders', order.userId, order.orderId, 'meta');
+      const metaSnap = await getDoc(metaRef);
 
-    await setDoc(doc(db, 'pickupOrders', order.orderId), {
-      ...data,
-      items: order.items,
-    });
+      if (metaSnap.exists()) {
+        const data = metaSnap.data();
+        await updateDoc(metaRef, { status: 'PickedUp' });
 
-    toast.success(`Order ${order.orderNumber} marked as picked up.`);
-    setOrders(prev => prev.map(o => o.orderId === order.orderId ? { ...o, status: 'PickedUp' } : o));
+        await setDoc(doc(db, 'pickupOrders', order.orderId), {
+          ...data,
+          items: order.items,
+        });
+
+        toast.success(`Order ${order.orderNumber} marked as picked up.`);
+        setOrders(prev =>
+          prev.map(o => o.orderId === order.orderId ? { ...o, status: 'PickedUp' } : o)
+        );
+      }
+    } catch (err) {
+      console.error('Error picking up order:', err);
+      toast.error('Failed to mark as picked up.');
+    }
   };
 
   const handleCancel = async (order) => {
-    if (!window.confirm(`Are you sure you want to cancel ${order.orderNumber}?`)) return;
+    if (!window.confirm(`Cancel ${order.orderNumber}? This will restore stock.`)) return;
 
-    // Restore stock
-    const itemDocs = await getDocs(collection(db, 'Orders', order.userId, order.orderId));
-    for (const docSnap of itemDocs.docs) {
-      if (docSnap.id === 'meta') continue;
+    try {
+      const itemDocs = await getDocs(collection(db, 'Orders', order.userId, order.orderId));
 
-      const item = docSnap.data();
-      const productRef = doc(db, 'products', item.category, 'items', docSnap.id);
-      const productSnap = await getDoc(productRef);
+      // Restore stock
+      for (const itemDoc of itemDocs.docs) {
+        if (itemDoc.id === 'meta') continue;
 
-      if (productSnap.exists()) {
-        const currentStock = productSnap.data().stocks || 0;
-        await updateDoc(productRef, {
-          stocks: currentStock + item.quantity,
+        const item = itemDoc.data();
+        const productRef = doc(db, 'products', item.category, 'items', itemDoc.id);
+        const productSnap = await getDoc(productRef);
+
+        if (productSnap.exists()) {
+          const currentStock = productSnap.data().stocks || 0;
+          await updateDoc(productRef, {
+            stocks: currentStock + item.quantity,
+          });
+        }
+      }
+
+      const metaSnap = await getDoc(doc(db, 'Orders', order.userId, order.orderId, 'meta'));
+      if (metaSnap.exists()) {
+        await setDoc(doc(db, 'removedOrders', order.orderId), {
+          ...metaSnap.data(),
+          items: order.items,
         });
       }
-    }
 
-    // Save to removedOrders
-    const metaSnap = await getDoc(doc(db, 'Orders', order.userId, order.orderId, 'meta'));
-    if (metaSnap.exists()) {
-      await setDoc(doc(db, 'removedOrders', order.orderId), {
-        ...metaSnap.data(),
-        items: order.items,
-      });
-    }
+      // Delete the entire order
+      for (const docSnap of itemDocs.docs) {
+        await deleteDoc(docSnap.ref);
+      }
 
-    // Delete order
-    for (const docSnap of itemDocs.docs) {
-      await deleteDoc(docSnap.ref);
+      toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
+      setOrders(prev => prev.filter(o => o.orderId !== order.orderId));
+    } catch (err) {
+      console.error('Error canceling order:', err);
+      toast.error('Failed to cancel order.');
     }
-
-    toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
-    setOrders(prev => prev.filter(o => o.orderId !== order.orderId));
   };
 
   return (
     <div className="flex min-h-screen bg-gray-200 text-gray-800">
       <AdminSidebar />
-
       <main className="flex-1 p-10">
         <h1 className="text-3xl font-bold mb-1">Customer Orders</h1>
         <p className="text-sm text-gray-500 mb-6">Monitor Key Performance Of The Store</p>
@@ -184,7 +190,7 @@ export default function CustomerOrders() {
 
         {/* Orders List */}
         <div className="space-y-4">
-          {filteredOrders.map((order, idx) => (
+          {filteredOrders.map((order) => (
             <div key={order.orderId} className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-bold mb-2">{order.orderNumber}</h2>
               <p><strong>Customer Name:</strong> {order.name}</p>

@@ -9,13 +9,13 @@ import { useNavigate } from 'react-router-dom';
 
 
 // Category Images
-import powerTools from '../assets/power-tools.png';
-import handTools from '../assets/hand-tools.png';
-import plumbing from '../assets/plumbing.png';
-import electrical from '../assets/electrical.png';
-import paints from '../assets/paints.png';
-import fasteners from '../assets/fasteners.png';
-import Homebg from '../assets/Homebg.jpg'; // Background image
+import powerTools from '../../assets/power-tools.png';
+import handTools from '../../assets/hand-tools.png';
+import plumbing from '../../assets/plumbing.png';
+import electrical from '../../assets/electrical.png';
+import paints from '../../assets/paints.png';
+import fasteners from '../../assets/fasteners.png';
+import Homebg from '../../assets/Homebg.jpg';
 
 function Home() {
   const navigate = useNavigate();

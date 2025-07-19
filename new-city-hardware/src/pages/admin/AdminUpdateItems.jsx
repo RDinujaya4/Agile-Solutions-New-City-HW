@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
-import paints from '../assets/paints.png';
+import AdminSidebar from '../../components/AdminSidebar';
+import paints from '../../assets/paints.png';
 
 const sampleProducts = [
   {

@@ -9,9 +9,9 @@ import {
   setDoc,
   getDoc,
 } from 'firebase/firestore';
-import { db } from '../firebase';
-import { auth } from '../firebase';
-import { useAuthState } from '../hooks/useAuthState';
+import { db } from '../../firebase';
+import { auth } from '../../firebase';
+import { useAuthState } from '../../hooks/useAuthState';
 import toast from 'react-hot-toast';
 
 export default function Cart() {

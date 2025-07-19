@@ -1,5 +1,5 @@
 import { FiTool, FiUsers, FiMapPin, FiAward } from 'react-icons/fi';
-import AboutUs from '../assets/AboutUs.png';
+import AboutUs from '../../assets/AboutUs.png';
 
 function About() {
   return (
