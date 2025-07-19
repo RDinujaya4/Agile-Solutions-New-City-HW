@@ -14,6 +14,7 @@ import { db } from '../../firebase';
 import { auth } from '../../firebase';
 import { useAuthState } from '../../hooks/useAuthState';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 export default function Cart() {
   const { user, authLoading } = useAuthState();
@@ -94,7 +95,21 @@ export default function Cart() {
       return;
     }
 
-    const batch = writeBatch(db); // Initialize a new batch
+    // 🟡 Show confirm dialog first
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You can't cancel the order later!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Confirm",
+    });
+
+    // 🚫 If user cancels, exit
+    if (!result.isConfirmed) return;
+
+    const batch = writeBatch(db);
 
     try {
       // ✅ Step 1: Check stock availability and prepare stock updates
@@ -105,64 +120,70 @@ export default function Cart() {
 
         if (!productData || item.quantity > productData.stocks) {
           toast.error(`"${item.name}" has only ${productData?.stocks || 0} in stock. Order cannot be placed.`);
-          return; // Stop the process if any item is out of stock
+          return;
         }
 
-        // Add stock update to the batch
         batch.update(productRef, { stocks: productData.stocks - item.quantity });
       }
 
-      // 🔢 Generate a unique order ID and human-readable order number
-      const newOrderRef = doc(collection(db, 'orders')); // Firestore generates unique ID
-      const orderId = newOrderRef.id; // This is the unique Firestore Document ID
-      const humanReadableOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`; // 6-digit random number
+      // 🔢 Generate order ID and number
+      const newOrderRef = doc(collection(db, 'orders'));
+      const orderId = newOrderRef.id;
+      const humanReadableOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // ✅ Step 2: Fetch user details
       const userDetailsSnap = await getDoc(doc(db, 'users', userId));
       const userDetails = userDetailsSnap.exists() ? userDetailsSnap.data() : {};
 
-      // ✅ Step 3: Prepare the main order document data
+      // ✅ Step 3: Create main order
       const orderData = {
-        userId: userId, // Store user ID for easy querying and rules
+        userId,
         orderNumber: humanReadableOrderNumber,
-        total: total,
-        createdAt: new Date(), // Server timestamp can be used here: serverTimestamp()
+        total,
+        createdAt: new Date(),
         status: 'Pending',
         username: userDetails.username || 'Guest',
-        email: userDetails.email || user.email || 'N/A', // Fallback to auth.currentUser.email
+        email: userDetails.email || user.email || 'N/A',
       };
 
-      // Add the main order document to the batch
       batch.set(newOrderRef, orderData);
 
-      // ✅ Step 4: Prepare each cart item for the order's subcollection and clear cart
+      // ✅ Step 4: Add order items and delete from cart
       for (const item of cartItems) {
-        // Add item to the order's 'items' subcollection
-        const orderItemRef = doc(collection(newOrderRef, 'items'), item.id); // Use existing product ID for item doc
+        const orderItemRef = doc(collection(newOrderRef, 'items'), item.id);
         batch.set(orderItemRef, {
           name: item.name,
           price: item.price,
           image: item.image,
           quantity: item.quantity,
-          category: item.category, // Include category for stock restoration
-          brand: item.brand || null, // Include other relevant product details
+          category: item.category,
+          brand: item.brand || null,
           description: item.description || null,
-          // ... include any other fields from your product documents you need in the order item
         });
 
-        // Add deletion of cart item to the batch
         const cartItemRef = doc(db, 'carts', userId, 'items', item.id);
         batch.delete(cartItemRef);
       }
 
-      // ✅ Step 5: Commit all batch operations atomically
+      // ✅ Step 5: Commit batch
       await batch.commit();
 
       setCartItems([]);
-      toast.success(`Your Order ${humanReadableOrderNumber} placed successfully!`);
+
+      // 🟢 Show success message
+      Swal.fire({
+        title: `Order ${humanReadableOrderNumber} placed successfully!`,
+        text: "Thank you for shopping with us.",
+        icon: "success",
+      });
     } catch (error) {
       console.error('Error creating order:', error);
-      toast.error(`Failed to place order: ${error.message}`);
+      Swal.fire({
+        icon: "error",
+        title: `Failed to place order: ${error.message}`,
+        text: "Something went wrong!",
+        footer: '<a href="/contact">If you have an issue, Contact Us</a>',
+      });
     }
   };
 
@@ -172,7 +193,7 @@ export default function Cart() {
         <h1 className="text-4xl font-bold text-center mb-10">Your Cart</h1>
 
         {cartItems.length === 0 ? (
-          <p className="text-center text-slate-200">Your cart is empty.</p>
+          <p className="text-3xl text-center text-slate-200">Your cart is empty.</p>
         ) : (
           <div className="space-y-6">
             {cartItems.map((item) => (

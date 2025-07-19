@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import toast from "react-hot-toast";
+import Swal from 'sweetalert2';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,10 +23,23 @@ function Header() {
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = async () => {
-    await signOut(auth);
-    toast.success("Logged out successfully");
-    navigate("/login");
+    const result = await Swal.fire({
+      title: 'Confirm Logout',
+      text: 'Are you sure you want to log out?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, log out',
+    });
+
+    if (result.isConfirmed) {
+      await signOut(auth);
+      toast.success('Logged out successfully');
+      navigate('/login');
+    }
   };
+
 
   return (
     <header className="bg-slate-900 text-white shadow h-16 z-50 relative">
