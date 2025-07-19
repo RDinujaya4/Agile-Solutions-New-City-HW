@@ -21,6 +21,7 @@ import { auth } from '../../firebase';
 import useProducts from '../../hooks/useProducts';
 import useCategories from '../../hooks/useCategories';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 export default function Products() {
   const [layout, setLayout] = useState('grid');
@@ -251,11 +252,13 @@ export default function Products() {
                   key={product.id}
                   className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
+                  <Link to={`/product/${product.category}/${product.id}`}>
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-48 object-cover hover:opacity-90 transition"
+                    />
+                  </Link>
                   <div className="p-5">
                     <h2 className="text-lg font-semibold">{product.name}</h2>
                     <p className="text-sm text-slate-280 mt-1">{product.description}</p>
