@@ -13,6 +13,7 @@ import {
 import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
@@ -114,7 +115,17 @@ export default function AdminCustomerOrders() {
   }, [orders, search, view]);
 
   const handlePickUp = async (order) => {
-    if (!window.confirm(`Confirm mark ${order.orderNumber} as picked up?`)) return;
+    const result = await Swal.fire({
+      title: `Mark ${order.orderNumber} as picked up?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, mark as picked up",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const orderRef = doc(db, 'orders', order.orderId); // Direct reference to the order document
@@ -142,7 +153,18 @@ export default function AdminCustomerOrders() {
   };
 
   const handleCancel = async (order) => {
-    if (!window.confirm(`Cancel ${order.orderNumber}? This will restore stock.`)) return;
+    const result = await Swal.fire({
+      title: `Cancel ${order.orderNumber}?`,
+      text: "This will restore the product stock.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, cancel it",
+    });
+
+    if (!result.isConfirmed) return;
+
 
     try {
       const itemsSnap = await getDocs(collection(db, 'orders', order.orderId, 'items'));
