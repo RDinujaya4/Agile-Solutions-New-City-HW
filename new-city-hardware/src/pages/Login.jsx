@@ -35,6 +35,7 @@ export default function Auth() {
   const [usernameAvailable, setUsernameAvailable] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  
 
   const navigate = useNavigate();
 
@@ -52,10 +53,13 @@ export default function Auth() {
       } else {
         setUserInfo(null);
       }
+      setAuthLoading(false); // <- done checking
     });
 
     return () => unsubscribe();
   }, []);
+
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const checkUsername = async () => {
@@ -177,6 +181,13 @@ export default function Auth() {
     }
   };
 
+  useEffect(() => {
+    if (userInfo) {
+      const role = userInfo.role || "user";
+      navigate(role === "admin" ? "/admindash" : "/");
+    }
+  }, [userInfo, navigate]);
+
   const handleLogout = async () => {
     await signOut(auth);
     setUserInfo(null);
@@ -199,6 +210,8 @@ export default function Auth() {
       </div>
     );
   }
+
+  if (authLoading) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">

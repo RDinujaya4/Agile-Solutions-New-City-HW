@@ -1,13 +1,31 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FiShoppingCart, FiUserPlus, FiMenu, FiX } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FiShoppingCart,
+  FiUserPlus,
+  FiMenu,
+  FiX,
+  FiLogOut,
+} from "react-icons/fi";
 import logo from "../assets/Logo.png";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import toast from "react-hot-toast";
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartItems } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
 
   return (
     <header className="bg-slate-900 text-white shadow h-16 z-50 relative">
@@ -52,18 +70,21 @@ function Header() {
             )}
           </Link>
 
-          <Link
-            to="/login"
-            className="hover:text-blue-400 flex items-center gap-1"
-          >
-            <FiUserPlus size={18} />
-          </Link>
-          {/* <Link
-            to="/admindash"
-            className="hover:text-blue-400 flex items-center gap-1"
-          >
-            <FiUserPlus size={18} /> Admin
-          </Link> */}
+          {!user ? (
+            <Link
+              to="/login"
+              className="hover:text-blue-400 flex items-center gap-1"
+            >
+              <FiUserPlus size={18} /> Login
+            </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="hover:text-blue-400 flex items-center gap-1"
+            >
+              <FiLogOut size={18} /> Logout
+            </button>
+          )}
         </nav>
 
         {/* Mobile Toggle Button */}
@@ -113,20 +134,25 @@ function Header() {
           >
             <FiShoppingCart size={18} /> Cart
           </Link>
-          <Link
-            to="/login"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="hover:text-blue-400 flex items-center gap-2"
-          >
-            <FiUserPlus size={18} /> Login
-          </Link>
-          <Link
-            to="/admindash"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="hover:text-blue-400"
-          >
-            Admin
-          </Link>
+          {!user ? (
+            <Link
+              to="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="hover:text-blue-400 flex items-center gap-2"
+            >
+              <FiUserPlus size={18} /> Login
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleLogout();
+              }}
+              className="hover:text-blue-400 flex items-center gap-2"
+            >
+              <FiLogOut size={18} /> Logout
+            </button>
+          )}
         </div>
       )}
     </header>
