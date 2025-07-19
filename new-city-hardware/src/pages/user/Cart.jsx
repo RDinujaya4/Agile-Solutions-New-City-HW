@@ -8,6 +8,7 @@ import {
   deleteDoc,
   setDoc,
   getDoc,
+  writeBatch, // Import writeBatch for atomic operations
 } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { auth } from '../../firebase';
@@ -40,25 +41,46 @@ export default function Cart() {
   const updateQuantity = async (id, newQty) => {
     if (!userId || newQty < 1) return;
 
-    const itemRef = doc(db, 'carts', userId, 'items', id);
-    const itemSnap = await getDoc(itemRef);
-    const itemData = itemSnap.data();
+    try {
+      const itemRef = doc(db, 'carts', userId, 'items', id);
+      const itemSnap = await getDoc(itemRef);
+      const itemData = itemSnap.data();
 
-    if (newQty > itemData.stocks) {
-      toast.error(`Only ${itemData.stocks} items in stock.`);
-      return;
+      if (!itemData) {
+        toast.error("Item not found in cart.");
+        return;
+      }
+
+      // Fetch product stock directly before updating quantity
+      const productRef = doc(db, 'products', itemData.category, 'items', id);
+      const productSnap = await getDoc(productRef);
+      const stockAvailable = productSnap.data()?.stocks || 0;
+
+      if (newQty > stockAvailable) {
+        toast.error(`Only ${stockAvailable} items in stock for "${itemData.name}".`);
+        return;
+      }
+
+      await updateDoc(itemRef, { quantity: newQty });
+      setCartItems(prev =>
+        prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
+      );
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update item quantity.");
     }
-
-    await updateDoc(itemRef, { quantity: newQty });
-    setCartItems(prev =>
-      prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
-    );
   };
 
   const deleteItem = async (id) => {
     if (!userId) return;
-    await deleteDoc(doc(db, 'carts', userId, 'items', id));
-    setCartItems(prev => prev.filter(item => item.id !== id));
+    try {
+      await deleteDoc(doc(db, 'carts', userId, 'items', id));
+      setCartItems(prev => prev.filter(item => item.id !== id));
+      toast.success("Item removed from cart.");
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Failed to remove item from cart.");
+    }
   };
 
   const total = cartItems.reduce(
@@ -67,84 +89,82 @@ export default function Cart() {
   );
 
   const handleCreateOrder = async () => {
-  if (!userId || cartItems.length === 0) return;
-
-  // ✅ Step 1: Check stock availability
-  for (const item of cartItems) {
-    const productRef = doc(db, 'products', item.category, 'items', item.id);
-    const productSnap = await getDoc(productRef);
-    const stockAvailable = productSnap.data().stocks;
-
-    if (item.quantity > stockAvailable) {
-      toast.error(`"${item.name}" has only ${stockAvailable} in stock.`);
+    if (!userId || cartItems.length === 0) {
+      toast.error("Your cart is empty.");
       return;
     }
-  }
 
-  // 🔢 Generate a readable unique order number
-  const generateOrderNumber = () => {
-    const random = Math.floor(100000 + Math.random() * 900000); // 6-digit number
-    return `ORD-${random}`;
+    const batch = writeBatch(db); // Initialize a new batch
+
+    try {
+      // ✅ Step 1: Check stock availability and prepare stock updates
+      for (const item of cartItems) {
+        const productRef = doc(db, 'products', item.category, 'items', item.id);
+        const productSnap = await getDoc(productRef);
+        const productData = productSnap.data();
+
+        if (!productData || item.quantity > productData.stocks) {
+          toast.error(`"${item.name}" has only ${productData?.stocks || 0} in stock. Order cannot be placed.`);
+          return; // Stop the process if any item is out of stock
+        }
+
+        // Add stock update to the batch
+        batch.update(productRef, { stocks: productData.stocks - item.quantity });
+      }
+
+      // 🔢 Generate a unique order ID and human-readable order number
+      const newOrderRef = doc(collection(db, 'orders')); // Firestore generates unique ID
+      const orderId = newOrderRef.id; // This is the unique Firestore Document ID
+      const humanReadableOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`; // 6-digit random number
+
+      // ✅ Step 2: Fetch user details
+      const userDetailsSnap = await getDoc(doc(db, 'users', userId));
+      const userDetails = userDetailsSnap.exists() ? userDetailsSnap.data() : {};
+
+      // ✅ Step 3: Prepare the main order document data
+      const orderData = {
+        userId: userId, // Store user ID for easy querying and rules
+        orderNumber: humanReadableOrderNumber,
+        total: total,
+        createdAt: new Date(), // Server timestamp can be used here: serverTimestamp()
+        status: 'Pending',
+        username: userDetails.username || 'Guest',
+        email: userDetails.email || user.email || 'N/A', // Fallback to auth.currentUser.email
+      };
+
+      // Add the main order document to the batch
+      batch.set(newOrderRef, orderData);
+
+      // ✅ Step 4: Prepare each cart item for the order's subcollection and clear cart
+      for (const item of cartItems) {
+        // Add item to the order's 'items' subcollection
+        const orderItemRef = doc(collection(newOrderRef, 'items'), item.id); // Use existing product ID for item doc
+        batch.set(orderItemRef, {
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: item.quantity,
+          category: item.category, // Include category for stock restoration
+          brand: item.brand || null, // Include other relevant product details
+          description: item.description || null,
+          // ... include any other fields from your product documents you need in the order item
+        });
+
+        // Add deletion of cart item to the batch
+        const cartItemRef = doc(db, 'carts', userId, 'items', item.id);
+        batch.delete(cartItemRef);
+      }
+
+      // ✅ Step 5: Commit all batch operations atomically
+      await batch.commit();
+
+      setCartItems([]);
+      toast.success(`Your Order ${humanReadableOrderNumber} placed successfully!`);
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error(`Failed to place order: ${error.message}`);
+    }
   };
-
-  // ✅ Step 2: Create/increment user's order count
-  const orderCounterRef = doc(db, 'Orders', userId);
-  const orderCounterSnap = await getDoc(orderCounterRef);
-  let orderNumber = 1;
-
-  if (orderCounterSnap.exists()) {
-    orderNumber = orderCounterSnap.data().lastOrder + 1;
-    await updateDoc(orderCounterRef, { lastOrder: orderNumber });
-  } else {
-    await setDoc(orderCounterRef, { lastOrder: orderNumber });
-  }
-
-  const orderId = `order${orderNumber}`;
-
-  // ✅ Step 3: Save each cart item to the order subcollection
-  for (const item of cartItems) {
-    const orderItemRef = doc(db, 'Orders', userId, orderId, item.id);
-    await setDoc(orderItemRef, {
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      quantity: item.quantity,
-    });
-
-    // 🔄 Update product stock
-    const productRef = doc(db, 'products', item.category, 'items', item.id);
-    const productSnap = await getDoc(productRef);
-    const currentStock = productSnap.data().stocks;
-
-    await updateDoc(productRef, {
-      stocks: currentStock - item.quantity,
-    });
-  }
-
-  // ✅ Step 4: Fetch user details (fix: renamed variable to avoid conflict)
-  const userDetailsSnap = await getDoc(doc(db, 'users', userId));
-  const userDetails = userDetailsSnap.exists() ? userDetailsSnap.data() : {};
-
-  // ✅ Step 5: Save order metadata
-  const orderMetaRef = doc(db, 'Orders', userId, orderId, 'meta');
-  await setDoc(orderMetaRef, {
-    orderNumber: generateOrderNumber(),
-    total: total,
-    createdAt: new Date(),
-    status: 'Pending',
-    username: userDetails.username || '',
-    email: userDetails.email || '',
-  });
-
-  // ✅ Step 6: Clear cart
-  for (const item of cartItems) {
-    await deleteDoc(doc(db, 'carts', userId, 'items', item.id));
-  }
-
-  setCartItems([]);
-  toast.success('Your Order placed successfully!');
-};
-
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">

@@ -1,65 +1,99 @@
 import { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import {
-  collectionGroup,
   collection,
   getDocs,
-  getDoc,
   doc,
   updateDoc,
   deleteDoc,
   setDoc,
+  getDoc,
+  query, // Make sure query is imported
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [search, setSearch] = useState('');
-  const [view, setView] = useState('all'); // 'all', 'pending', 'pickedup'
+  const [view, setView] = useState('all');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const metaDocs = await getDocs(collectionGroup(db, 'meta'));
-        const allOrders = [];
+    const checkAdminAndFetchOrders = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const idTokenResult = await user.getIdTokenResult(true);
+          console.log('Admin claim:', idTokenResult.claims.admin);
 
-        for (const metaDoc of metaDocs.docs) {
-          const metaData = metaDoc.data();
-          const [_, userId, orderId] = metaDoc.ref.path.split('/');
-
-          // Fetch items for the order
-          const itemsSnap = await getDocs(collection(db, 'Orders', userId, orderId));
-          const items = itemsSnap.docs
-            .filter(doc => doc.id !== 'meta')
-            .map(doc => {
-              const d = doc.data();
-              return `${d.name} ${d.quantity}`;
-            });
-
-          allOrders.push({
-            userId,
-            orderId,
-            orderNumber: metaData.orderNumber,
-            name: metaData.username,
-            email: metaData.email,
-            date: metaData.createdAt?.toDate().toDateString(),
-            total_value: `$${metaData.total}`,
-            items,
-            status: metaData.status,
-          });
+          if (!idTokenResult.claims.admin) {
+            toast.error("You don't have admin permissions to view this page.");
+            navigate('/');
+            return;
+          }
+          await fetchOrders();
+        } catch (error) {
+          console.error("Error checking admin claim:", error);
+          toast.error("Failed to verify admin status. Please try logging in again.");
+          navigate('/login');
         }
-
-        setOrders(allOrders);
-      } catch (error) {
-        console.error('Failed to fetch orders:', error);
-        toast.error('Failed to fetch orders. Check your permissions or Firestore path.');
+      } else {
+        toast.error("You must be logged in to view this page.");
+        navigate('/login');
       }
     };
+    checkAdminAndFetchOrders();
+  }, [navigate]);
 
-    fetchOrders();
-  }, []);
+  const fetchOrders = async () => {
+    try {
+      // Fetch all order documents from the top-level 'orders' collection
+      // No collectionGroup needed anymore!
+      const ordersSnap = await getDocs(collection(db, 'orders'));
+      const allOrders = [];
+
+      for (const orderDoc of ordersSnap.docs) {
+        const orderData = orderDoc.data();
+        const orderId = orderDoc.id; // The order ID is now the document ID
+
+        // Fetch items for this specific order from its subcollection
+        const itemsSnap = await getDocs(collection(db, 'orders', orderId, 'items'));
+        const items = itemsSnap.docs.map(doc => {
+          const d = doc.data();
+          return `${d.name} ${d.quantity}`;
+        });
+
+        allOrders.push({
+          userId: orderData.userId, // Now explicitly stored
+          orderId: orderId,
+          orderNumber: orderData.orderNumber,
+          name: orderData.username,
+          email: orderData.email,
+          date: orderData.createdAt?.toDate().toDateString(),
+          total_value: `$${orderData.total}`,
+          items: items,
+          status: orderData.status,
+        });
+      }
+
+      setOrders(allOrders);
+      setFilteredOrders(allOrders);
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+      if (error.code === 'permission-denied') {
+        toast.error('Permission denied. Check Firestore rules and admin claim.');
+      } else if (error.code === 'unavailable') {
+        toast.error('Firestore is temporarily unavailable. Check network connection.');
+      } else if (error.code === 'failed-precondition' && error.message.includes('index')) {
+        toast.error('Missing Firestore index. Check Firebase console for index suggestions.');
+      } else {
+        toast.error(`Failed to fetch orders: ${error.message}`);
+      }
+    }
+  };
 
   useEffect(() => {
     const filtered = orders.filter(order => {
@@ -83,26 +117,27 @@ export default function AdminCustomerOrders() {
     if (!window.confirm(`Confirm mark ${order.orderNumber} as picked up?`)) return;
 
     try {
-      const metaRef = doc(db, 'Orders', order.userId, order.orderId, 'meta');
-      const metaSnap = await getDoc(metaRef);
+      const orderRef = doc(db, 'orders', order.orderId); // Direct reference to the order document
+      await updateDoc(orderRef, { status: 'PickedUp' }); // Update status directly on the order document
 
-      if (metaSnap.exists()) {
-        const data = metaSnap.data();
-        await updateDoc(metaRef, { status: 'PickedUp' });
-
+      // Archive to pickupOrders collection
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const dataToArchive = orderSnap.data();
         await setDoc(doc(db, 'pickupOrders', order.orderId), {
-          ...data,
+          ...dataToArchive,
           items: order.items,
+          pickedUpAt: new Date(),
         });
-
-        toast.success(`Order ${order.orderNumber} marked as picked up.`);
-        setOrders(prev =>
-          prev.map(o => o.orderId === order.orderId ? { ...o, status: 'PickedUp' } : o)
-        );
       }
+
+      toast.success(`Order ${order.orderNumber} marked as picked up.`);
+      setOrders(prev =>
+        prev.map(o => o.orderId === order.orderId ? { ...o, status: 'PickedUp' } : o)
+      );
     } catch (err) {
       console.error('Error picking up order:', err);
-      toast.error('Failed to mark as picked up.');
+      toast.error('Failed to mark as picked up. Check permissions for "pickupOrders" and "orders".');
     }
   };
 
@@ -110,13 +145,12 @@ export default function AdminCustomerOrders() {
     if (!window.confirm(`Cancel ${order.orderNumber}? This will restore stock.`)) return;
 
     try {
-      const itemDocs = await getDocs(collection(db, 'Orders', order.userId, order.orderId));
+      const itemsSnap = await getDocs(collection(db, 'orders', order.orderId, 'items'));
 
       // Restore stock
-      for (const itemDoc of itemDocs.docs) {
-        if (itemDoc.id === 'meta') continue;
-
+      for (const itemDoc of itemsSnap.docs) {
         const item = itemDoc.data();
+        // Assume item.category and item.id are present on order items
         const productRef = doc(db, 'products', item.category, 'items', itemDoc.id);
         const productSnap = await getDoc(productRef);
 
@@ -128,24 +162,26 @@ export default function AdminCustomerOrders() {
         }
       }
 
-      const metaSnap = await getDoc(doc(db, 'Orders', order.userId, order.orderId, 'meta'));
-      if (metaSnap.exists()) {
+      // Archive to removedOrders collection
+      const orderRef = doc(db, 'orders', order.orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const dataToArchive = orderSnap.data();
         await setDoc(doc(db, 'removedOrders', order.orderId), {
-          ...metaSnap.data(),
+          ...dataToArchive,
           items: order.items,
+          canceledAt: new Date(),
         });
       }
 
-      // Delete the entire order
-      for (const docSnap of itemDocs.docs) {
-        await deleteDoc(docSnap.ref);
-      }
+      // Delete the original order document and its subcollection
+      await deleteDoc(orderRef);
 
       toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
       setOrders(prev => prev.filter(o => o.orderId !== order.orderId));
     } catch (err) {
       console.error('Error canceling order:', err);
-      toast.error('Failed to cancel order.');
+      toast.error('Failed to cancel order. Check permissions for "products" and "removedOrders".');
     }
   };
 
@@ -156,27 +192,26 @@ export default function AdminCustomerOrders() {
         <h1 className="text-3xl font-bold mb-1">Customer Orders</h1>
         <p className="text-sm text-gray-500 mb-6">Monitor Key Performance Of The Store</p>
 
-        {/* Summary Card + Search */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <button onClick={() => setView('all')}>
-            <div className="bg-white p-4 rounded-lg shadow-md w-60">
+            <div className={`bg-white p-4 rounded-lg shadow-md w-60 ${view === 'all' ? 'border-2 border-blue-500' : ''}`}>
               <h3 className="text-md font-semibold">Total Customer Orders</h3>
               <p className="text-2xl font-bold">{orders.length}</p>
-              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toUTCString()}</p>
+              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
             </div>
           </button>
           <button onClick={() => setView('pending')}>
-            <div className="bg-white p-4 rounded-lg shadow-md w-60">
+            <div className={`bg-white p-4 rounded-lg shadow-md w-60 ${view === 'pending' ? 'border-2 border-blue-500' : ''}`}>
               <h3 className="text-md font-semibold">Pending Orders</h3>
               <p className="text-2xl font-bold">{orders.filter(o => o.status === 'Pending').length}</p>
-              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toUTCString()}</p>
+              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
             </div>
           </button>
           <button onClick={() => setView('pickedup')}>
-            <div className="bg-white p-4 rounded-lg shadow-md w-60">
+            <div className={`bg-white p-4 rounded-lg shadow-md w-60 ${view === 'pickedup' ? 'border-2 border-blue-500' : ''}`}>
               <h3 className="text-md font-semibold">Picked Up Orders</h3>
               <p className="text-2xl font-bold">{orders.filter(o => o.status === 'PickedUp').length}</p>
-              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toUTCString()}</p>
+              <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
             </div>
           </button>
           <input
@@ -188,47 +223,52 @@ export default function AdminCustomerOrders() {
           />
         </div>
 
-        {/* Orders List */}
         <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <div key={order.orderId} className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-bold mb-2">{order.orderNumber}</h2>
-              <p><strong>Customer Name:</strong> {order.name}</p>
-              <p><strong>Customer Mail:</strong> {order.email}</p>
-              <p><strong>Ordered Date:</strong> {order.date}</p>
-              <p><strong>Total Value:</strong> {order.total_value}</p>
+          {filteredOrders.length > 0 ? (
+            filteredOrders.map((order) => (
+              <div key={order.orderId} className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-2">Order No: {order.orderNumber}</h2>
+                <p><strong>Customer Name:</strong> {order.name}</p>
+                <p><strong>Customer Mail:</strong> {order.email}</p>
+                <p><strong>Ordered Date:</strong> {order.date}</p>
+                <p><strong>Total Value:</strong> {order.total_value}</p>
+                <p><strong>Status:</strong> <span className={`font-semibold ${order.status === 'Pending' ? 'text-orange-500' : 'text-green-600'}`}>{order.status}</span></p>
 
-              <div className="mt-3">
-                <strong>Ordered Items:</strong>
-                <ul className="list-disc ml-5 text-red-600 font-medium mt-1">
-                  {order.items.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+                <div className="mt-3">
+                  <strong>Ordered Items:</strong>
+                  <ul className="list-disc ml-5 text-red-600 font-medium mt-1">
+                    {order.items.length > 0 ? (
+                      order.items.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))
+                    ) : (
+                      <li>No items found for this order.</li>
+                    )}
+                  </ul>
+                </div>
 
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => handlePickUp(order)}
-                  className={`text-white text-sm px-5 py-2 rounded ${
-                    order.status === 'PickedUp'
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-green-500 hover:bg-green-600'
-                  }`}
-                  disabled={order.status === 'PickedUp'}
-                >
-                  {order.status === 'PickedUp' ? 'Picked Up' : 'Pick Up'}
-                </button>
-                <button
-                  onClick={() => handleCancel(order)}
-                  className="bg-red-500 hover:bg-red-600 text-white text-sm px-5 py-2 rounded"
-                >
-                  Cancel
-                </button>
+                <div className="flex gap-4 mt-4">
+                  <button
+                    onClick={() => handlePickUp(order)}
+                    className={`text-white text-sm px-5 py-2 rounded ${
+                      order.status === 'PickedUp'
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                    disabled={order.status === 'PickedUp'}
+                  >
+                    {order.status === 'PickedUp' ? 'Picked Up' : 'Pick Up'}
+                  </button>
+                  <button
+                    onClick={() => handleCancel(order)}
+                    className="bg-red-500 hover:bg-red-600 text-white text-sm px-5 py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-          {filteredOrders.length === 0 && (
+            ))
+          ) : (
             <p className="text-center text-gray-500 py-10">No orders found.</p>
           )}
         </div>
