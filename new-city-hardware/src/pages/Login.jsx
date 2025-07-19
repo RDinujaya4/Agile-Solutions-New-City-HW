@@ -122,15 +122,21 @@ export default function Auth() {
         });
 
         toast.success("Signup successful!");
-        navigate("/");
+        const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const role = userDoc.exists() ? userDoc.data().role : "user";
+        navigate(role === "admin" ? "/admindash" : "/");
       } else {
         await signInWithEmailAndPassword(
           auth,
           formData.email,
           formData.password
         );
+
+        await auth.currentUser.getIdToken(true); // ← Force refresh here
         toast.success("Login successful!");
-        navigate("/");
+        const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const role = userDoc.exists() ? userDoc.data().role : "user";
+        navigate(role === "admin" ? "/admindash" : "/");
       }
     } catch (error) {
       console.error(error);
@@ -162,7 +168,9 @@ export default function Auth() {
       }
 
       alert("Signed in with Google!");
-      navigate("/");
+      const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+      const role = userDoc.exists() ? userDoc.data().role : "user";
+      navigate(role === "admin" ? "/admindash" : "/");
     } catch (error) {
       console.error(error);
       alert(error.message);

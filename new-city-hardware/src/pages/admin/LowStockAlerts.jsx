@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
-import electrical from '../assets/electrical.png'; // Replace with real image
+import AdminSidebar from '../../components/AdminSidebar';
+import electrical from '../../assets/electrical.png';
 
 const initialItems = [
   { id: 1, name: 'Hammer', category: 'Tools', stock: 5, image: electrical, done: false },

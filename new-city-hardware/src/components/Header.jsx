@@ -58,12 +58,12 @@ function Header() {
           >
             <FiUserPlus size={18} />
           </Link>
-          <Link
+          {/* <Link
             to="/admindash"
             className="hover:text-blue-400 flex items-center gap-1"
           >
             <FiUserPlus size={18} /> Admin
-          </Link>
+          </Link> */}
         </nav>
 
         {/* Mobile Toggle Button */}

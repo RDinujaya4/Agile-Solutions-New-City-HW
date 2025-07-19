@@ -16,10 +16,10 @@ import {
   FiMenu,
 } from 'react-icons/fi';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { auth } from '../firebase';
-import useProducts from '../hooks/useProducts';
-import useCategories from '../hooks/useCategories';
+import { db } from '../../firebase';
+import { auth } from '../../firebase';
+import useProducts from '../../hooks/useProducts';
+import useCategories from '../../hooks/useCategories';
 import toast from 'react-hot-toast';
 
 export default function Products() {

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import AdminSidebar from '../../components/AdminSidebar';
 
 export default function AdminAddProduct() {
   const [categories, setCategories] = useState(['Tools', 'Paints', 'Electrical']);

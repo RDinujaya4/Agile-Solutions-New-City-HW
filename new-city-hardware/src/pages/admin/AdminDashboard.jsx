@@ -1,7 +1,7 @@
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import drillImg from '../assets/Drill.png';
-import AdminSidebar from '../components/AdminSidebar';
+import drillImg from '../../assets/Drill.png';
+import AdminSidebar from '../../components/AdminSidebar';
 
 const visitorsData = {
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
