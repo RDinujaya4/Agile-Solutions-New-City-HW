@@ -4,20 +4,43 @@ import {
   getDocs,
   query,
   where,
-  orderBy
+  orderBy,
+  collectionGroup,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function useProducts(filters) {
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔁 Real-time brand listener
+  useEffect(() => {
+    const brandUnsub = onSnapshot(
+      collectionGroup(db, 'items'),
+      (snapshot) => {
+        const brandSet = new Set();
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          if (data.brand) brandSet.add(data.brand);
+        });
+        setBrands(['All Brands', ...Array.from(brandSet).sort()]);
+      },
+      (err) => {
+        console.error("Error fetching brands:", err);
+      }
+    );
+
+    return () => brandUnsub();
+  }, []);
+
+  // 🔄 Product fetch on filter change (no real-time)
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         let allProducts = [];
-
         const productCategoriesSnapshot = await getDocs(collection(db, 'products'));
 
         for (const doc of productCategoriesSnapshot.docs) {
@@ -30,12 +53,12 @@ export default function useProducts(filters) {
             q = query(q, where('brand', '==', filters.brand));
           }
 
-          if (filters.price) {
-            if (filters.price === 'Under $50') {
-              q = query(q, where('price', '<', 50));
-            } else if (filters.price === '$50–$100') {
-              q = query(q, where('price', '>=', 50), where('price', '<=', 100));
-            }
+          if (filters.price === 'Under $50') {
+            q = query(q, where('price', '<', 50));
+          } else if (filters.price === '$50–$100') {
+            q = query(q, where('price', '>=', 50), where('price', '<=', 100));
+          } else if (filters.price === 'Above $100') {
+            q = query(q, where('price', '>', 100));
           }
 
           if (filters.sort === 'Newest') {
@@ -45,7 +68,7 @@ export default function useProducts(filters) {
           }
 
           if (filters.category && filters.category !== 'All Products' && filters.category !== categoryName) {
-            continue; // Skip this category
+            continue;
           }
 
           const itemsSnapshot = await getDocs(q);
@@ -68,5 +91,5 @@ export default function useProducts(filters) {
     fetchProducts();
   }, [filters]);
 
-  return { products, loading };
+  return { products, brands, loading };
 }

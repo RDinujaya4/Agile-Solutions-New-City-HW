@@ -1,67 +1,125 @@
-import { useState, useRef } from 'react';
+// ✅ Full Working AdminAddProduct Page with Firestore + Firebase Storage + Real-time Category Updates
+
+import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
+import {
+  collection,
+  addDoc,
+  doc,
+  setDoc,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db, storage } from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function AdminAddProduct() {
-  const [categories, setCategories] = useState(['Tools', 'Paints', 'Electrical']);
+  const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const fileInputRef = useRef(null);
+  const [imageFile, setImageFile] = useState(null);
 
   const [product, setProduct] = useState({
     name: '',
+    brand: '',
     price: '',
     stocks: '',
     description: '',
     category: '',
-    image: null,
+    image: '', // This will be the URL
   });
 
-  const handleAddCategory = () => {
+  // 🔁 Real-time categories
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'categories'), (snapshot) => {
+      const catList = snapshot.docs.map((doc) => doc.data().name);
+      setCategories(catList);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleAddCategory = async () => {
     if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setProduct({ ...product, category: newCategory });
-      setNewCategory('');
+      try {
+        await addDoc(collection(db, 'categories'), { name: newCategory });
+        setProduct({ ...product, category: newCategory });
+        setNewCategory('');
+        toast.success('Category added');
+      } catch (err) {
+        toast.error('Failed to add category');
+      }
     }
   };
 
   const handleImageUpload = (e) => {
     if (e.target.files[0]) {
-      setProduct({ ...product, image: URL.createObjectURL(e.target.files[0]) });
+      const file = e.target.files[0];
+      setImageFile(file);
+      setProduct({ ...product, image: URL.createObjectURL(file) });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting Product:', product);
-    // TODO: Send to backend or Firebase
+
+    if (!imageFile) {
+      toast.error('Please select an image');
+      return;
+    }
+
+    const imageRef = ref(storage, `products/${uuidv4()}-${imageFile.name}`);
+
+    try {
+      await uploadBytes(imageRef, imageFile);
+      const imageUrl = await getDownloadURL(imageRef);
+
+      const productData = {
+        ...product,
+        image: imageUrl,
+        price: parseFloat(product.price),
+        stocks: parseInt(product.stocks),
+        featured: true,
+        views: 0,
+        createdAt: serverTimestamp(),
+      };
+
+      const categoryRef = doc(db, 'products', product.category);
+      const productRef = doc(collection(categoryRef, 'items'));
+      await setDoc(productRef, productData);
+
+      toast.success('Product added successfully');
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to add product');
+    }
   };
 
   const resetForm = () => {
     setProduct({
       name: '',
+      brand: '',
       price: '',
       stocks: '',
       description: '',
       category: '',
-      image: null,
+      image: '',
     });
     setNewCategory('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null; // Reset the file input
-    }
+    setImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
   return (
     <div className="flex min-h-screen bg-gray-200 text-gray-800">
-      {/* Sidebar */}
       <AdminSidebar />
-
-      {/* Main + Preview Panel */}
       <main className="flex-1 p-10 flex gap-8">
-        {/* Form Section */}
         <div className="w-2/3 bg-white rounded-xl shadow-lg p-8">
           <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
 
-          {/* Category Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
@@ -96,7 +154,6 @@ export default function AdminAddProduct() {
             </div>
           </div>
 
-          {/* Product Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
@@ -104,6 +161,15 @@ export default function AdminAddProduct() {
               className="w-full border rounded px-3 py-2"
               value={product.name}
               onChange={(e) => setProduct({ ...product, name: e.target.value })}
+              required
+            />
+
+            <input
+              type="text"
+              placeholder="Brand Name"
+              className="w-full border rounded px-3 py-2"
+              value={product.brand}
+              onChange={(e) => setProduct({ ...product, brand: e.target.value })}
               required
             />
 
@@ -117,8 +183,8 @@ export default function AdminAddProduct() {
             />
 
             <input
-              type="text"
-              placeholder="stocks"
+              type="number"
+              placeholder="Stocks"
               className="w-full border rounded px-3 py-2"
               value={product.stocks}
               onChange={(e) => setProduct({ ...product, stocks: e.target.value })}
@@ -133,7 +199,6 @@ export default function AdminAddProduct() {
               onChange={(e) => setProduct({ ...product, description: e.target.value })}
             />
 
-            {/* Image Upload */}
             <div>
               <label className="text-sm block mb-1">Product Image</label>
               <input ref={fileInputRef} type="file" onChange={handleImageUpload} />
@@ -146,7 +211,6 @@ export default function AdminAddProduct() {
               )}
             </div>
 
-            {/* Submit Buttons */}
             <div className="flex gap-4 mt-6">
               <button
                 type="submit"
@@ -165,7 +229,6 @@ export default function AdminAddProduct() {
           </form>
         </div>
 
-        {/* Live Preview Panel */}
         <div className="w-1/3 bg-white shadow-md rounded-xl p-6 h-fit">
           <h2 className="text-xl font-semibold mb-4">Live Product Preview</h2>
 
@@ -182,8 +245,9 @@ export default function AdminAddProduct() {
           )}
 
           <p><strong>Name:</strong> {product.name || '—'}</p>
+          <p><strong>Brand:</strong> {product.brand || '—'}</p>
           <p><strong>Category:</strong> {product.category || '—'}</p>
-          <p><strong>Price:</strong> {product.price ? `Rs. ${product.price}` : '—'}</p>
+          <p><strong>Price:</strong> {product.price ? `$${product.price}` : '—'}</p>
           <p><strong>Stocks:</strong> {product.stocks || '—'}</p>
           <p className="mt-2"><strong>Description:</strong></p>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">{product.description || '—'}</p>
