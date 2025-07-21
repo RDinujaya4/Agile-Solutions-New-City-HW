@@ -152,6 +152,7 @@ export default function Cart() {
       for (const item of cartItems) {
         const orderItemRef = doc(collection(newOrderRef, 'items'), item.id);
         batch.set(orderItemRef, {
+          id: item.id,
           name: item.name,
           price: item.price,
           image: item.image,
