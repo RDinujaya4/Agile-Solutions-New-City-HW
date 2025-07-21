@@ -54,7 +54,7 @@ export default function Products() {
     'Eco-Friendly': 'bg-green-500',
   };
 
-  const { products, loading } = useProducts(filters);
+  const { products, brands, loading } = useProducts(filters);
   const { categories, loading: catLoading } = useCategories();
 
   const filteredProducts = products.filter(product =>
@@ -179,15 +179,18 @@ export default function Products() {
               </div>
 
               {/* Dropdowns */}
+              {/* Brand Dropdown */}
               <select
                 value={filters.brand}
                 onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
                 className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none"
               >
-                <option>All Brands</option>
-                <option>Brand A</option>
-                <option>Brand B</option>
+                {brands.map((brand, i) => (
+                  <option key={i} value={brand}>{brand}</option>
+                ))}
               </select>
+
+              {/* Price Dropdown */}
               <select
                 value={filters.price}
                 onChange={(e) => setFilters(prev => ({ ...prev, price: e.target.value }))}
@@ -196,6 +199,7 @@ export default function Products() {
                 <option value="">All Prices</option>
                 <option>Under $50</option>
                 <option>$50–$100</option>
+                <option>Above $100</option>
               </select>
               <select
                 value={filters.sort}
