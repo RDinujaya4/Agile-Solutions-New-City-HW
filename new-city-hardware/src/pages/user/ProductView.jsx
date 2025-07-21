@@ -54,7 +54,7 @@ export default function ProductView() {
 
   const handleBuy = async () => {
     const userId = auth.currentUser?.uid;
-    if (!userId) return toast.error("Login to add to cart.");
+    if (!userId) return toast.error(`Login to buy the ${product.name}.`);
     if (product.stocks <= 0) return toast.error("Out of stock.");
 
     const cartRef = doc(db, "carts", userId, "items", id);
