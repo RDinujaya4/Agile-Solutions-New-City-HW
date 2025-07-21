@@ -84,6 +84,7 @@ export default function AdminAddProduct() {
         image: imageUrl,
         price: parseFloat(product.price),
         stocks: parseInt(product.stocks),
+        label: "In Stock",
         featured: true,
         views: 0,
         createdAt: serverTimestamp(),
