@@ -20,6 +20,7 @@ export default function AdminAddProduct() {
   const [newCategory, setNewCategory] = useState('');
   const fileInputRef = useRef(null);
   const [imageFile, setImageFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [product, setProduct] = useState({
     name: '',
@@ -70,6 +71,8 @@ export default function AdminAddProduct() {
       return;
     }
 
+    setSubmitting(true);
+
     const imageRef = ref(storage, `products/${uuidv4()}-${imageFile.name}`);
 
     try {
@@ -95,6 +98,8 @@ export default function AdminAddProduct() {
     } catch (err) {
       console.error(err);
       toast.error('Failed to add product');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -111,6 +116,7 @@ export default function AdminAddProduct() {
     setNewCategory('');
     setImageFile(null);
     if (fileInputRef.current) fileInputRef.current.value = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -214,9 +220,14 @@ export default function AdminAddProduct() {
             <div className="flex gap-4 mt-6">
               <button
                 type="submit"
-                className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+                className={`px-6 py-2 rounded text-white ${
+                  submitting
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600'
+                }`}
+                disabled={submitting}
               >
-                Submit
+                {submitting ? 'Submitting...' : 'Submit'}
               </button>
               <button
                 type="button"
