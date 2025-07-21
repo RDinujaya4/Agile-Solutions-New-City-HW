@@ -84,7 +84,12 @@ export default function AdminAddProduct() {
         image: imageUrl,
         price: parseFloat(product.price),
         stocks: parseInt(product.stocks),
-        label: "In Stock",
+        label:
+          parseInt(product.stocks) === 0
+            ? 'Out of Stock'
+            : parseInt(product.stocks) <= 5
+            ? 'Low Stock'
+            : 'In Stock',
         featured: true,
         views: 0,
         createdAt: serverTimestamp(),

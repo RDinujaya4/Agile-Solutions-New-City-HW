@@ -257,11 +257,24 @@ export default function Products() {
                   className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
                 >
                   <Link to={`/product/${product.category}/${product.id}`}>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover hover:opacity-90 transition"
-                    />
+                    <div className="relative">
+  {/* Product Image */}
+  <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-t-xl" />
+
+  {/* Label */}
+  <span className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full font-semibold text-white
+    ${
+      product.label === 'Out of Stock'
+        ? 'bg-red-600'
+        : product.label === 'Low Stock'
+        ? 'bg-yellow-500'
+        : 'bg-emerald-600'
+    }
+  `}>
+    {product.label}
+  </span>
+</div>
+
                   </Link>
                   <div className="p-5">
                     <h2 className="text-lg font-semibold">{product.name}</h2>
