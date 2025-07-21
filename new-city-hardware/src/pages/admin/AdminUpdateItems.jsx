@@ -12,6 +12,9 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import Swal from 'sweetalert2';
+import toast, { Toaster } from 'react-hot-toast';
+import { ref, deleteObject } from 'firebase/storage';
+import { storage } from '../../firebase';
 
 export default function AdminUpdateProducts() {
   const [products, setProducts] = useState([]);
@@ -19,6 +22,8 @@ export default function AdminUpdateProducts() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [viewProduct, setViewProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+
 
   // 🔁 Fetch all products
   const fetchAllProducts = async () => {
@@ -109,6 +114,13 @@ export default function AdminUpdateProducts() {
         createdAt: finalCreatedAt,
       });
 
+      setProducts(prev =>
+  prev.map(p =>
+    p.id === editingProduct.id ? { ...editingProduct } : p
+  )
+);
+
+      toast.success('Product updated successfully');
       closeModal();
       fetchAllProducts();
     } catch (err) {
@@ -126,20 +138,39 @@ export default function AdminUpdateProducts() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await deleteDoc(doc(db, 'products', product.category, 'items', product.id));
+        const imageRef = ref(storage, product.image);
+        deleteObject(imageRef).catch(() => {
+          console.warn('Image not found or already deleted.');
+        });
         Swal.fire('Deleted!', 'Product has been deleted.', 'success');
         fetchAllProducts();
       }
     });
   };
 
+  const filteredProducts = selectedCategory
+  ? products.filter(p => p.category === selectedCategory)
+  : products;
+
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
       <AdminSidebar />
       <main className="flex-1 p-10">
         <h1 className="text-2xl font-bold mb-4">Products</h1>
-
+        <div className="mb-4">
+          <select
+            className="px-4 py-2 rounded border"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {categories.map((cat, i) => (
+              <option key={i} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.map(product => (
+          {filteredProducts.map(product => (
             <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
               <div className="relative">
                 <img
