@@ -131,7 +131,7 @@ export default function UpdateProducts() {
 
         {/* Tool (Name) */}
         <div>
-          <label className="block text-sm font-semibold mb-1">Tool:</label>
+          <label className="block text-sm font-semibold mb-1">Name:</label>
           <input
             name="name"
             value={editingProduct.name}
