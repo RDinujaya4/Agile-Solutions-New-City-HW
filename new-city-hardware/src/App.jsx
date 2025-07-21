@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { CartProvider } from './context/CartContext.jsx';
 import { useAuth } from './context/AuthContext.jsx';
@@ -7,6 +8,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
 import ProtectedRoute from './components/ProtectedRoute';
+import { trackVisitor } from './utils/trackVisitor';
 
 import Home from './pages/user/Home.jsx';
 import About from './pages/user/About.jsx';
@@ -37,6 +39,10 @@ function Layout({ children }) {
 
 function App() {
   const { loading } = useAuth();
+
+  useEffect(() => {
+    trackVisitor(); // track visit on load
+  }, []);
 
   if (loading) return <Loader />;
 
