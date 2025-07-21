@@ -155,6 +155,7 @@ export default function AdminUpdateProducts() {
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
       <AdminSidebar />
+
       <main className="flex-1 p-10">
         <h1 className="text-2xl font-bold mb-4">Products</h1>
         <div className="mb-4">
@@ -178,7 +179,7 @@ export default function AdminUpdateProducts() {
                   alt={product.name}
                   className="h-40 w-full object-cover rounded"
                 />
-                <span className={`absolute top-2 right-2 px-2 py-1 text-xs rounded font-semibold
+                <span className={`absolute top-1 right-1 px-2 py-1 text-xs rounded font-semibold
                   ${product.label === 'Low Stock' ? 'bg-yellow-500' :
                     product.label === 'In Stock' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
                   {product.label}
@@ -186,10 +187,10 @@ export default function AdminUpdateProducts() {
               </div>
               <p className="mt-2 font-semibold">{product.name}</p>
               <p className="text-sm">Stock: {product.stocks}</p>
-              <div className="flex gap-2 mt-4">
-                <button onClick={() => setViewProduct(product)} className="bg-indigo-500 text-white px-4 py-1 rounded text-sm hover:bg-indigo-600">View</button>
-                <button onClick={() => openModal(product)} className="bg-yellow-500 text-white px-4 py-1 rounded text-sm hover:bg-yellow-600">Update</button>
-                <button onClick={() => removeProduct(product)} className="bg-red-500 text-white px-4 py-1 rounded text-sm hover:bg-red-600">Delete</button>
+              <div className="flex gap-6 mt-4">
+                <button onClick={() => setViewProduct(product)} className="bg-indigo-500 text-white px-8 py-2 rounded text-sm hover:bg-indigo-600">View</button>
+                <button onClick={() => openModal(product)} className="bg-yellow-500 text-white px-8 py-2 rounded text-sm hover:bg-yellow-600">Update</button>
+                <button onClick={() => removeProduct(product)} className="bg-red-500 text-white px-8 py-2 rounded text-sm hover:bg-red-600">Delete</button>
               </div>
             </div>
           ))}
