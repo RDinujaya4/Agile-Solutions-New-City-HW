@@ -123,7 +123,7 @@ export default function Cart() {
           return;
         }
 
-        batch.update(productRef, { stocks: productData.stocks - item.quantity });
+        // batch.update(productRef, { stocks: productData.stocks - item.quantity }); this is where stock reduce if not using cloud function.
       }
 
       // 🔢 Generate order ID and number
@@ -152,7 +152,7 @@ export default function Cart() {
       for (const item of cartItems) {
         const orderItemRef = doc(collection(newOrderRef, 'items'), item.id);
         batch.set(orderItemRef, {
-          id: item.id,
+          productid: item.id,
           name: item.name,
           price: item.price,
           image: item.image,
