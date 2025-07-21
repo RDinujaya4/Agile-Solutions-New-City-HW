@@ -9,7 +9,7 @@ export default function AdminAddProduct() {
   const [product, setProduct] = useState({
     name: '',
     price: '',
-    quantity: '',
+    stocks: '',
     description: '',
     category: '',
     image: null,
@@ -39,7 +39,7 @@ export default function AdminAddProduct() {
     setProduct({
       name: '',
       price: '',
-      quantity: '',
+      stocks: '',
       description: '',
       category: '',
       image: null,
@@ -118,10 +118,10 @@ export default function AdminAddProduct() {
 
             <input
               type="text"
-              placeholder="Quantity"
+              placeholder="stocks"
               className="w-full border rounded px-3 py-2"
-              value={product.quantity}
-              onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+              value={product.stocks}
+              onChange={(e) => setProduct({ ...product, stocks: e.target.value })}
               required
             />
 
@@ -184,7 +184,7 @@ export default function AdminAddProduct() {
           <p><strong>Name:</strong> {product.name || '—'}</p>
           <p><strong>Category:</strong> {product.category || '—'}</p>
           <p><strong>Price:</strong> {product.price ? `Rs. ${product.price}` : '—'}</p>
-          <p><strong>Quantity:</strong> {product.quantity || '—'}</p>
+          <p><strong>Stocks:</strong> {product.stocks || '—'}</p>
           <p className="mt-2"><strong>Description:</strong></p>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">{product.description || '—'}</p>
         </div>
