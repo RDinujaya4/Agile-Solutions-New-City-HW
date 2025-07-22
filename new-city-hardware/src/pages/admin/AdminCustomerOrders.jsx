@@ -165,47 +165,57 @@ export default function AdminCustomerOrders() {
 
     if (!result.isConfirmed) return;
 
-
     try {
-      const itemsSnap = await getDocs(collection(db, 'orders', order.orderId, 'items'));
+      const itemsSnap = await getDocs(collection(db, "orders", order.orderId, "items"));
 
-      // Restore stock
+      // Restore stock and update label
       for (const itemDoc of itemsSnap.docs) {
         const item = itemDoc.data();
-        // Assume item.category and item.id are present on order items
-        const productRef = doc(db, 'products', item.category, 'items', itemDoc.id);
+        const productRef = doc(db, "products", item.category, "items", item.productid);
         const productSnap = await getDoc(productRef);
 
         if (productSnap.exists()) {
           const currentStock = productSnap.data().stocks || 0;
+          const newStock = currentStock + item.quantity;
+
+          // Label logic
+          let label = "In Stock";
+          if (newStock <= 5 && newStock > 0) {
+            label = "Low Stock";
+          } else if (newStock === 0) {
+            label = "Out of Stock";
+          }
+
           await updateDoc(productRef, {
-            stocks: currentStock + item.quantity,
+            stocks: newStock,
+            label: label,
           });
         }
       }
 
-      // Archive to removedOrders collection
-      const orderRef = doc(db, 'orders', order.orderId);
+      // Archive to removedOrders
+      const orderRef = doc(db, "orders", order.orderId);
       const orderSnap = await getDoc(orderRef);
       if (orderSnap.exists()) {
         const dataToArchive = orderSnap.data();
-        await setDoc(doc(db, 'removedOrders', order.orderId), {
+        await setDoc(doc(db, "removedOrders", order.orderId), {
           ...dataToArchive,
           items: order.items,
+          status: "Removed",
           canceledAt: new Date(),
         });
       }
 
-      // Delete the original order document and its subcollection
+      // Delete order doc
       await deleteDoc(orderRef);
 
-      toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
-      setOrders(prev => prev.filter(o => o.orderId !== order.orderId));
+      toast.success(`Order ${order.orderNumber} canceled, stock restored, label updated.`);
+      setOrders((prev) => prev.filter((o) => o.orderId !== order.orderId));
     } catch (err) {
-      console.error('Error canceling order:', err);
-      toast.error('Failed to cancel order. Check permissions for "products" and "removedOrders".');
+      console.error("Error canceling order:", err);
+      toast.error("Failed to cancel order. Check permissions for 'products' and 'removedOrders'.");
     }
-  };
+};
 
   return (
     <div className="flex min-h-screen bg-gray-200 text-gray-800">
