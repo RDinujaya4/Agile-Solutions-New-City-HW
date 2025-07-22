@@ -11,6 +11,7 @@ import {
   writeBatch, // Import writeBatch for atomic operations
 } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { Timestamp } from 'firebase/firestore';
 import { auth } from '../../firebase';
 import { useAuthState } from '../../hooks/useAuthState';
 import toast from 'react-hot-toast';
@@ -140,7 +141,7 @@ export default function Cart() {
         userId,
         orderNumber: humanReadableOrderNumber,
         total,
-        createdAt: new Date(),
+        createdAt: Timestamp.now(),
         status: 'Pending',
         username: userDetails.username || 'Guest',
         email: userDetails.email || user.email || 'N/A',
