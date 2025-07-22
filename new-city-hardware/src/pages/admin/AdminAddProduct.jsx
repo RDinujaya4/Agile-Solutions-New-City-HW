@@ -264,7 +264,7 @@ export default function AdminAddProduct() {
           <p><strong>Name:</strong> {product.name || '—'}</p>
           <p><strong>Brand:</strong> {product.brand || '—'}</p>
           <p><strong>Category:</strong> {product.category || '—'}</p>
-          <p><strong>Price:</strong> {product.price ? `$${product.price}` : '—'}</p>
+          <p><strong>Price:</strong> {product.price ? `Rs.${product.price}` : '—'}</p>
           <p><strong>Stocks:</strong> {product.stocks || '—'}</p>
           <p className="mt-2"><strong>Description:</strong></p>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">{product.description || '—'}</p>

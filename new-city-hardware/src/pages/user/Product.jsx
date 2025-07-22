@@ -279,7 +279,7 @@ export default function Products() {
                     <h2 className="text-lg font-semibold">{product.name}</h2>
                     <p className="text-sm text-slate-280 mt-1">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
-                      <span className="text-white-400 font-bold">${product.price}</span>
+                      <span className="text-white-400 font-bold">Rs.{product.price}</span>
                       <button
                         disabled={product.stocks === 0}
                         onClick={() => handleAddToCart(product)}

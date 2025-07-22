@@ -229,7 +229,7 @@ export default function Cart() {
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="text-cyan-300 font-semibold text-lg">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    Rs.{(item.price * item.quantity).toFixed(2)}
                   </p>
                   <button
                     className="text-red-400 hover:text-red-300"
@@ -245,7 +245,7 @@ export default function Cart() {
               <div className="text-right space-y-2">
                 <p className="text-xl font-semibold">Total:</p>
                 <p className="text-2xl text-cyan-400 font-bold">
-                  ${total.toFixed(2)}
+                  Rs.{total.toFixed(2)}
                 </p>
                 <button
                   onClick={handleCreateOrder}
