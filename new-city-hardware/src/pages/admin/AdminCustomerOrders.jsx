@@ -51,16 +51,15 @@ export default function AdminCustomerOrders() {
 
   const fetchOrders = async () => {
     try {
-      // Fetch all order documents from the top-level 'orders' collection
-      // No collectionGroup needed anymore!
-      const ordersSnap = await getDocs(collection(db, 'orders'));
+      const ordersColSnap = await getDocs(collection(db, 'orders'));
+      const pickupColSnap = await getDocs(collection(db, 'pickupOrders'));
+
       const allOrders = [];
 
-      for (const orderDoc of ordersSnap.docs) {
+      // Fetch normal orders
+      for (const orderDoc of ordersColSnap.docs) {
         const orderData = orderDoc.data();
-        const orderId = orderDoc.id; // The order ID is now the document ID
-
-        // Fetch items for this specific order from its subcollection
+        const orderId = orderDoc.id;
         const itemsSnap = await getDocs(collection(db, 'orders', orderId, 'items'));
         const items = itemsSnap.docs.map(doc => {
           const d = doc.data();
@@ -68,15 +67,38 @@ export default function AdminCustomerOrders() {
         });
 
         allOrders.push({
-          userId: orderData.userId, // Now explicitly stored
-          orderId: orderId,
+          userId: orderData.userId,
+          orderId,
           orderNumber: orderData.orderNumber,
           name: orderData.username,
           email: orderData.email,
           date: orderData.createdAt?.toDate().toDateString(),
           total_value: `$${orderData.total}`,
-          items: items,
+          items,
           status: orderData.status,
+        });
+      }
+
+      // Fetch picked up orders
+      for (const pickupDoc of pickupColSnap.docs) {
+        const orderData = pickupDoc.data();
+        const orderId = pickupDoc.id;
+        const itemsSnap = await getDocs(collection(db, 'pickupOrders', orderId, 'items'));
+        const items = itemsSnap.docs.map(doc => {
+          const d = doc.data();
+          return `${d.name} ${d.quantity}`;
+        });
+
+        allOrders.push({
+          userId: orderData.userId,
+          orderId,
+          orderNumber: orderData.orderNumber,
+          name: orderData.username,
+          email: orderData.email,
+          date: orderData.createdAt?.toDate().toDateString(),
+          total_value: `$${orderData.total}`,
+          items,
+          status: 'PickedUp',
         });
       }
 
@@ -84,15 +106,7 @@ export default function AdminCustomerOrders() {
       setFilteredOrders(allOrders);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
-      if (error.code === 'permission-denied') {
-        toast.error('Permission denied. Check Firestore rules and admin claim.');
-      } else if (error.code === 'unavailable') {
-        toast.error('Firestore is temporarily unavailable. Check network connection.');
-      } else if (error.code === 'failed-precondition' && error.message.includes('index')) {
-        toast.error('Missing Firestore index. Check Firebase console for index suggestions.');
-      } else {
-        toast.error(`Failed to fetch orders: ${error.message}`);
-      }
+      toast.error('Failed to fetch orders. Check console for details.');
     }
   };
 
@@ -128,27 +142,43 @@ export default function AdminCustomerOrders() {
     if (!result.isConfirmed) return;
 
     try {
-      const orderRef = doc(db, 'orders', order.orderId); // Direct reference to the order document
-      await updateDoc(orderRef, { status: 'PickedUp' }); // Update status directly on the order document
-
-      // Archive to pickupOrders collection
+      const orderRef = doc(db, "orders", order.orderId);
       const orderSnap = await getDoc(orderRef);
-      if (orderSnap.exists()) {
-        const dataToArchive = orderSnap.data();
-        await setDoc(doc(db, 'pickupOrders', order.orderId), {
-          ...dataToArchive,
-          items: order.items,
-          pickedUpAt: new Date(),
-        });
+
+      if (!orderSnap.exists()) {
+        toast.error("Order not found.");
+        return;
       }
 
+      const dataToArchive = orderSnap.data();
+
+      // Copy to pickupOrders with pickedUpAt
+      await setDoc(doc(db, "pickupOrders", order.orderId), {
+        ...dataToArchive,
+        status: "PickedUp",
+        pickedUpAt: new Date(),
+      });
+
+      // Copy items subcollection
+      const itemsSnap = await getDocs(collection(db, "orders", order.orderId, "items"));
+      for (const itemDoc of itemsSnap.docs) {
+        await setDoc(
+          doc(db, "pickupOrders", order.orderId, "items", itemDoc.id),
+          itemDoc.data()
+        );
+      }
+
+      // Delete original order and its items
+      for (const itemDoc of itemsSnap.docs) {
+        await deleteDoc(doc(db, "orders", order.orderId, "items", itemDoc.id));
+      }
+      await deleteDoc(orderRef);
+
       toast.success(`Order ${order.orderNumber} marked as picked up.`);
-      setOrders(prev =>
-        prev.map(o => o.orderId === order.orderId ? { ...o, status: 'PickedUp' } : o)
-      );
+      setOrders((prev) => prev.filter((o) => o.orderId !== order.orderId));
     } catch (err) {
-      console.error('Error picking up order:', err);
-      toast.error('Failed to mark as picked up. Check permissions for "pickupOrders" and "orders".');
+      console.error("Error picking up order:", err);
+      toast.error("Failed to mark as picked up.");
     }
   };
 
@@ -178,13 +208,9 @@ export default function AdminCustomerOrders() {
           const currentStock = productSnap.data().stocks || 0;
           const newStock = currentStock + item.quantity;
 
-          // Label logic
           let label = "In Stock";
-          if (newStock <= 5 && newStock > 0) {
-            label = "Low Stock";
-          } else if (newStock === 0) {
-            label = "Out of Stock";
-          }
+          if (newStock <= 5 && newStock > 0) label = "Low Stock";
+          else if (newStock === 0) label = "Out of Stock";
 
           await updateDoc(productRef, {
             stocks: newStock,
@@ -193,29 +219,40 @@ export default function AdminCustomerOrders() {
         }
       }
 
-      // Archive to removedOrders
+      // Move to removedOrders
       const orderRef = doc(db, "orders", order.orderId);
       const orderSnap = await getDoc(orderRef);
+
       if (orderSnap.exists()) {
         const dataToArchive = orderSnap.data();
+
         await setDoc(doc(db, "removedOrders", order.orderId), {
           ...dataToArchive,
-          items: order.items,
           status: "Removed",
           canceledAt: new Date(),
         });
+
+        for (const itemDoc of itemsSnap.docs) {
+          await setDoc(
+            doc(db, "removedOrders", order.orderId, "items", itemDoc.id),
+            itemDoc.data()
+          );
+        }
+
+        // Delete original order and its items
+        for (const itemDoc of itemsSnap.docs) {
+          await deleteDoc(doc(db, "orders", order.orderId, "items", itemDoc.id));
+        }
+        await deleteDoc(orderRef);
       }
 
-      // Delete order doc
-      await deleteDoc(orderRef);
-
-      toast.success(`Order ${order.orderNumber} canceled, stock restored, label updated.`);
+      toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
       setOrders((prev) => prev.filter((o) => o.orderId !== order.orderId));
     } catch (err) {
       console.error("Error canceling order:", err);
-      toast.error("Failed to cancel order. Check permissions for 'products' and 'removedOrders'.");
+      toast.error("Failed to cancel order.");
     }
-};
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-200 text-gray-800">
