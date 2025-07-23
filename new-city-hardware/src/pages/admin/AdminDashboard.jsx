@@ -8,6 +8,9 @@ import { getMonth, getDate, parseISO } from 'date-fns';
 import { auth } from '../../firebase'; // Import auth for admin check
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import toast from 'react-hot-toast'; // Import toast for user feedback
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { Timestamp, query, where } from 'firebase/firestore';
 
 export default function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -16,6 +19,8 @@ export default function AdminDashboard() {
   const [monthlyVisitors, setMonthlyVisitors] = useState([]);
   const [dailyVisitors, setDailyVisitors] = useState([]);
   const navigate = useNavigate(); // Initialize navigate
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Admin Check on Mount
   useEffect(() => {
@@ -155,6 +160,158 @@ export default function AdminDashboard() {
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+  const generateSalesReport = async () => {
+    if (!startDate || !endDate) {
+      toast.error("Please select both start and end dates.");
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59); // include the whole end day
+
+    try {
+      const pickupRef = collection(db, "pickupOrders");
+      const q = query(pickupRef,
+        where("pickedUpAt", ">=", Timestamp.fromDate(start)),
+        where("pickedUpAt", "<=", Timestamp.fromDate(end))
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        toast("No picked up orders in this date range.");
+        return;
+      }
+
+      const rows = [];
+      let totalSales = 0;
+
+      snap.forEach(doc => {
+        const data = doc.data();
+        totalSales += data.total;
+
+        rows.push({
+          OrderNumber: data.orderNumber,
+          Username: data.username,
+          Email: data.email,
+          Total: data.total,
+          PickedUpAt: data.pickedUpAt.toDate().toLocaleString(),
+        });
+      });
+
+      // Add total summary row
+      rows.push({
+        OrderNumber: "",
+        Username: "",
+        Email: "Total",
+        Total: totalSales,
+        PickedUpAt: "",
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "SalesReport");
+
+      const excelBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+      saveAs(blob, `Sales_Report_${startDate}_to_${endDate}.xlsx`);
+      toast.success("Excel report downloaded.");
+    } catch (error) {
+      console.error("Error generating sales report:", error);
+      toast.error("Failed to generate report. Check Firestore rules or date format.");
+    }
+  };
+
+ const handleExportSalesReport = async () => {
+  if (!startDate || !endDate) {
+    toast.error('Please select both start and end dates');
+    return;
+  }
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999); // include full end day
+
+  try {
+    const snapshot = await getDocs(collection(db, 'pickupOrders'));
+    const rows = [];
+    let grandTotal = 0;
+
+    for (const docSnap of snapshot.docs) {
+      const orderData = docSnap.data();
+      const orderDate = orderData.createdAt?.toDate?.();
+
+      if (!orderDate || orderDate < start || orderDate > end) continue;
+
+      const orderId = docSnap.id;
+      const orderNumber = orderData.orderNumber || 'N/A';
+      const username = orderData.username || '';
+      const email = orderData.email || '';
+      const pickedUpAt = orderData.pickedUpAt?.toDate?.().toLocaleString() || '';
+      const orderTotal = orderData.total || 0;
+      grandTotal += orderTotal;
+
+      // Fetch items subcollection
+      const itemsSnap = await getDocs(collection(db, 'pickupOrders', orderId, 'items'));
+
+      for (const itemDoc of itemsSnap.docs) {
+        const item = itemDoc.data();
+
+        rows.push({
+          OrderNumber: orderNumber,
+          Username: username,
+          Email: email,
+          PickedUpAt: pickedUpAt,
+          ItemName: item.name || '',
+          Quantity: item.quantity || 0,
+          Price: item.price || 0,
+          ItemTotal: (item.quantity || 0) * (item.price || 0),
+        });
+      }
+
+      // Add order total row
+      rows.push({
+        OrderNumber: orderNumber,
+        Username: '',
+        Email: '',
+        PickedUpAt: '',
+        ItemName: 'Order Total',
+        Quantity: '',
+        Price: '',
+        ItemTotal: orderTotal,
+      });
+    }
+
+    // Final Grand Total Row
+    rows.push({
+      OrderNumber: '',
+      Username: '',
+      Email: '',
+      PickedUpAt: '',
+      ItemName: 'Grand Total',
+      Quantity: '',
+      Price: '',
+      ItemTotal: grandTotal,
+    });
+
+    // Generate Excel sheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Detailed Sales Report');
+
+    const blob = new Blob([XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })], {
+      type: 'application/octet-stream',
+    });
+
+    saveAs(blob, `Detailed_Sales_Report_${startDate}_to_${endDate}.xlsx`);
+  } catch (error) {
+    console.error("Error exporting sales report:", error);
+    toast.error("Failed to export sales report.");
+  }
+};
+
+
   // ... rest of your component (return statement)
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
@@ -177,6 +334,33 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
           </div>
         </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+        <h2 className="text-lg font-semibold mb-4">Sales Report</h2>
+        
+        <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium mb-1">Start Date</label>
+            <input type="date" className="border rounded px-3 py-1" value={startDate} onChange={e => setStartDate(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">End Date</label>
+            <input type="date" className="border rounded px-3 py-1" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          </div>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={generateSalesReport}
+          >
+            Print Sales Report
+          </button>
+          <button
+            onClick={handleExportSalesReport}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Export Detailed Sales Report
+          </button>
+        </div>
+      </div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-semibold mb-4">Monthly Visitors</h2>
