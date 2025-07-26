@@ -91,36 +91,44 @@ export default function ProductView() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white flex flex-col items-center px-4 py-10 relative">
-      <div className="absolute top-6 left-6">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
         <button
           onClick={() => navigate("/products")}
-          className="flex items-center gap-2 text-white bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition"
+          className="flex items-center gap-2 text-white bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition text-sm sm:text-base"
         >
           <FiArrowLeft /> Back to Products
         </button>
       </div>
 
       {/* Product Card */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 max-w-4xl w-full flex flex-col md:flex-row gap-8 mt-16">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full md:w-1/2 h-96 object-cover rounded-xl"
-        />
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 w-full max-w-4xl flex flex-col md:flex-row gap-6 sm:gap-8 mt-20 sm:mt-24">
+        {/* Product Image */}
+        <div className="w-full md:w-1/2 h-72 sm:h-96 flex items-center justify-center bg-white rounded-xl overflow-hidden">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="object-contain w-full h-full"
+          />
+        </div>
+
+        {/* Product Details */}
         <div className="flex-1 space-y-3">
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-sm text-slate-300">Category: {product.category}</p>
-          <p className="text-sm text-slate-300">Brand: {product.brand}</p>
-          <p className="text-sm text-slate-300">Description: {product.description}</p>
-          <p className="text-lg font-semibold mt-2">Price: ${product.price}</p>
-          <p className="text-sm text-slate-100">
+          <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
+          <p className="text-sm sm:text-base text-slate-300">Category: {product.category}</p>
+          <p className="text-sm sm:text-base text-slate-300">Brand: {product.brand}</p>
+          <p className="text-sm sm:text-base text-slate-300 whitespace-pre-wrap">
+            Description: {product.description}
+          </p>
+          <p className="text-lg sm:text-xl font-semibold mt-2">Price: Rs.{product.price}</p>
+          <p className="text-sm sm:text-base text-slate-100">
             Stock: {product.stocks > 0 ? product.stocks : "Out of stock"}
           </p>
 
           <button
             onClick={handleBuy}
             disabled={product.stocks <= 0}
-            className={`mt-4 px-6 py-3 rounded-xl font-bold text-white flex items-center gap-2 ${
+            className={`mt-4 px-5 py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 w-full sm:w-auto ${
               product.stocks <= 0
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-cyan-500 hover:bg-cyan-600"
