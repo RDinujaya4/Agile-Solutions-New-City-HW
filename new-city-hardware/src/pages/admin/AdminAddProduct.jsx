@@ -126,13 +126,16 @@ export default function AdminAddProduct() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-200 text-gray-800">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-200 text-gray-800">
       <AdminSidebar />
-      <main className="flex-1 p-10 flex gap-8">
-        <div className="w-2/3 bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
 
-          <div className="mb-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-10 flex flex-col lg:flex-row gap-6">
+        {/* Form Section */}
+        <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Add New Product</h1>
+
+          {/* Category Select */}
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
               className="w-full border rounded px-3 py-2"
@@ -145,9 +148,10 @@ export default function AdminAddProduct() {
               ))}
             </select>
 
+            {/* Add New Category */}
             <div className="mt-4">
               <label className="text-sm block mb-1">Or Add New Category</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   placeholder="e.g., Plumbing"
@@ -166,6 +170,7 @@ export default function AdminAddProduct() {
             </div>
           </div>
 
+          {/* Product Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
@@ -205,7 +210,7 @@ export default function AdminAddProduct() {
 
             <textarea
               placeholder="Description"
-              rows="3"
+              rows={3}
               className="w-full border rounded px-3 py-2"
               value={product.description}
               onChange={(e) => setProduct({ ...product, description: e.target.value })}
@@ -218,15 +223,15 @@ export default function AdminAddProduct() {
                 <img
                   src={product.image}
                   alt="Preview"
-                  className="w-24 h-24 mt-2 rounded object-cover"
+                  className="w-24 h-24 mt-2 rounded object-contain border"
                 />
               )}
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <button
                 type="submit"
-                className={`px-6 py-2 rounded text-white ${
+                className={`px-6 py-2 rounded text-white w-full sm:w-auto ${
                   submitting
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-green-500 hover:bg-green-600'
@@ -238,7 +243,7 @@ export default function AdminAddProduct() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
               >
                 Cancel
               </button>
@@ -246,15 +251,18 @@ export default function AdminAddProduct() {
           </form>
         </div>
 
-        <div className="w-1/3 bg-white shadow-md rounded-xl p-6 h-fit">
-          <h2 className="text-xl font-semibold mb-4">Live Product Preview</h2>
+        {/* Preview Section */}
+        <div className="w-full lg:w-1/3 bg-white shadow-md rounded-xl p-4 sm:p-6 h-fit">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Live Product Preview</h2>
 
           {product.image ? (
-            <img
-              src={product.image}
-              alt="Preview"
-              className="w-full h-48 object-cover rounded mb-4"
-            />
+            <div className="w-full h-48 sm:h-56 flex items-center justify-center bg-white rounded mb-4 overflow-hidden">
+              <img
+                src={product.image}
+                alt="Preview"
+                className="object-contain w-full h-full"
+              />
+            </div>
           ) : (
             <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded text-sm text-gray-400 mb-4">
               Image Preview
