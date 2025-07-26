@@ -53,12 +53,12 @@ export default function useProducts(filters) {
             q = query(q, where('brand', '==', filters.brand));
           }
 
-          if (filters.price === 'Under $50') {
-            q = query(q, where('price', '<', 50));
-          } else if (filters.price === '$50–$100') {
-            q = query(q, where('price', '>=', 50), where('price', '<=', 100));
-          } else if (filters.price === 'Above $100') {
-            q = query(q, where('price', '>', 100));
+          if (filters.price === 'Under Rs.5000') {
+            q = query(q, where('price', '<', 5000));
+          } else if (filters.price === 'Rs.5000–Rs.10000') {
+            q = query(q, where('price', '>=', 5000), where('price', '<=', 10000));
+          } else if (filters.price === 'Above Rs.10000') {
+            q = query(q, where('price', '>', 10000));
           }
 
           if (filters.sort === 'Newest') {

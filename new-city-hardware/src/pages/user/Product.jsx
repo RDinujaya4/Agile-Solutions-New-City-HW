@@ -197,9 +197,9 @@ export default function Products() {
                 className="bg-white/20 text-black px-4 py-2 rounded-xl focus:outline-none"
               >
                 <option value="">All Prices</option>
-                <option>Under $50</option>
-                <option>$50–$100</option>
-                <option>Above $100</option>
+                <option>Under Rs.5000</option>
+                <option>Rs.5000–Rs.10000</option>
+                <option>Above Rs.10000</option>
               </select>
               <select
                 value={filters.sort}
