@@ -254,40 +254,59 @@ export default function Products() {
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
+                  className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition w-full max-w-xs mx-auto sm:max-w-sm md:max-w-md"
                 >
+                  {/* Product Image */}
                   <Link to={`/product/${product.category}/${product.id}`}>
-                  <div className="relative">
-                    {/* Product Image */}
-                    <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-t-xl" />
+                    <div className="relative">
+                      <div className="w-full h-48 sm:h-52 md:h-56 flex items-center justify-center bg-white rounded-t-2xl overflow-hidden">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="object-contain w-full h-full"
+                        />
+                      </div>
 
-                    {/* Label */}
-                    <span className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full font-semibold text-white
-                      ${
-                        product.label === 'Out of Stock'
-                          ? 'bg-red-600'
-                          : product.label === 'Low Stock'
-                          ? 'bg-yellow-500'
-                          : 'bg-emerald-600'
-                      }
-                    `}>
-                      {product.label}
-                    </span>
-                  </div>
+                      {/* Label Badge */}
+                      <span
+                        className={`absolute top-2 right-2 text-[11px] sm:text-xs px-2 py-1 rounded-full font-semibold text-white ${
+                          product.label === 'Out of Stock'
+                            ? 'bg-red-600'
+                            : product.label === 'Low Stock'
+                            ? 'bg-yellow-500'
+                            : 'bg-emerald-600'
+                        }`}
+                      >
+                        {product.label}
+                      </span>
+                    </div>
                   </Link>
-                  <div className="p-5">
-                    <h2 className="text-lg font-semibold">{product.name}</h2>
-                    <p className="text-sm text-slate-280 mt-1">{product.description}</p>
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-white-400 font-bold">Rs.{product.price}</span>
+
+                  {/* Product Info */}
+                  <div className="p-4 sm:p-5 space-y-2">
+                    <h2 className="text-base sm:text-lg font-semibold text-white line-clamp-2">
+                      {product.name}
+                    </h2>
+                    {/* <p className="text-xs sm:text-sm text-gray-300 line-clamp-3">
+                      {product.description}
+                    </p> */}
+
+                    {/* Price & Button Row */}
+                    <div className="flex flex-wrap justify-between items-center pt-3 gap-y-2">
+                      <span className="text-white font-bold text-sm sm:text-base">
+                        Rs. {product.price}
+                      </span>
                       <button
                         disabled={product.stocks === 0}
                         onClick={() => handleAddToCart(product)}
-                        className={`flex items-center gap-1 text-white-400 text-sm ${
-                          product.stocks === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-200'
+                        className={`flex items-center gap-1 text-sm font-medium transition ${
+                          product.stocks === 0
+                            ? 'opacity-50 cursor-not-allowed text-gray-300'
+                            : 'text-blue-200 hover:text-blue-400'
                         }`}
                       >
-                        <FiShoppingCart /> {product.stocks === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        <FiShoppingCart className="text-base sm:text-lg" />
+                        {product.stocks === 0 ? 'Out of Stock' : 'Add to Cart'}
                       </button>
                     </div>
                   </div>

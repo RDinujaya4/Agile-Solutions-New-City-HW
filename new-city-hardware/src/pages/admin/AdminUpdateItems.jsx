@@ -176,25 +176,62 @@ export default function AdminUpdateProducts() {
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map(product => (
-          <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
+          <div
+            key={product.id}
+            className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between"
+          >
+            {/* Product Image */}
             <div className="relative">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-40 w-full object-cover rounded"
-              />
-              <span className={`absolute top-1 right-1 px-2 py-1 text-xs rounded font-semibold
-                ${product.label === 'Low Stock' ? 'bg-yellow-500' :
-                  product.label === 'In Stock' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+              <div className="w-full h-40 flex items-center justify-center bg-white rounded-lg overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+
+              {/* Stock Label */}
+              <span
+                className={`absolute top-1 right-1 px-2 py-1 text-[11px] sm:text-xs rounded font-semibold text-white ${
+                  product.label === 'Low Stock'
+                    ? 'bg-yellow-500'
+                    : product.label === 'In Stock'
+                    ? 'bg-green-500'
+                    : 'bg-red-500'
+                }`}
+              >
                 {product.label}
               </span>
             </div>
-            <p className="mt-2 font-semibold">{product.name}</p>
-            <p className="text-sm">Stock: {product.stocks}</p>
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-2 mt-4">
-              <button onClick={() => setViewProduct(product)} className="bg-indigo-500 text-white px-5 py-2 rounded text-sm hover:bg-indigo-600">View</button>
-              <button onClick={() => openModal(product)} className="bg-yellow-500 text-white px-5 py-2 rounded text-sm hover:bg-yellow-600">Update</button>
-              <button onClick={() => removeProduct(product)} className="bg-red-500 text-white px-5 py-2 rounded text-sm hover:bg-red-600">Delete</button>
+
+            {/* Product Info */}
+            <div className="mt-3 space-y-1">
+              <p className="font-semibold text-sm sm:text-base line-clamp-2">
+                {product.name}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600">Stock: {product.stocks}</p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-4 flex flex-wrap justify-between gap-2">
+              <button
+                onClick={() => setViewProduct(product)}
+                className="bg-indigo-500 text-white px-4 py-2 rounded text-sm hover:bg-indigo-600 flex-1"
+              >
+                View
+              </button>
+              <button
+                onClick={() => openModal(product)}
+                className="bg-yellow-500 text-white px-4 py-2 rounded text-sm hover:bg-yellow-600 flex-1"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => removeProduct(product)}
+                className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 flex-1"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
@@ -203,17 +240,36 @@ export default function AdminUpdateProducts() {
       {/* View Modal */}
       {viewProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg relative">
-            <h2 className="text-xl font-bold mb-4">Product Details</h2>
-            <img src={viewProduct.image} alt={viewProduct.name} className="w-full h-48 object-cover rounded mb-4" />
-            <p><strong>Name:</strong> {viewProduct.name}</p>
-            <p><strong>Category:</strong> {viewProduct.category}</p>
-            <p><strong>Price:</strong> ${viewProduct.price}</p>
-            <p><strong>Stocks:</strong> {viewProduct.stocks}</p>
-            <p><strong>Brand:</strong> {viewProduct.brand}</p>
-            <p><strong>Label:</strong> {viewProduct.label}</p>
-            <p className="mt-2"><strong>Description:</strong> {viewProduct.description}</p>
-            <button onClick={() => setViewProduct(null)} className="mt-6 w-full bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Close</button>
+          <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-lg relative overflow-y-auto max-h-[90vh]">
+            <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">Product Details</h2>
+
+            {/* Image */}
+            <div className="w-full h-48 sm:h-56 flex items-center justify-center bg-white rounded mb-4 overflow-hidden">
+              <img
+                src={viewProduct.image}
+                alt={viewProduct.name}
+                className="object-contain w-full h-full"
+              />
+            </div>
+
+            {/* Product Info */}
+            <div className="space-y-1 text-sm sm:text-base">
+              <p><strong>Name:</strong> {viewProduct.name}</p>
+              <p><strong>Category:</strong> {viewProduct.category}</p>
+              <p><strong>Price:</strong> Rs. {viewProduct.price}</p>
+              <p><strong>Stocks:</strong> {viewProduct.stocks}</p>
+              <p><strong>Brand:</strong> {viewProduct.brand}</p>
+              <p><strong>Label:</strong> {viewProduct.label}</p>
+              <p className="mt-2"><strong>Description:</strong> {viewProduct.description}</p>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setViewProduct(null)}
+              className="mt-6 w-full bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
