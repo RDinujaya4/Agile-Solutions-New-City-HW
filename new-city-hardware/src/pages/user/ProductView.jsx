@@ -89,55 +89,72 @@ export default function ProductView() {
     return <div className="text-center text-white p-10">Loading product...</div>;
   }
 
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white flex flex-col items-center px-4 py-10 relative">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-        <button
-          onClick={() => navigate("/products")}
-          className="flex items-center gap-2 text-white bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition text-sm sm:text-base"
-        >
-          <FiArrowLeft /> Back to Products
-        </button>
+ return (
+  <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
+    {/* Back Button */}
+    <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
+      <button
+        onClick={() => navigate("/products")}
+        className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black"
+      >
+        <FiArrowLeft /> Back to Products
+      </button>
+    </div>
+
+    {/* Product Section */}
+    <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
+      {/* Left Image Section */}
+      <div className="flex flex-col items-center">
+        <div className="w-full h-96 overflow-hidden rounded-2xl border">
+         <img
+              src={product.image}
+              alt={product.name}
+              className="object-contain max-h-90 mx-auto"
+            />
+        </div>
       </div>
 
-      {/* Product Card */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-4 sm:p-6 w-full max-w-4xl flex flex-col md:flex-row gap-6 sm:gap-8 mt-20 sm:mt-24">
-        {/* Product Image */}
-        <div className="w-full md:w-1/2 h-72 sm:h-96 flex items-center justify-center bg-white rounded-xl overflow-hidden">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="object-contain w-full h-full"
-          />
-        </div>
-
-        {/* Product Details */}
-        <div className="flex-1 space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
-          <p className="text-sm sm:text-base text-slate-300">Category: {product.category}</p>
-          <p className="text-sm sm:text-base text-slate-300">Brand: {product.brand}</p>
-          <p className="text-sm sm:text-base text-slate-300 whitespace-pre-wrap">
-            Description: {product.description}
-          </p>
-          <p className="text-lg sm:text-xl font-semibold mt-2">Price: Rs.{product.price}</p>
-          <p className="text-sm sm:text-base text-slate-100">
-            Stock: {product.stocks > 0 ? product.stocks : "Out of stock"}
-          </p>
+      {/* Right Details Section */}
+      <div className="flex flex-col gap-6 justify-between">
+        <div>
+          
+          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+          <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
+          
 
           <button
             onClick={handleBuy}
             disabled={product.stocks <= 0}
-            className={`mt-4 px-5 py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 w-full sm:w-auto ${
-              product.stocks <= 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-cyan-500 hover:bg-cyan-600"
+            className={`w-full py-3 rounded-full font-medium text-white transition ${
+              product.stocks <= 0 ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"
             }`}
           >
-            <FiShoppingCart /> {product.stocks > 0 ? "Buy" : "Out of Stock"}
+            {product.stocks > 0 ? "Add to Cart" : "Out of Stock"}
           </button>
         </div>
+
+        {/* Accordion-like Sections */}
+        <div className="border-t pt-4">
+          <h2 className="font-semibold text-md mb-2">Description & Fit</h2>
+          <p className="text-sm text-gray-600">
+            {
+              product.description
+            }
+          </p>
+        </div>
+
+        <div className="border-t pt-4">
+          <h2 className="font-semibold text-md mb-2">Shipping</h2>
+          <ul className="text-sm text-gray-600 space-y-1">
+            {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
+            <li>Package: <span className="font-medium text-black">Regular Package</span></li>
+            <li>Est. Arrival: <span className="font-medium text-black">Please come within 7 days after pre-order your product.</span></li>
+          </ul>
+        </div>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
+
+
 }
