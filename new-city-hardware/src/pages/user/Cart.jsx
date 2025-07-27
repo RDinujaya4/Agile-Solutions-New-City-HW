@@ -96,7 +96,7 @@ export default function Cart() {
       return;
     }
 
-    // 🟡 Show confirm dialog first
+    //  Show confirm dialog first
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You can't cancel the order later!",
@@ -107,13 +107,13 @@ export default function Cart() {
       confirmButtonText: "Yes, Confirm",
     });
 
-    // 🚫 If user cancels, exit
+    //  If user cancels, exit
     if (!result.isConfirmed) return;
 
     const batch = writeBatch(db);
 
     try {
-      // ✅ Step 1: Check stock availability and prepare stock updates
+      // Step 1: Check stock availability and prepare stock updates
       for (const item of cartItems) {
         const productRef = doc(db, 'products', item.category, 'items', item.id);
         const productSnap = await getDoc(productRef);
@@ -190,75 +190,101 @@ export default function Cart() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-10">Your Cart</h1>
+  <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 px-6 py-12 text-black">
+    <div className="max-w-6xl mx-auto">
+      <h1 className="text-4xl font-extrabold text-center mb-12 tracking-tight">Your Shopping Cart</h1>
 
-        {cartItems.length === 0 ? (
-          <p className="text-3xl text-center text-slate-200">Your cart is empty.</p>
-        ) : (
-          <div className="space-y-6">
+      {cartItems.length === 0 ? (
+        <p className="text-2xl text-center text-gray-500">Your cart is empty.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* Cart Items */}
+          <div className="md:col-span-2 space-y-6">
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between bg-white/10 backdrop-blur-lg p-4 rounded-xl border border-white/10"
+                className="flex items-center justify-between bg-white p-5 rounded-2xl border border-gray-300 shadow-sm hover:shadow-md transition"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-5">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    className="w-24 h-24 object-cover rounded-lg border"
                   />
                   <div>
-                    <h2 className="font-semibold text-lg">{item.name}</h2>
-                    <div className="flex items-center gap-2 mt-1">
+                    <h2 className="font-semibold text-lg mb-1">{item.name}</h2>
+                    <div className="flex items-center gap-3 mt-2">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="text-white bg-white/10 p-1 rounded hover:bg-white/20"
+                        className="text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100"
                       >
-                        <FiMinus />
+                        -
                       </button>
-                      <span className="text-slate-300">{item.quantity}</span>
+                      <span className="text-gray-900 font-medium text-md">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="text-white bg-white/10 p-1 rounded hover:bg-white/20"
+                        className="text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100"
                       >
-                        <FiPlus />
+                        +
                       </button>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <p className="text-cyan-300 font-semibold text-lg">
-                    Rs.{(item.price * item.quantity).toFixed(2)}
-                  </p>
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-gray-800 mb-2">Rs.{(item.price * item.quantity).toFixed(2)}</p>
                   <button
-                    className="text-red-400 hover:text-red-300"
+                    className="text-red-500 hover:text-red-600 text-sm"
                     onClick={() => deleteItem(item.id)}
                   >
-                    <FiTrash2 size={20} />
+                    Remove
                   </button>
                 </div>
               </div>
             ))}
-
-            <div className="flex justify-end mt-8">
-              <div className="text-right space-y-2">
-                <p className="text-xl font-semibold">Total:</p>
-                <p className="text-2xl text-cyan-400 font-bold">
-                  Rs.{total.toFixed(2)}
-                </p>
-                <button
-                  onClick={handleCreateOrder}
-                  className="mt-4 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-xl transition"
-                >
-                  Proceed to Pre Order
-                </button>
-              </div>
-            </div>
           </div>
-        )}
-      </div>
-    </main>
-  );
+
+          {/* Order Summary */}
+          <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-300 sticky top-20 h-fit">
+            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <div className="space-y-3 text-sm mb-4">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex justify-between">
+                  <span className="text-gray-600">{item.name} x {item.quantity}</span>
+                  <span className="font-medium text-gray-800">Rs.{(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600 font-bold">Subtotal</span>
+                <span className="font-medium text-gray-800">Rs.{total.toFixed(2)}</span>
+              </div>
+            <div className="flex justify-between">
+                <span className="text-gray-600">Discount</span>
+                <span className="text-green-600">- Rs.{(total * 0).toFixed(2)}</span>
+              </div>
+              <hr className="my-2 border-gray-300" />
+              
+              <div className="flex justify-between font-bold text-lg">
+                <span>Total</span>
+                <span>Rs.{(total * 1).toFixed(2)}</span>
+              </div>
+              
+            </div>
+
+            <button
+              onClick={handleCreateOrder}
+              className="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition"
+            >
+              Proceed to Pre Order
+            </button>
+
+          </div>
+        </div>
+      )}
+    </div>
+  </main>
+);
+
+
 }
