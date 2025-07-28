@@ -21,6 +21,7 @@ export default function ProductView() {
 
   useEffect(() => {
     const fetchAndIncrementView = async () => {
+      setLoading(true);
       try {
         const productRef = doc(db, "products", category, "items", id);
         const docSnap = await getDoc(productRef);
@@ -86,75 +87,111 @@ export default function ProductView() {
   };
 
   if (loading) {
-    return <div className="text-center text-white p-10">Loading product...</div>;
-  }
-
- return (
-  <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
-    {/* Back Button */}
-    <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-      <button
-        onClick={() => navigate("/products")}
-        className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black"
-      >
-        <FiArrowLeft /> Back to Products
-      </button>
-    </div>
-
-    {/* Product Section */}
-    <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
-      {/* Left Image Section */}
-      <div className="flex flex-col items-center">
-        <div className="w-full h-96 overflow-hidden rounded-2xl border">
-         <img
-              src={product.image}
-              alt={product.name}
-              className="object-contain max-h-90 mx-auto"
-            />
-        </div>
-      </div>
-
-      {/* Right Details Section */}
-      <div className="flex flex-col gap-6 justify-between">
-        <div>
-          
-          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-          <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
-          
-
-          <button
-            onClick={handleBuy}
-            disabled={product.stocks <= 0}
-            className={`w-full py-3 rounded-full font-medium text-white transition ${
-              product.stocks <= 0 ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"
-            }`}
-          >
-            {product.stocks > 0 ? "Add to Cart" : "Out of Stock"}
+    return (
+      <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
+        {/* Back Button */}
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
+          <button className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black">
+            <FiArrowLeft /> Back to Products
           </button>
         </div>
 
-        {/* Accordion-like Sections */}
-        <div className="border-t pt-4">
-          <h2 className="font-semibold text-md mb-2">Description & Fit</h2>
-          <p className="text-sm text-gray-600">
-            {
-              product.description
-            }
-          </p>
+        {/* Skeleton Layout */}
+        <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 animate-pulse">
+          {/* Image Placeholder */}
+          <div className="flex justify-center">
+            <div className="w-full h-96 bg-gray-200 rounded-2xl"></div>
+          </div>
+
+          {/* Right Placeholder Text */}
+          <div className="flex flex-col gap-6 justify-between">
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-12 bg-gray-300 rounded w-full"></div>
+            </div>
+
+            <div className="border-t pt-4 space-y-2">
+              <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-4 bg-gray-100 rounded w-full"></div>
+              <div className="h-4 bg-gray-100 rounded w-5/6"></div>
+            </div>
+
+            <div className="border-t pt-4 space-y-2">
+              <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-4 bg-gray-100 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-100 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
+        <button
+          onClick={() => navigate("/products")}
+          className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black"
+        >
+          <FiArrowLeft /> Back to Products
+        </button>
+      </div>
+
+      {/* Product Section */}
+      <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Left Image Section */}
+        <div className="flex flex-col items-center">
+          <div className="w-full h-96 overflow-hidden rounded-2xl border">
+          <img
+                src={product.image}
+                alt={product.name}
+                className="object-contain max-h-90 mx-auto"
+              />
+          </div>
         </div>
 
-        <div className="border-t pt-4">
-          <h2 className="font-semibold text-md mb-2">Shipping</h2>
-          <ul className="text-sm text-gray-600 space-y-1">
-            {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
-            <li>Package: <span className="font-medium text-black">Regular Package</span></li>
-            <li>Est. Arrival: <span className="font-medium text-black">Please come within 7 days after pre-order your product.</span></li>
-          </ul>
+        {/* Right Details Section */}
+        <div className="flex flex-col gap-6 justify-between">
+          <div>
+            
+            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+            <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
+            
+
+            <button
+              onClick={handleBuy}
+              disabled={product.stocks <= 0}
+              className={`w-full py-3 rounded-full font-medium text-white transition ${
+                product.stocks <= 0 ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"
+              }`}
+            >
+              {product.stocks > 0 ? "Add to Cart" : "Out of Stock"}
+            </button>
+          </div>
+
+          {/* Accordion-like Sections */}
+          <div className="border-t pt-4">
+            <h2 className="font-semibold text-md mb-2">Description & Fit</h2>
+            <p className="text-sm text-gray-600">
+              {
+                product.description
+              }
+            </p>
+          </div>
+
+          <div className="border-t pt-4">
+            <h2 className="font-semibold text-md mb-2">Shipping</h2>
+            <ul className="text-sm text-gray-600 space-y-1">
+              {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
+              <li>Package: <span className="font-medium text-black">Regular Package</span></li>
+              <li>Est. Arrival: <span className="font-medium text-black">Please come within 7 days after pre-order your product.</span></li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
-);
-
-
+    </main>
+  );
 }

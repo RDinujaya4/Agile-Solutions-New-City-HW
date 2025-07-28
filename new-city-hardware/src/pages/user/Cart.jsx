@@ -205,25 +205,32 @@ export default function Cart() {
                 key={item.id}
                 className="flex items-center justify-between bg-white p-5 rounded-2xl border border-gray-300 shadow-sm hover:shadow-md transition"
               >
-                <div className="flex items-center gap-5">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-24 h-24 object-cover rounded-lg border"
-                  />
-                  <div>
-                    <h2 className="font-semibold text-lg mb-1">{item.name}</h2>
-                    <div className="flex items-center gap-3 mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 w-full">
+                  {/* Product Image */}
+                  <div className="w-full sm:w-24 h-24 flex-shrink-0">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-contain rounded-lg border"
+                    />
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-base sm:text-lg mb-2 sm:mb-1">{item.name}</h2>
+
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-3 mt-1">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100"
+                        className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
                         -
                       </button>
-                      <span className="text-gray-900 font-medium text-md">{item.quantity}</span>
+                      <span className="text-gray-900 font-medium text-base">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100"
+                        className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
                         +
                       </button>
