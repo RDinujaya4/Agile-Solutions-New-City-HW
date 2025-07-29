@@ -73,7 +73,7 @@ export default function AdminCustomerOrders() {
           name: orderData.username,
           email: orderData.email,
           date: orderData.createdAt?.toDate().toDateString(),
-          total_value: `$${orderData.total}`,
+          total_value: `Rs.${orderData.total}`,
           items,
           status: orderData.status,
         });
@@ -96,7 +96,7 @@ export default function AdminCustomerOrders() {
           name: orderData.username,
           email: orderData.email,
           date: orderData.createdAt?.toDate().toDateString(),
-          total_value: `$${orderData.total}`,
+          total_value: `Rs.${orderData.total}`,
           items,
           status: 'PickedUp',
         });
