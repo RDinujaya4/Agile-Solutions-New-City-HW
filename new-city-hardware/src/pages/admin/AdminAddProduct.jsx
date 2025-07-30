@@ -45,11 +45,22 @@ export default function AdminAddProduct() {
   const handleAddCategory = async () => {
     if (newCategory && !categories.includes(newCategory)) {
       try {
+        // 1. Add to categories collection
         await addDoc(collection(db, 'categories'), { name: newCategory });
+
+        // 2. Create corresponding empty document in 'products' collection
+        const productCategoryDoc = doc(db, 'products', newCategory);
+        await setDoc(productCategoryDoc, {
+          createdAt: serverTimestamp(),
+          name: newCategory,
+        });
+
+        // 3. Pre-fill product category and reset
         setProduct({ ...product, category: newCategory });
         setNewCategory('');
         toast.success('Category added');
       } catch (err) {
+        console.error(err);
         toast.error('Failed to add category');
       }
     }
@@ -96,6 +107,7 @@ export default function AdminAddProduct() {
       };
 
       const categoryRef = doc(db, 'products', product.category);
+      await setDoc(categoryRef, { createdAt: serverTimestamp() }, { merge: true });
       const productRef = doc(collection(categoryRef, 'items'));
       await setDoc(productRef, productData);
 
