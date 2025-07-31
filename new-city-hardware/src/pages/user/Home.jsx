@@ -233,7 +233,10 @@ function Home() {
         <h3 className="text-2xl font-bold">Need help finding the right tool?</h3>
         <p className="mt-2">Visit our store or contact us for expert advice.</p>
       <button
-        onClick={() => navigate('/contact')}
+        onClick={() => {
+          navigate('/contact');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
         className="mt-4 px-6 py-2 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-100 hover:text-black transition"
       >
         Contact Us

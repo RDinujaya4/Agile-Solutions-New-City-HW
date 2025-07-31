@@ -215,7 +215,7 @@ export default function ProductView() {
           </div>
 
           <div className="border-t pt-4">
-            <h2 className="font-semibold text-md mb-2">Shipping</h2>
+            <h2 className="font-semibold text-md mb-2">Pickup</h2>
             <ul className="text-sm text-gray-600 space-y-1">
               {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
               <li>Package: <span className="font-medium text-black">Regular Package</span></li>
