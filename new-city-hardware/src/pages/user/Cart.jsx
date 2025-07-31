@@ -143,6 +143,7 @@ export default function Cart() {
         total,
         createdAt: Timestamp.now(),
         status: 'Pending',
+        progress: 'Processing',
         username: userDetails.username || 'Guest',
         email: userDetails.email || user.email || 'N/A',
       };
