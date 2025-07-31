@@ -22,6 +22,7 @@ import { FcGoogle } from "react-icons/fc";
 import authImage from "../assets/Signup.jpg";
 import toast from 'react-hot-toast';
 import { sendPasswordResetEmail } from "firebase/auth";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Auth() {
   const [isSignup, setIsSignup] = useState(true);
@@ -278,8 +279,14 @@ export default function Auth() {
           </div>
 
           <div className="text-center text-gray-500 text-sm mb-6">or</div>
+          <AnimatePresence mode="wait">
             {isForgotPassword ? (
-              <form
+              <motion.form
+                key="forgot"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
                 className="space-y-4"
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -319,9 +326,16 @@ export default function Auth() {
                 >
                   Send Reset Email
                 </button>
-              </form>
+              </motion.form>
             ) : (
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <motion.form
+            key="login"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4" 
+            onSubmit={handleSubmit}>
             {isSignup && (
               <div className="flex gap-4">
                 <div className="flex-1">
@@ -451,8 +465,9 @@ export default function Auth() {
             >
               {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
             </button>
-          </form>
+          </motion.form>
           )}
+        </AnimatePresence>
           <div className="text-sm text-center text-gray-400 mt-6">
             {isForgotPassword ? (
               <button
