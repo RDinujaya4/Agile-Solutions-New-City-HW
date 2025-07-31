@@ -243,19 +243,19 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">
       {/* Left Image */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate">
-        <div className="p-8">
+      <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate-800">
+        <div className="p-6">
           <img
             src={authImage}
             alt="Authentication"
-            className="w-full h-[85vh] object-cover rounded-2xl shadow-lg"
+            className="w-full h-[75vh] object-cover rounded-2xl shadow-lg"
           />
         </div>
       </div>
 
       {/* Right Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-10 bg-slate-800">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 sm:p-12 w-full max-w-xl text-white border border-white/10">
+      <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-4 bg-slate-800">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 sm:p-10 w-full max-w-xl text-white border border-white/10 mt-[-30px]">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold mb-2">
               {isSignup ? "Create an Account" : "Welcome Back"}
@@ -276,7 +276,6 @@ export default function Auth() {
           </div>
 
           <div className="text-center text-gray-500 text-sm mb-6">or</div>
-
           <form className="space-y-4" onSubmit={handleSubmit}>
             {isSignup && (
               <div className="flex gap-4">
