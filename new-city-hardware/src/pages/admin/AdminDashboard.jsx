@@ -311,8 +311,6 @@ export default function AdminDashboard() {
   }
 };
 
-
-  // ... rest of your component (return statement)
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
       <AdminSidebar />
@@ -403,14 +401,23 @@ export default function AdminDashboard() {
         </div>
       </main>
 
-      <aside className="w-80 bg-gray-200 p-6 space-y-4 rounded-l-xl overflow-y-auto">
+      <aside className="w-full lg:w-80 bg-gray-200 p-4 sm:p-6 space-y-4 rounded-t-xl lg:rounded-l-xl overflow-y-auto">
         <h3 className="text-lg font-semibold">Most Viewed Products</h3>
         {mostViewedProducts.map((product, index) => (
-          <div key={index} className="bg-white rounded-lg p-3 flex gap-3 items-center shadow">
-            <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
-            <div className="text-sm">
-              <p><strong>Category:</strong> {product.category}</p>
-              <p><strong>Item:</strong> {product.name}</p>
+          <div
+            key={index}
+            className="bg-gray-100 rounded-lg p-3 flex items-center gap-3 shadow"
+          >
+            <div className="min-w-[4rem] w-16 h-16 flex-shrink-0">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-contain rounded"
+              />
+            </div>
+            <div className="text-sm overflow-hidden">
+              <p className="truncate"><strong>Category:</strong> {product.category}</p>
+              <p className="truncate"><strong>Item:</strong> {product.name}</p>
               <p><strong>Views:</strong> {product.views}</p>
             </div>
           </div>

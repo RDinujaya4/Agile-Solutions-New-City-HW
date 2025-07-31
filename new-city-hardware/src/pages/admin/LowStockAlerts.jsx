@@ -116,11 +116,17 @@ export default function LowStockAlerts() {
                   <div
                     key={item.id}
                     className={`flex items-center justify-between p-4 rounded-lg shadow-sm transition
-                      ${item.done ? 'bg-blue-100 opacity-80' : 'bg-gray-50 hover:shadow-md'}
+                      ${item.done ? 'bg-blue-100 opacity-80' : 'bg-gray-200 hover:shadow-md'}
                     `}
                   >
                     <div className="flex items-center gap-4">
-                      <img src={item.image || electrical} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                      <div className="w-25 h-25 rounded flex items-center justify-center bg-gray-200">
+                        <img
+                          src={item.image || electrical}
+                          alt={item.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <div>
                         <p className="text-sm text-gray-600"><strong>Category:</strong> {item.category}</p>
                         <p className="text-sm text-gray-600"><strong>Item:</strong> {item.name}</p>
