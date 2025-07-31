@@ -40,7 +40,6 @@ function Home() {
           backgroundImage: `url(${Homebg})`,
         }}
       >
-
         <div className="absolute inset-0 bg-slate bg-opacity-50"></div>
            {/* Content Box with transparent background */}
           <div className="relative z-10 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
@@ -50,16 +49,16 @@ function Home() {
             <p className="mt-4 text-lg text-black-200">
               Your one-stop destination for quality tools, building materials, and hardware essentials.
             </p>
-                <div className="mt-8 max-w-xl mx-auto relative">
-                  <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search products..."
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
+              <div className="mt-8 max-w-xl mx-auto relative">
+                <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
           </div>
       </section>
 
@@ -188,12 +187,12 @@ function Home() {
       <section className="bg-white text-black py-14 text-center px-4">
         <h3 className="text-2xl font-bold">Need help finding the right tool?</h3>
         <p className="mt-2">Visit our store or contact us for expert advice.</p>
-     <button
-  onClick={() => navigate('/contact')}
-  className="mt-4 px-6 py-2 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-100 hover:text-black transition"
->
-  Contact Us
-</button>
+      <button
+        onClick={() => navigate('/contact')}
+        className="mt-4 px-6 py-2 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-100 hover:text-black transition"
+      >
+        Contact Us
+      </button>
 
       </section>
     </main>
