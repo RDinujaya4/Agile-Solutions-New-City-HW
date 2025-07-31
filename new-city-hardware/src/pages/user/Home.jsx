@@ -6,7 +6,10 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useNavigate } from 'react-router-dom';
-
+import { useEffect } from 'react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { collectionGroup, onSnapshot } from 'firebase/firestore';
 
 // Category Images
 import powerTools from '../../assets/power-tools.png';
@@ -19,7 +22,7 @@ import Homebg from '../../assets/Homebg.jpg';
 
 function Home() {
   const navigate = useNavigate();
-
+  const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
 
   const categories = [
@@ -30,6 +33,34 @@ function Home() {
     { name: 'Paint & Supplies', image: paints },
     { name: 'Fasteners', image: fasteners },
   ];
+
+  useEffect(() => {
+    if (search.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(collectionGroup(db, 'items'), (snapshot) => {
+      const allProducts = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const filtered = allProducts
+        .filter((product) =>
+          product?.name?.toLowerCase().includes(search.toLowerCase())
+        )
+        .reduce((unique, item) => {
+          const exists = unique.find((p) => p.name === item.name);
+          if (!exists) unique.push(item);
+          return unique;
+        }, []);
+
+      setSearchResults(filtered.slice(0, 6)); // limit to 6
+    });
+
+    return () => unsubscribe();
+  }, [search]);
 
   return (
     <main className="text-slate-100">
@@ -58,6 +89,20 @@ function Home() {
                   placeholder="Search products..."
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
+                {searchResults.length > 0 && (
+                  <div className="absolute z-20 bg-white text-black w-full mt-2 rounded-xl shadow-lg border border-gray-300 max-h-80 overflow-y-auto">
+                    {searchResults.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-4 px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => navigate(`/product/${item.category}/${item.id}`)}
+                      >
+                        <img src={item.image} alt={item.name} className="w-10 h-10 object-contain" />
+                        <span className="text-sm">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
           </div>
       </section>
