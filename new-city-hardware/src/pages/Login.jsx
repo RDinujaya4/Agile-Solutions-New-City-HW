@@ -21,9 +21,11 @@ import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import authImage from "../assets/Signup.jpg";
 import toast from 'react-hot-toast';
+import { sendPasswordResetEmail } from "firebase/auth";
 
 export default function Auth() {
   const [isSignup, setIsSignup] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -276,6 +278,49 @@ export default function Auth() {
           </div>
 
           <div className="text-center text-gray-500 text-sm mb-6">or</div>
+            {isForgotPassword ? (
+              <form
+                className="space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.email) {
+                    toast.error("Please enter your email");
+                    return;
+                  }
+                  try {
+                    await sendPasswordResetEmail(auth, formData.email);
+                    toast.success("Password reset email sent!");
+                    setIsForgotPassword(false);
+                  } catch (error) {
+                    console.error(error);
+                    toast.error("Failed to send reset email");
+                  }
+                }}
+              >
+                <div>
+                  <label className="text-sm text-gray-300">Enter your email</label>
+                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                    <FiMail className="text-gray-400 mr-2" />
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      className="bg-transparent focus:outline-none w-full"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-yellow-400 text-black font-bold py-2 rounded-xl hover:bg-yellow-300 transition"
+                >
+                  Send Reset Email
+                </button>
+              </form>
+            ) : (
           <form className="space-y-4" onSubmit={handleSubmit}>
             {isSignup && (
               <div className="flex gap-4">
@@ -407,9 +452,16 @@ export default function Auth() {
               {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
             </button>
           </form>
-
+          )}
           <div className="text-sm text-center text-gray-400 mt-6">
-            {isSignup ? (
+            {isForgotPassword ? (
+              <button
+                onClick={() => setIsForgotPassword(false)}
+                className="text-yellow-400 hover:underline"
+              >
+                ← Back to Login
+              </button>
+            ) : isSignup ? (
               <>
                 Already have an account?{" "}
                 <button
@@ -427,6 +479,18 @@ export default function Auth() {
                   className="text-yellow-400 hover:underline"
                 >
                   Sign up
+                </button>
+                <br />
+                <br />
+                Forgot Password?{" "}
+                <button
+                  onClick={() => {
+                    setIsSignup(false);
+                    setIsForgotPassword(true);
+                  }}
+                  className="text-yellow-400 hover:underline"
+                >
+                  Click here
                 </button>
               </>
             )}
