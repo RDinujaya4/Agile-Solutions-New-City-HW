@@ -26,41 +26,41 @@ function Home() {
     { name: 'Power Tools', image: powerTools },
     { name: 'Hand Tools', image: handTools },
     { name: 'Plumbing', image: plumbing },
-    { name: 'Electrical', image: electrical },
-    { name: 'Paints', image: paints },
+    { name: 'Electrical Tools', image: electrical },
+    { name: 'Paint & Supplies', image: paints },
     { name: 'Fasteners', image: fasteners },
   ];
 
   return (
     <main className="text-slate-100">
      {/* Hero Section with Background */}
-<section
-  className="mt-4 py-32 px-4 text-center bg-cover bg-center bg-no-repeat relative"
-  style={{
-    backgroundImage: `url(${Homebg})`,
-  }}
->
+      <section
+        className="mt-4 py-32 px-4 text-center bg-cover bg-center bg-no-repeat relative"
+        style={{
+          backgroundImage: `url(${Homebg})`,
+        }}
+      >
 
         <div className="absolute inset-0 bg-slate bg-opacity-50"></div>
            {/* Content Box with transparent background */}
-    <div className="relative z-10 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
-      <h2 className="text-4xl font-bold text-black">
-        Trusted for over 35 years
-      </h2>
-      <p className="mt-4 text-lg text-black-200">
-        Your one-stop destination for quality tools, building materials, and hardware essentials.
-      </p>
-          <div className="mt-8 max-w-xl mx-auto relative">
-            <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+          <div className="relative z-10 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+            <h2 className="text-4xl font-bold text-black">
+              Trusted for over 35 years
+            </h2>
+            <p className="mt-4 text-lg text-black-200">
+              Your one-stop destination for quality tools, building materials, and hardware essentials.
+            </p>
+                <div className="mt-8 max-w-xl mx-auto relative">
+                  <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-black-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
           </div>
-        </div>
       </section>
 
       {/* Stats Section */}
@@ -101,20 +101,22 @@ function Home() {
             <p className="text-sm text-slate-600">We help you source special tools or bulk orders with ease.</p>
           </div>
           <div className="p-6 border border-slate-200 rounded-xl shadow-sm">
-            <h4 className="text-lg text-slate-600 font-semibold mb-2">Fast Delivery</h4>
-            <p className="text-sm text-slate-600">Get your hardware essentials delivered quickly and safely.</p>
+            <h4 className="text-lg text-slate-600 font-semibold mb-2">Fast Service</h4>
+            <p className="text-sm text-slate-600">Get your hardware essentials quickly an easily with affordable price.</p>
           </div>
         </div>
       </section>
 
       {/* Categories */}
+      // inside the map function of categories section
       <section className="max-w-6xl mx-auto px-4 py-16">
         <h3 className="text-2xl text-slate-600 font-semibold mb-8 text-center">Popular Categories</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {categories.map((cat) => (
             <div
               key={cat.name}
-              className="bg-white text-slate-600 rounded-xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden"
+              onClick={() => navigate(`/products?category=${encodeURIComponent(cat.name)}`)}
+              className="bg-white text-slate-600 rounded-xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden cursor-pointer"
             >
               <img src={cat.image} alt={cat.name} className="w-full h-40 object-cover" />
               <div className="p-4 text-center">

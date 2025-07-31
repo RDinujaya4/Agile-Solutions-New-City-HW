@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   FiSearch,
   FiShoppingCart,
@@ -21,9 +21,12 @@ import { auth } from '../../firebase';
 import useProducts from '../../hooks/useProducts';
 import useCategories from '../../hooks/useCategories';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Products() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedCategory = queryParams.get('category');
   const [layout, setLayout] = useState('grid');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [filters, setFilters] = useState({
@@ -31,7 +34,7 @@ export default function Products() {
     brand: 'All Brands',
     price: '',
     sort: 'Featured',
-    category: 'All Products',
+    category: selectedCategory || 'All Products',
   });
 
   const categoryIcons = {
