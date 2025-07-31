@@ -26,6 +26,7 @@ export default function AdminUpdateProducts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   // Admin Check on Mount
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function AdminUpdateProducts() {
 
   // 🔁 Fetch all products
   const fetchAllProducts = async () => {
+    setLoading(true);
     let all = [];
     const catsSnapshot = await getDocs(collection(db, 'products'));
     for (const cat of catsSnapshot.docs) {
@@ -64,6 +66,7 @@ export default function AdminUpdateProducts() {
         all.push({ id: docSnap.id, ...docSnap.data(), category: cat.id });
       });
     }
+    setLoading(false);
     setProducts(all);
   };
 
@@ -180,165 +183,179 @@ export default function AdminUpdateProducts() {
   ? products.filter(p => p.category === selectedCategory)
   : products;
 
- return (
-  <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 text-gray-800">
-    <AdminSidebar />
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 text-gray-800">
+      <AdminSidebar />
 
-    <main className="flex-1 p-4 md:p-10">
-      <h1 className="text-2xl font-bold mb-4">Products</h1>
+      <main className="flex-1 p-4 md:p-10">
+        <h1 className="text-2xl font-bold mb-4">Products</h1>
 
-      {/* Filter Dropdown */}
-      <div className="mb-6">
-        <select
-          className="w-full md:w-60 px-4 py-2 rounded border"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map((cat, i) => (
-            <option key={i} value={cat}>{cat}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map(product => (
-          <div
-            key={product.id}
-            className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between"
+        {/* Filter Dropdown */}
+        <div className="mb-6">
+          <select
+            className="w-full md:w-60 px-4 py-2 rounded border"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            {/* Product Image */}
-            <div className="relative">
-              <div className="w-full h-40 flex items-center justify-center bg-white rounded-lg overflow-hidden">
+            <option value="">All Categories</option>
+            {categories.map((cat, i) => (
+              <option key={i} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl shadow-md p-4 animate-pulse space-y-3">
+                <div className="w-full h-40 bg-gray-200 rounded" />
+                <div className="h-4 bg-gray-300 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                <div className="flex gap-2 mt-4">
+                  <div className="w-full h-8 bg-gray-300 rounded" />
+                  <div className="w-full h-8 bg-gray-300 rounded" />
+                  <div className="w-full h-8 bg-gray-300 rounded" />
+                </div>
+              </div>
+            ))
+          ) : (
+            filteredProducts.map(product => (
+              <div
+                key={product.id}
+                className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between"
+              >
+                {/* Product Image */}
+                <div className="relative">
+                  <div className="w-full h-40 flex items-center justify-center bg-white rounded-lg overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="object-contain w-full h-full"
+                    />
+                  </div>
+
+                  {/* Stock Label */}
+                  <span
+                    className={`absolute top-1 right-1 px-2 py-1 text-[11px] sm:text-xs rounded font-semibold text-white ${
+                      product.label === 'Low Stock'
+                        ? 'bg-yellow-500'
+                        : product.label === 'In Stock'
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
+                    }`}
+                  >
+                    {product.label}
+                  </span>
+                </div>
+
+                {/* Product Info */}
+                <div className="mt-3 space-y-1">
+                  <p className="font-semibold text-sm sm:text-base line-clamp-2">
+                    {product.name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600">Stock: {product.stocks}</p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-4 flex flex-wrap justify-between gap-2">
+                  <button
+                    onClick={() => setViewProduct(product)}
+                    className="bg-indigo-500 text-white px-4 py-2 rounded text-sm hover:bg-indigo-600 flex-1"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => openModal(product)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded text-sm hover:bg-yellow-600 flex-1"
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => removeProduct(product)}
+                    className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 flex-1"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* View Modal */}
+        {viewProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-lg relative overflow-y-auto max-h-[90vh]">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">Product Details</h2>
+
+              {/* Image */}
+              <div className="w-full h-48 sm:h-56 flex items-center justify-center bg-white rounded mb-4 overflow-hidden">
                 <img
-                  src={product.image}
-                  alt={product.name}
+                  src={viewProduct.image}
+                  alt={viewProduct.name}
                   className="object-contain w-full h-full"
                 />
               </div>
 
-              {/* Stock Label */}
-              <span
-                className={`absolute top-1 right-1 px-2 py-1 text-[11px] sm:text-xs rounded font-semibold text-white ${
-                  product.label === 'Low Stock'
-                    ? 'bg-yellow-500'
-                    : product.label === 'In Stock'
-                    ? 'bg-green-500'
-                    : 'bg-red-500'
-                }`}
-              >
-                {product.label}
-              </span>
-            </div>
+              {/* Product Info */}
+              <div className="space-y-1 text-sm sm:text-base">
+                <p><strong>Name:</strong> {viewProduct.name}</p>
+                <p><strong>Category:</strong> {viewProduct.category}</p>
+                <p><strong>Price:</strong> Rs. {viewProduct.price}</p>
+                <p><strong>Stocks:</strong> {viewProduct.stocks}</p>
+                <p><strong>Brand:</strong> {viewProduct.brand}</p>
+                <p><strong>Label:</strong> {viewProduct.label}</p>
+                <p className="mt-2"><strong>Description:</strong> {viewProduct.description}</p>
+              </div>
 
-            {/* Product Info */}
-            <div className="mt-3 space-y-1">
-              <p className="font-semibold text-sm sm:text-base line-clamp-2">
-                {product.name}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-600">Stock: {product.stocks}</p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-4 flex flex-wrap justify-between gap-2">
+              {/* Close Button */}
               <button
-                onClick={() => setViewProduct(product)}
-                className="bg-indigo-500 text-white px-4 py-2 rounded text-sm hover:bg-indigo-600 flex-1"
+                onClick={() => setViewProduct(null)}
+                className="mt-6 w-full bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
               >
-                View
-              </button>
-              <button
-                onClick={() => openModal(product)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded text-sm hover:bg-yellow-600 flex-1"
-              >
-                Update
-              </button>
-              <button
-                onClick={() => removeProduct(product)}
-                className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 flex-1"
-              >
-                Delete
+                Close
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* View Modal */}
-      {viewProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-lg relative overflow-y-auto max-h-[90vh]">
-            <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">Product Details</h2>
+        {/* Update Modal */}
+        {modalOpen && editingProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-300 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-xl relative">
+              <h2 className="text-xl font-bold mb-6 text-center">Update Product</h2>
+              <div className="space-y-3">
+                <label>Name</label>
+                <input className="w-full border rounded px-3 py-2" name="name" value={editingProduct.name} onChange={handleChange} placeholder="Name" />
 
-            {/* Image */}
-            <div className="w-full h-48 sm:h-56 flex items-center justify-center bg-white rounded mb-4 overflow-hidden">
-              <img
-                src={viewProduct.image}
-                alt={viewProduct.name}
-                className="object-contain w-full h-full"
-              />
-            </div>
+                <label>Category</label>
+                <select className="w-full border rounded px-3 py-2" name="category" value={editingProduct.category} onChange={handleChange}>
+                  <option value="">Select Category</option>
+                  {categories.map((cat, i) => <option key={i} value={cat}>{cat}</option>)}
+                </select>
 
-            {/* Product Info */}
-            <div className="space-y-1 text-sm sm:text-base">
-              <p><strong>Name:</strong> {viewProduct.name}</p>
-              <p><strong>Category:</strong> {viewProduct.category}</p>
-              <p><strong>Price:</strong> Rs. {viewProduct.price}</p>
-              <p><strong>Stocks:</strong> {viewProduct.stocks}</p>
-              <p><strong>Brand:</strong> {viewProduct.brand}</p>
-              <p><strong>Label:</strong> {viewProduct.label}</p>
-              <p className="mt-2"><strong>Description:</strong> {viewProduct.description}</p>
-            </div>
+                <label>Price</label>
+                <input className="w-full border rounded px-3 py-2" name="price" type="number" value={editingProduct.price} onChange={handleChange} placeholder="Price" />
 
-            {/* Close Button */}
-            <button
-              onClick={() => setViewProduct(null)}
-              className="mt-6 w-full bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+                <label>Stocks</label>
+                <input className="w-full border rounded px-3 py-2" name="stocks" type="number" value={editingProduct.stocks} onChange={handleChange} placeholder="Stocks" />
 
-      {/* Update Modal */}
-      {modalOpen && editingProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/80 backdrop-blur-xl border border-gray-300 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-xl relative">
-            <h2 className="text-xl font-bold mb-6 text-center">Update Product</h2>
-            <div className="space-y-3">
-              <label>Name</label>
-              <input className="w-full border rounded px-3 py-2" name="name" value={editingProduct.name} onChange={handleChange} placeholder="Name" />
+                <label>Brand</label>
+                <input className="w-full border rounded px-3 py-2" name="brand" value={editingProduct.brand} onChange={handleChange} placeholder="Brand" />
 
-              <label>Category</label>
-              <select className="w-full border rounded px-3 py-2" name="category" value={editingProduct.category} onChange={handleChange}>
-                <option value="">Select Category</option>
-                {categories.map((cat, i) => <option key={i} value={cat}>{cat}</option>)}
-              </select>
+                <label>Description</label>
+                <textarea className="w-full border rounded px-3 py-2" name="description" rows={3} value={editingProduct.description} onChange={handleChange} placeholder="Description" />
 
-              <label>Price</label>
-              <input className="w-full border rounded px-3 py-2" name="price" type="number" value={editingProduct.price} onChange={handleChange} placeholder="Price" />
-
-              <label>Stocks</label>
-              <input className="w-full border rounded px-3 py-2" name="stocks" type="number" value={editingProduct.stocks} onChange={handleChange} placeholder="Stocks" />
-
-              <label>Brand</label>
-              <input className="w-full border rounded px-3 py-2" name="brand" value={editingProduct.brand} onChange={handleChange} placeholder="Brand" />
-
-              <label>Description</label>
-              <textarea className="w-full border rounded px-3 py-2" name="description" rows={3} value={editingProduct.description} onChange={handleChange} placeholder="Description" />
-
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-                <button onClick={saveProduct} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Update</button>
-                <button onClick={closeModal} className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Cancel</button>
+                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+                  <button onClick={saveProduct} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Update</button>
+                  <button onClick={closeModal} className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Cancel</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </main>
-  </div>
-);
-
+        )}
+      </main>
+    </div>
+  );
 }

@@ -22,7 +22,6 @@ export default function AdminDashboard() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Admin Check on Mount
   useEffect(() => {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
@@ -46,7 +45,7 @@ export default function AdminDashboard() {
       }
     };
     checkAdminStatus();
-  }, [navigate]); // Dependency array includes navigate
+  }, [navigate]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -63,12 +62,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const snap = await getDocs(collection(db, 'orders'));
-        setTotalOrders(snap.size);
+        const [pendingSnap, pickedUpSnap] = await Promise.all([
+          getDocs(collection(db, 'orders')),
+          getDocs(collection(db, 'pickupOrders')),
+        ]);
+
+        const totalCount = pendingSnap.size + pickedUpSnap.size;
+        setTotalOrders(totalCount);
       } catch (error) {
         console.error("Error fetching total orders:", error);
       }
     };
+
     fetchOrders();
   }, []);
 
@@ -84,7 +89,6 @@ export default function AdminDashboard() {
 
           itemsSnap.forEach(docSnap => {
             const data = docSnap.data();
-            // Ensure data.views exists and is a number
             if (typeof data.views === 'number') {
               products.push({ ...data, id: docSnap.id, category: catName });
             }
@@ -101,11 +105,10 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Corrected fetchVisitorStats to read from 'siteStats/visitors'
     const fetchVisitorStats = async () => {
       try {
-        const visitorDocRef = doc(db, 'siteStats', 'visitors'); // Correct path
-        const snap = await getDoc(visitorDocRef); // Use getDoc for single document
+        const visitorDocRef = doc(db, 'siteStats', 'visitors');
+        const snap = await getDoc(visitorDocRef);
 
         const monthly = Array(12).fill(0);
         const now = new Date();
@@ -169,7 +172,7 @@ export default function AdminDashboard() {
 
     const start = new Date(startDate);
     const end = new Date(endDate);
-    end.setHours(23, 59, 59); // include the whole end day
+    end.setHours(23, 59, 59);
 
     try {
       const pickupRef = collection(db, "pickupOrders");
@@ -200,7 +203,6 @@ export default function AdminDashboard() {
         });
       });
 
-      // Add total summary row
       rows.push({
         OrderNumber: "",
         Username: "",
@@ -232,7 +234,7 @@ export default function AdminDashboard() {
 
   const start = new Date(startDate);
   const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999); // include full end day
+  end.setHours(23, 59, 59, 999);
 
   try {
     const snapshot = await getDocs(collection(db, 'pickupOrders'));
@@ -253,7 +255,6 @@ export default function AdminDashboard() {
       const orderTotal = orderData.total || 0;
       grandTotal += orderTotal;
 
-      // Fetch items subcollection
       const itemsSnap = await getDocs(collection(db, 'pickupOrders', orderId, 'items'));
 
       for (const itemDoc of itemsSnap.docs) {
@@ -271,7 +272,6 @@ export default function AdminDashboard() {
         });
       }
 
-      // Add order total row
       rows.push({
         OrderNumber: orderNumber,
         Username: '',
@@ -284,7 +284,6 @@ export default function AdminDashboard() {
       });
     }
 
-    // Final Grand Total Row
     rows.push({
       OrderNumber: '',
       Username: '',

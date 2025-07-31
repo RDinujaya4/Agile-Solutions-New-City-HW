@@ -14,7 +14,6 @@ import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { progress } from 'framer-motion';
 
 export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
@@ -22,6 +21,7 @@ export default function AdminCustomerOrders() {
   const [search, setSearch] = useState('');
   const [view, setView] = useState('all');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAdminAndFetchOrders = async () => {
@@ -51,6 +51,7 @@ export default function AdminCustomerOrders() {
   }, [navigate]);
 
   const fetchOrders = async () => {
+    setLoading(true);
     try {
       const ordersColSnap = await getDocs(collection(db, 'orders'));
       const pickupColSnap = await getDocs(collection(db, 'pickupOrders'));
@@ -107,6 +108,7 @@ export default function AdminCustomerOrders() {
 
       setOrders(allOrders);
       setFilteredOrders(allOrders);
+      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       toast.error('Failed to fetch orders. Check console for details.');
@@ -298,7 +300,32 @@ export default function AdminCustomerOrders() {
         </div>
 
         <div className="space-y-4">
-          {filteredOrders.length > 0 ? (
+          {loading ? (
+            [...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg shadow p-6 animate-pulse space-y-4"
+              >
+                <div className="h-4 w-1/3 bg-gray-300 rounded" />
+                <div className="h-3 w-1/2 bg-gray-200 rounded" />
+                <div className="h-3 w-1/2 bg-gray-200 rounded" />
+                <div className="h-3 w-1/4 bg-gray-200 rounded" />
+                <div className="h-3 w-1/3 bg-gray-200 rounded" />
+                <div className="h-3 w-1/4 bg-gray-300 rounded" />
+                <div className="mt-3">
+                  <div className="h-4 w-1/3 bg-gray-300 rounded mb-2" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-2/3 bg-gray-200 rounded" />
+                    <div className="h-3 w-1/2 bg-gray-200 rounded" />
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-4">
+                  <div className="w-24 h-8 bg-gray-300 rounded" />
+                  <div className="w-24 h-8 bg-gray-300 rounded" />
+                </div>
+              </div>
+            ))
+          ) : filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
               <div key={order.orderId} className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-bold mb-2">Order No: {order.orderNumber}</h2>
