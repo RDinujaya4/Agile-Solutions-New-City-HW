@@ -22,6 +22,8 @@ import useProducts from '../../hooks/useProducts';
 import useCategories from '../../hooks/useCategories';
 import toast from 'react-hot-toast';
 import { Link, useLocation } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export default function Products() {
   const location = useLocation();
@@ -118,7 +120,17 @@ export default function Products() {
           </button>
         </div>
         {catLoading ? (
-          <p className="text-sm text-gray-600">Loading categories...</p>
+          <div className="space-y-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton width={40} height={40} circle />
+                <div className="flex-1">
+                  <Skeleton height={14} width={`80%`} />
+                  <Skeleton height={12} width={`60%`} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           categories.map((cat) => {
             const Icon = categoryIcons[cat.name] || FiSettings;
@@ -243,7 +255,22 @@ export default function Products() {
 
         {/* Product Grid/List */}
         {loading ? (
-          <p className="text-center text-xl text-gray-600">Loading products...</p>
+          <div
+            className={`grid gap-6 ${
+              layout === 'grid' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1'
+            }`}
+          >
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-2xl shadow w-full max-w-xs mx-auto sm:max-w-sm md:max-w-md p-4"
+              >
+                <Skeleton height={200} />
+                <Skeleton height={20} className="mt-3" />
+                <Skeleton height={20} width={100} />
+              </div>
+            ))}
+          </div>
         ) : (
           <div
             className={`grid gap-6 ${
