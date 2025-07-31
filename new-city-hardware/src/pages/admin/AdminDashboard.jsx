@@ -408,7 +408,7 @@ export default function AdminDashboard() {
             key={index}
             className="bg-gray-100 rounded-lg p-3 flex items-center gap-3 shadow"
           >
-            <div className="min-w-[4rem] w-16 h-16 flex-shrink-0">
+            <div className="min-w-[4rem] w-18 h-18 flex-shrink-0">
               <img
                 src={product.image}
                 alt={product.name}

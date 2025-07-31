@@ -15,10 +15,27 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import defaultProfile from '../assets/admin-image.png';
+import {
+  getDocs,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from 'firebase/firestore';
+import { db } from '../firebase';
+
+const Badge = ({ count }) => (
+  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+    {count}
+  </span>
+);
 
 export default function AdminSidebar() {
   const navigate = useNavigate();
   const [adminEmail, setAdminEmail] = useState('');
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [lowStockMap, setLowStockMap] = useState({});
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -26,6 +43,62 @@ export default function AdminSidebar() {
     if (user) {
       setAdminEmail(user.email);
     }
+  }, []);
+
+  useEffect(() => {
+    // Live listener for Pending Orders
+    const unsubscribeOrders = onSnapshot(
+      query(collection(db, 'orders'), where('status', '==', 'Pending')),
+      (snapshot) => {
+        setPendingOrderCount(snapshot.size);
+      }
+    );
+    // Live listener for Low Stock across all categories
+    const fetchLowStockLive = async () => {
+      const categorySnapshots = await getDocs(collection(db, 'products'));
+
+      const unsubscribes = categorySnapshots.docs.map((categoryDoc) =>
+        onSnapshot(
+          collection(db, 'products', categoryDoc.id, 'items'),
+          (snapshot) => {
+            let lowStock = 0;
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.stocks <= 5) lowStock += 1;
+            });
+
+            setLowStockMap((prevMap) => {
+              const updatedMap = {
+                ...prevMap,
+                [categoryDoc.id]: lowStock,
+              };
+
+              // Update total count
+              const total = Object.values(updatedMap).reduce((sum, count) => sum + count, 0);
+              setLowStockCount(total);
+
+              return updatedMap;
+            });
+          }
+        )
+      );
+
+      return () => {
+        unsubscribes.forEach((unsub) => unsub());
+      };
+    };
+
+    let unsubscribeLowStock;
+
+    fetchLowStockLive().then((cleanup) => {
+      unsubscribeLowStock = cleanup;
+    });
+
+    // Cleanup listeners on unmount
+    return () => {
+      unsubscribeOrders();
+      if (unsubscribeLowStock) unsubscribeLowStock();
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -48,8 +121,18 @@ export default function AdminSidebar() {
 
   const menuItems = [
     { icon: <FiUsers />, label: 'Dashboard', path: '/admindash' },
-    { icon: <FiAlertCircle />, label: 'Low Stock Alerts', path: '/lowstock' },
-    { icon: <FiList />, label: 'Pre Order Items', path: '/PreOrder' },
+    {
+      icon: <FiAlertCircle />,
+      label: 'Low Stock Alerts',
+      path: '/lowstock',
+      count: lowStockCount,
+    },
+    {
+      icon: <FiList />,
+      label: 'Pre Order Items',
+      path: '/PreOrder',
+      count: pendingOrderCount,
+    },
     { icon: <FiPlus />, label: 'Add Item', path: '/add-product' },
     { icon: <FiEdit />, label: 'Update Item', path: '/update-product' },
   ];
@@ -97,13 +180,15 @@ export default function AdminSidebar() {
               </button>
             </div>
             <nav className="space-y-2 text-sm">
-              {menuItems.map(({ label, icon, path }) => (
+              {menuItems.map(({ label, icon, path, count }) => (
                 <button
                   key={label}
                   onClick={() => navigateAndClose(path)}
                   className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md text-left"
                 >
-                  {icon} {label}
+                  {icon}
+                  <span className="flex-1 text-left">{label}</span>
+                  {count > 0 && <Badge count={count} />}
                 </button>
               ))}
               <button
@@ -132,13 +217,15 @@ export default function AdminSidebar() {
         </div>
 
         <nav className="space-y-2 text-sm font-medium mt-4">
-          {menuItems.map(({ label, icon, path }) => (
+          {menuItems.map(({ label, icon, path, count }) => (
             <button
               key={label}
               onClick={() => navigate(path)}
               className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-md text-left"
             >
-              {icon} {label}
+              {icon}
+              <span className="flex-1 text-left">{label}</span>
+              {count > 0 && <Badge count={count} />}
             </button>
           ))}
           <button
