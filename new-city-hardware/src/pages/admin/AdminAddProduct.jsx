@@ -14,6 +14,8 @@ import { db, storage } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
+import { auth } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminAddProduct() {
   const [categories, setCategories] = useState([]);
@@ -21,6 +23,7 @@ export default function AdminAddProduct() {
   const fileInputRef = useRef(null);
   const [imageFile, setImageFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState({
     name: '',
@@ -29,8 +32,34 @@ export default function AdminAddProduct() {
     stocks: '',
     description: '',
     category: '',
-    image: '', // This will be the URL
+    image: '',
   });
+
+  // Admin Check on Mount
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        toast.error("You must be logged in to view this page.");
+        navigate('/login');
+        return;
+      }
+      try {
+        const idTokenResult = await user.getIdTokenResult(true);
+        if (!idTokenResult.claims.admin) {
+          toast.error("You don't have admin permissions to view this page.");
+          navigate('/');
+        }else{
+          console.log("✅ Admin verified.");
+        }
+      } catch (error) {
+        console.error("Error checking admin claim:", error);
+        toast.error("Failed to verify admin status. Please try logging in again.");
+        navigate('/login');
+      }
+    };
+    checkAdminStatus();
+  }, [navigate]);
 
   // 🔁 Real-time categories
   useEffect(() => {

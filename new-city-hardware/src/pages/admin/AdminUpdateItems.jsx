@@ -11,10 +11,12 @@ import {
   onSnapshot,
   setDoc,
 } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import toast, { Toaster } from 'react-hot-toast';
 import { ref, deleteObject } from 'firebase/storage';
 import { storage } from '../../firebase';
+import { auth } from '../../firebase';
 
 export default function AdminUpdateProducts() {
   const [products, setProducts] = useState([]);
@@ -23,7 +25,33 @@ export default function AdminUpdateProducts() {
   const [viewProduct, setViewProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const navigate = useNavigate();
 
+  // Admin Check on Mount
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        toast.error("You must be logged in to view this page.");
+        navigate('/login');
+        return;
+      }
+      try {
+        const idTokenResult = await user.getIdTokenResult(true);
+        if (!idTokenResult.claims.admin) {
+          toast.error("You don't have admin permissions to view this page.");
+          navigate('/');
+        }else{
+          console.log("✅ Admin verified.");
+        }
+      } catch (error) {
+        console.error("Error checking admin claim:", error);
+        toast.error("Failed to verify admin status. Please try logging in again.");
+        navigate('/login');
+      }
+    };
+    checkAdminStatus();
+  }, [navigate]);
 
   // 🔁 Fetch all products
   const fetchAllProducts = async () => {

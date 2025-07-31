@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore'; // getDoc is used here
+import { collection, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Line, Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { db } from '../../firebase';
 import AdminSidebar from '../../components/AdminSidebar';
 import { getMonth, getDate, parseISO } from 'date-fns';
-import { auth } from '../../firebase'; // Import auth for admin check
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
-import toast from 'react-hot-toast'; // Import toast for user feedback
+import { auth } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Timestamp, query, where } from 'firebase/firestore';
@@ -18,7 +18,7 @@ export default function AdminDashboard() {
   const [mostViewedProducts, setMostViewedProducts] = useState([]);
   const [monthlyVisitors, setMonthlyVisitors] = useState([]);
   const [dailyVisitors, setDailyVisitors] = useState([]);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -35,7 +35,9 @@ export default function AdminDashboard() {
         const idTokenResult = await user.getIdTokenResult(true);
         if (!idTokenResult.claims.admin) {
           toast.error("You don't have admin permissions to view this page.");
-          navigate('/'); // Redirect to home or another non-admin page
+          navigate('/');
+        }else{
+          console.log("✅ Admin verified.");
         }
       } catch (error) {
         console.error("Error checking admin claim:", error);
@@ -53,7 +55,6 @@ export default function AdminDashboard() {
         setTotalUsers(snap.size);
       } catch (error) {
         console.error("Error fetching total users:", error);
-        // Do not show toast here as it might be a permission issue for non-admin on refresh
       }
     };
     fetchUsers();
