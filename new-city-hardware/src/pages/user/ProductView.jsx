@@ -11,6 +11,9 @@ import { db, auth } from "../../firebase";
 import toast from "react-hot-toast";
 import { FiArrowLeft, FiShoppingCart } from "react-icons/fi";
 import { useRef } from 'react';
+import { FiBox } from "react-icons/fi";
+import { FiAlertCircle } from "react-icons/fi";
+
 
 export default function ProductView() {
   const { id, category } = useParams();
@@ -159,16 +162,24 @@ export default function ProductView() {
             
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
-            
 
             <button
               onClick={handleBuy}
               disabled={product.stocks <= 0}
-              className={`w-full py-3 rounded-full font-medium text-white transition ${
-                product.stocks <= 0 ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"
+              className={`w-full py-3 rounded-full font-medium text-white transition flex items-center justify-center gap-2 ${
+                product.stocks <= 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-black hover:bg-gray-900"
               }`}
             >
-              {product.stocks > 0 ? "Add to Cart" : "Out of Stock"}
+              {product.stocks > 0 ? (
+                <>
+                  <FiShoppingCart className="text-lg" />
+                  Add to Cart
+                </>
+              ) : (
+                "Out of Stock"
+              )}
             </button>
           </div>
 
@@ -183,11 +194,32 @@ export default function ProductView() {
           </div>
 
           <div className="border-t pt-4">
+            <div className="flex items-center gap-2 mb-2 relative group">
+              <h2 className="font-semibold text-md flex items-center gap-1">
+                <FiBox /> Stocks:
+              </h2>
+              <p
+                className={`text-sm font-bold ${
+                  product.stocks <= 5 ? "text-red-500" : "text-gray-800"
+                }`}
+              >
+                {product.stocks}
+              </p>
+
+              {product.stocks <= 5 && (
+                <div className="absolute left-0 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded shadow-lg hidden group-hover:flex items-center gap-1 z-10">
+                  <FiAlertCircle className="text-yellow-400" /> Hurry! Only a few left.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
             <h2 className="font-semibold text-md mb-2">Shipping</h2>
             <ul className="text-sm text-gray-600 space-y-1">
               {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
               <li>Package: <span className="font-medium text-black">Regular Package</span></li>
-              <li>Est. Arrival: <span className="font-medium text-black">Please come within 7 days after pre-order your product.</span></li>
+              <li>Est. Pickup: <span className="font-medium text-black">Please come within 7 days after pre-order your product</span></li>
             </ul>
           </div>
         </div>
