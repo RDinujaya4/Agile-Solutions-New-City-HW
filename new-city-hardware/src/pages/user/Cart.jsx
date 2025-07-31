@@ -225,14 +225,41 @@ export default function Cart() {
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
-                        -
+                        <FiMinus>
+                        </FiMinus>
                       </button>
-                      <span className="text-gray-900 font-medium text-base">{item.quantity}</span>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const inputQty = parseInt(e.target.value, 10);
+                            if (isNaN(inputQty) || inputQty < 1) return;
+
+                            // Fetch current stock and auto-correct if needed
+                            const checkAndUpdate = async () => {
+                              const productRef = doc(db, 'products', item.category, 'items', item.id);
+                              const productSnap = await getDoc(productRef);
+                              const stock = productSnap.data()?.stocks || 0;
+
+                              if (inputQty > stock) {
+                                toast.error(`Only ${stock} items in stock for "${item.name}". Quantity adjusted.`);
+                                updateQuantity(item.id, stock);
+                              } else {
+                                updateQuantity(item.id, inputQty);
+                              }
+                            };
+
+                            checkAndUpdate();
+                          }}
+                          className="w-16 border rounded px-2 py-1 text-center text-gray-900 font-medium"
+                        />
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
-                        +
+                        <FiPlus>
+                        </FiPlus>
                       </button>
                     </div>
                   </div>
