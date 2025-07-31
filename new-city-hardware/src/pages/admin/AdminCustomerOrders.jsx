@@ -14,6 +14,7 @@ import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { progress } from 'framer-motion';
 
 export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
@@ -76,6 +77,7 @@ export default function AdminCustomerOrders() {
           total_value: `Rs.${orderData.total}`,
           items,
           status: orderData.status,
+          progress: orderData.progress,
         });
       }
 
@@ -99,6 +101,7 @@ export default function AdminCustomerOrders() {
           total_value: `Rs.${orderData.total}`,
           items,
           status: 'PickedUp',
+          progress: 'PickedUp'
         });
       }
 
@@ -156,6 +159,7 @@ export default function AdminCustomerOrders() {
       await setDoc(doc(db, "pickupOrders", order.orderId), {
         ...dataToArchive,
         status: "PickedUp",
+        progress: 'PickedUp',
         pickedUpAt: new Date(),
       });
 
@@ -229,6 +233,7 @@ export default function AdminCustomerOrders() {
         await setDoc(doc(db, "removedOrders", order.orderId), {
           ...dataToArchive,
           status: "Removed",
+          progress: 'Removed',
           canceledAt: new Date(),
         });
 

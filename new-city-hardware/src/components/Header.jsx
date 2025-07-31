@@ -6,6 +6,7 @@ import {
   FiMenu,
   FiX,
   FiLogOut,
+  FiTruck,
 } from "react-icons/fi";
 import logo from "../assets/Logo.png";
 import { useCart } from "../context/CartContext";
@@ -40,6 +41,10 @@ function Header() {
     }
   };
 
+  const handleNavigate = (path) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(path);
+  };
 
   return (
     <header className="bg-slate-900 text-white shadow h-16 z-50 relative">
@@ -72,6 +77,12 @@ function Header() {
           <Link to="/contact" className="hover:text-blue-400">
             Contact
           </Link>
+          <button
+            onClick={() => handleNavigate('/orders')}
+            className="hover:text-blue-400 flex items-center gap-1"
+          >
+            <FiTruck size={18} /> Orders
+          </button>
           <Link
             to="/cart"
             className="hover:text-blue-400 relative flex items-center gap-1"
@@ -141,6 +152,15 @@ function Header() {
           >
             Contact
           </Link>
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleNavigate('/orders');
+            }}
+            className="hover:text-blue-400 flex items-center gap-2"
+          >
+            <FiTruck size={18} /> Orders
+          </button>
           <Link
             to="/cart"
             onClick={() => setIsMobileMenuOpen(false)}
