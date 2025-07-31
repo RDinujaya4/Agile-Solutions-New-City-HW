@@ -119,7 +119,7 @@ export default function OrderHistory() {
           <div className="w-full md:w-2/3 space-y-2">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Order #{order.orderNumber}</h4>
-              <span className="text-xs text-gray-500">Status: {order.status}</span>
+              <span className="text-xm text-gray-800">Status: {order.status}</span>
             </div>
             <p className="text-sm text-gray-600">Email: {order.email}</p>
             <p className="text-sm text-gray-600">Username: {order.username}</p>
@@ -135,7 +135,7 @@ export default function OrderHistory() {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 object-contain border rounded-md"
+                    className="w-16 h-16 object-contain rounded-md"
                   />
                   <div>
                     <p className="text-sm font-medium">{item.name}</p>
@@ -164,10 +164,52 @@ export default function OrderHistory() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 min-h-screen">
-      <h2 className="text-xl font-semibold mb-6 text-center">Your Order History</h2>
+      <h2 className="text-4xl font-semibold mb-6 text-center">Your Order History</h2>
 
       {loading ? (
-        <p className="text-center">Loading your orders...</p>
+        <div className="space-y-6">
+          {[...Array(2)].map((_, index) => (
+            <div
+              key={index}
+              className="animate-pulse bg-gray-100 rounded-lg shadow-lg p-5 mb-6 border border-gray-200"
+            >
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Milestone Skeleton */}
+                <div className="w-full md:w-1/3 space-y-4">
+                  {[...Array(4)].map((_, idx) => (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-gray-300" />
+                      <div className="h-4 w-24 bg-gray-300 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Summary Skeleton */}
+                <div className="w-full md:w-2/3 space-y-3">
+                  <div className="h-4 bg-gray-300 rounded w-32"></div>
+                  <div className="h-3 bg-gray-300 rounded w-48"></div>
+                  <div className="h-3 bg-gray-300 rounded w-40"></div>
+                  <div className="h-3 bg-gray-300 rounded w-36"></div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center space-x-4 border p-2 rounded-md bg-gray-50"
+                      >
+                        <div className="w-16 h-16 bg-gray-300 rounded-md" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-gray-300 rounded"></div>
+                          <div className="h-3 w-20 bg-gray-300 rounded"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <>
           {/* Current Orders */}
