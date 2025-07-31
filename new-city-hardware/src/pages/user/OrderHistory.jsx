@@ -166,7 +166,12 @@ export default function OrderHistory() {
     <div className="max-w-5xl mx-auto px-4 py-8 min-h-screen">
       <h2 className="text-4xl font-semibold mb-6 text-center">Your Order History</h2>
 
-      {loading ? (
+      {!user ? (
+        <p className="text-center text-red-500 text-lg">
+          Please make a Pre order and view your order history.
+        </p>
+      ) : loading ? (
+        // ⬇️ Skeleton loader stays the same
         <div className="space-y-6">
           {[...Array(2)].map((_, index) => (
             <div
@@ -174,7 +179,6 @@ export default function OrderHistory() {
               className="animate-pulse bg-gray-100 rounded-lg shadow-lg p-5 mb-6 border border-gray-200"
             >
               <div className="flex flex-col md:flex-row gap-6">
-                {/* Milestone Skeleton */}
                 <div className="w-full md:w-1/3 space-y-4">
                   {[...Array(4)].map((_, idx) => (
                     <div key={idx} className="flex items-center space-x-2">
@@ -183,14 +187,11 @@ export default function OrderHistory() {
                     </div>
                   ))}
                 </div>
-
-                {/* Summary Skeleton */}
                 <div className="w-full md:w-2/3 space-y-3">
                   <div className="h-4 bg-gray-300 rounded w-32"></div>
                   <div className="h-3 bg-gray-300 rounded w-48"></div>
                   <div className="h-3 bg-gray-300 rounded w-40"></div>
                   <div className="h-3 bg-gray-300 rounded w-36"></div>
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                     {[...Array(2)].map((_, i) => (
                       <div

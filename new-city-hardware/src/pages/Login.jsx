@@ -225,22 +225,6 @@ export default function Auth() {
     toast.success("Logout successful!");
   };
 
-  if (userInfo) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-800">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-12 text-white text-center border border-white/10">
-          <h1 className="text-3xl font-bold mb-4">Welcome, {userInfo.username} 👋</h1>
-          <button
-            onClick={handleLogout}
-            className="mt-4 px-6 py-2 bg-yellow-400 text-black font-bold rounded-xl hover:bg-yellow-300 transition"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (authLoading) return <div>Loading...</div>;
 
   return (
