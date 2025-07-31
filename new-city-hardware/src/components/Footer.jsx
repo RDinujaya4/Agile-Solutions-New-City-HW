@@ -35,8 +35,8 @@ function Footer() {
         <div className="flex flex-col lg:items-end">
           <h3 className="text-base font-semibold mb-2">Follow Us</h3>
           <div className="flex space-x-4 mb-3">
-            <a href="#" className="flex items-center gap-1 hover:text-blue-400"><FiFacebook /> Facebook</a>
-            <a href="#" className="flex items-center gap-1 hover:text-blue-400"><FiInstagram /> Instagram</a>
+            <a href="https://facebook.com" className="flex items-center gap-1 hover:text-blue-400"><FiFacebook /> Facebook</a>
+            <a href="https://www.instagram.com/" className="flex items-center gap-1 hover:text-blue-400"><FiInstagram /> Instagram</a>
             <a href="mailto:newcity.hardware.sl@gmail.com" className="flex items-center gap-1 hover:text-blue-400"><FiMail /> Email</a>
           </div>
           <p className="text-xs text-slate-400">&copy; 2025 New City Hardware. All rights reserved.</p>
