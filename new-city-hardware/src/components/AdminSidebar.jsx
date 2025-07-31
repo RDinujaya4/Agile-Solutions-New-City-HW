@@ -23,6 +23,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import useAutoLogout from '../hooks/useAutoLogout';
 
 const Badge = ({ count }) => (
   <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
@@ -37,6 +38,8 @@ export default function AdminSidebar() {
   const [lowStockCount, setLowStockCount] = useState(0);
   const [lowStockMap, setLowStockMap] = useState({});
   const [isOpen, setIsOpen] = useState(false);
+
+  useAutoLogout(10 * 60 * 1000);
 
   useEffect(() => {
     const user = auth.currentUser;

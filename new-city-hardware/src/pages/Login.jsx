@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   onAuthStateChanged,
-  signOut,
+  setPersistence,
+  browserSessionPersistence,
 } from "firebase/auth";
 import {
   doc,
@@ -161,12 +162,14 @@ export default function Auth() {
         const role = userDoc.exists() ? userDoc.data().role : "user";
         navigate(role === "admin" ? "/admindash" : "/");
       } else {
+        await setPersistence(auth, browserSessionPersistence);
+
         await signInWithEmailAndPassword(
           auth,
           formData.email,
           formData.password
         );
-
+        
         await auth.currentUser.getIdToken(true);
         toast.success("Login successful!");
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
@@ -218,12 +221,6 @@ export default function Auth() {
       navigate(role === "admin" ? "/admindash" : "/");
     }
   }, [userInfo, navigate]);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    setUserInfo(null);
-    toast.success("Logout successful!");
-  };
 
   if (authLoading) return <div>Loading...</div>;
 
