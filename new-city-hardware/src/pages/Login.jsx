@@ -33,6 +33,13 @@ export default function Auth() {
     password: "",
   });
   const [usernameAvailable, setUsernameAvailable] = useState(null);
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  });
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   
@@ -53,7 +60,7 @@ export default function Auth() {
       } else {
         setUserInfo(null);
       }
-      setAuthLoading(false); // <- done checking
+      setAuthLoading(false);
     });
 
     return () => unsubscribe();
@@ -84,6 +91,20 @@ export default function Auth() {
     checkUsername();
   }, [formData.username, isSignup]);
 
+  useEffect(() => {
+    if (!isSignup) return;
+
+    const { password } = formData;
+
+    setPasswordStrength({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    });
+  }, [formData.password, isSignup]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -107,6 +128,13 @@ export default function Auth() {
           setLoading(false);
           return;
         }
+
+        const allValid = Object.values(passwordStrength).every((v) => v === true);
+          if (!allValid) {
+            toast.error("Please choose a stronger password.");
+            setLoading(false);
+            return;
+          }
 
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -136,7 +164,7 @@ export default function Auth() {
           formData.password
         );
 
-        await auth.currentUser.getIdToken(true); // ← Force refresh here
+        await auth.currentUser.getIdToken(true);
         toast.success("Login successful!");
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const role = userDoc.exists() ? userDoc.data().role : "user";
@@ -194,7 +222,6 @@ export default function Auth() {
     toast.success("Logout successful!");
   };
 
-  // Show welcome screen if logged in
   if (userInfo) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-800">
@@ -353,9 +380,25 @@ export default function Auth() {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Minimum length is 8 characters.
-              </p>
+              {isSignup && formData.password.length > 0 && (
+                <div className="text-xs mt-2 text-gray-400 space-y-1 transition-opacity duration-300">
+                  <p className={passwordStrength.length ? "text-green-400" : "text-red-400"}>
+                    • At least 8 characters
+                  </p>
+                  <p className={passwordStrength.uppercase ? "text-green-400" : "text-red-400"}>
+                    • At least one uppercase letter
+                  </p>
+                  <p className={passwordStrength.lowercase ? "text-green-400" : "text-red-400"}>
+                    • At least one lowercase letter
+                  </p>
+                  <p className={passwordStrength.number ? "text-green-400" : "text-red-400"}>
+                    • At least one number
+                  </p>
+                  <p className={passwordStrength.special ? "text-green-400" : "text-red-400"}>
+                    • At least one special character (!@#$%^...)
+                  </p>
+                </div>
+              )}
             </div>
 
             <button
