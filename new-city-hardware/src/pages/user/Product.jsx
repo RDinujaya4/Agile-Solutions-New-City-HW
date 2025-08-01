@@ -36,6 +36,7 @@ import toast from 'react-hot-toast';
 import { Link, useLocation } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { Toast } from '../../utils/toast';
 
 export default function Products() {
   const location = useLocation();
@@ -117,7 +118,10 @@ export default function Products() {
 
   const handleAddToCart = async (product) => {
     const userId = auth.currentUser?.uid;
-    if (!userId) return toast.error('You must be logged in to add items to cart.');
+    if (!userId) return Toast.fire({
+      icon: 'error',
+      title: 'You must be logged in to add items to cart.',
+    });
 
     if (product.stocks <= 0) return toast.error('This item is out of stock.');
     
