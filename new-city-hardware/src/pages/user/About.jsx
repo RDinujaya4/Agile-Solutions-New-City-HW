@@ -1,7 +1,9 @@
 import { FiTool, FiUsers, FiMapPin, FiAward } from 'react-icons/fi';
 import AboutUs from '../../assets/AboutUs.png';
+import { useNavigate } from 'react-router-dom';
 
 function About() {
+  const navigate = useNavigate();
   return (
     <main className="text-slate-800">
       {/* Hero Section */}
@@ -139,9 +141,18 @@ function About() {
       <section className="bg-slate-600 text-white py-16 text-center px-4">
         <h2 className="text-2xl font-bold">We’re Here to Help You Build Better</h2>
         <p className="mt-2">Visit our store or get in touch to learn more about how we can support your next project.</p>
-        <button className="mt-6 px-6 py-3 bg-white text-blue-700 font-medium rounded-xl hover:bg-slate-100 transition">
+        {/* <button className="mt-6 px-6 py-3 bg-white text-blue-700 font-medium rounded-xl hover:bg-slate-100 transition">
           Contact Us
-        </button>
+        </button> */}
+        <button
+        onClick={() => {
+          navigate('/contact');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className="mt-6 px-6 py-3 bg-white text-blue-700 font-medium rounded-xl hover:bg-slate-100 transition"
+      >
+        Contact Us
+      </button>
       </section>
     </main>
   );
