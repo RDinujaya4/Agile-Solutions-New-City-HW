@@ -21,6 +21,7 @@ export default function Cart() {
   const { user, authLoading } = useAuthState();
   const userId = user?.uid;
   const [cartItems, setCartItems] = useState([]);
+  const [editableQuantities, setEditableQuantities] = useState({});
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -33,6 +34,9 @@ export default function Cart() {
         ...doc.data()
       }));
       setCartItems(items);
+      setEditableQuantities(
+        Object.fromEntries(items.map((item) => [item.id, item.quantity]))
+      );
     };
 
     if (!authLoading) {
@@ -67,6 +71,7 @@ export default function Cart() {
       setCartItems(prev =>
         prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
       );
+      setEditableQuantities((prev) => ({ ...prev, [id]: newQty }));
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error("Failed to update item quantity.");
@@ -95,11 +100,20 @@ export default function Cart() {
       toast.error("Your cart is empty.");
       return;
     }
+    const invalidQty = cartItems.some((item) => {
+      const qty = editableQuantities[item.id];
+      return !qty || parseInt(qty, 10) < 1;
+    });
+
+    if (invalidQty) {
+      toast.error("Please ensure all items have quantity of at least 1.");
+      return;
+    }
 
     //  Show confirm dialog first
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: "You can't cancel the order later!",
+      text: "You can't cancel the order later!\nMake sure to double check what you order.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -231,27 +245,34 @@ export default function Cart() {
                       </button>
                         <input
                           type="number"
-                          min="1"
-                          value={item.quantity}
+                          min="0"
+                          value={editableQuantities[item.id] ?? item.quantity}
                           onChange={(e) => {
-                            const inputQty = parseInt(e.target.value, 10);
-                            if (isNaN(inputQty) || inputQty < 1) return;
+                            const value = e.target.value;
+                            setEditableQuantities((prev) => ({ ...prev, [item.id]: value }));
+                          }}
+                          onBlur={async () => {
+                            const inputQty = parseInt(editableQuantities[item.id], 10);
 
-                            // Fetch current stock and auto-correct if needed
-                            const checkAndUpdate = async () => {
-                              const productRef = doc(db, 'products', item.category, 'items', item.id);
-                              const productSnap = await getDoc(productRef);
-                              const stock = productSnap.data()?.stocks || 0;
+                            if (isNaN(inputQty) || inputQty < 1) {
+                              toast.error("Enter at least 1 item.");
+                              updateQuantity(item.id, 1);
+                              setEditableQuantities((prev) => ({ ...prev, [item.id]: 1 }));
+                              return;
+                            }
 
-                              if (inputQty > stock) {
-                                toast.error(`Only ${stock} items in stock for "${item.name}". Quantity adjusted.`);
-                                updateQuantity(item.id, stock);
-                              } else {
-                                updateQuantity(item.id, inputQty);
-                              }
-                            };
+                            const productRef = doc(db, 'products', item.category, 'items', item.id);
+                            const productSnap = await getDoc(productRef);
+                            const stock = productSnap.data()?.stocks || 0;
 
-                            checkAndUpdate();
+                            if (inputQty > stock) {
+                              toast.error(`Only ${stock} items in stock for "${item.name}". Quantity adjusted.`);
+                              updateQuantity(item.id, stock);
+                              setEditableQuantities((prev) => ({ ...prev, [item.id]: stock }));
+                            } else {
+                              updateQuantity(item.id, inputQty);
+                              setEditableQuantities((prev) => ({ ...prev, [item.id]: inputQty }));
+                            }
                           }}
                           className="w-16 border rounded px-2 py-1 text-center text-gray-900 font-medium"
                         />
