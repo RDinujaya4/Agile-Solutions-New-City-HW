@@ -14,6 +14,7 @@ import { useRef } from 'react';
 import { FiBox } from "react-icons/fi";
 import { FiAlertCircle } from "react-icons/fi";
 import { Toast } from '../../utils/toast';
+import ZoomImage from '../../components/ZoomImage';
 
 export default function ProductView() {
   const { id, category } = useParams();
@@ -63,7 +64,11 @@ export default function ProductView() {
 
   const handleBuy = async () => {
     const userId = auth.currentUser?.uid;
-    if (!userId) return toast.error(`Login to buy the ${product.name}.`);
+    if (!userId) return Toast.fire({
+      icon: 'error',
+      title: `Login to buy the ${product.name}.`,
+    });
+
     if (product.stocks <= 0) return toast.error("Out of stock.");
 
     const cartRef = doc(db, "carts", userId, "items", id);
@@ -157,7 +162,7 @@ export default function ProductView() {
         <div className="flex flex-col items-center">
           <div className="relative w-full h-96 flex items-center justify-center overflow-hidden rounded-2xl z-10">
 
-            <img
+            <ZoomImage
               src={product.image}
               alt={product.name}
               className="object-contain max-h-full max-w-full"

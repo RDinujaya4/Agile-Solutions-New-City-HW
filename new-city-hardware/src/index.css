@@ -23,3 +23,19 @@
 .colored-toast .swal2-title {
   color: white;
 }
+
+.zoom-container {
+  position: relative;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.zoom-image {
+  transition: transform 0.3s ease;
+  transform-origin: center center;
+}
+
+.zoom-container:hover .zoom-image {
+  transform: scale(2);
+}
+

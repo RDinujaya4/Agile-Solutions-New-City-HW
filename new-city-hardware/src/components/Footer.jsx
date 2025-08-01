@@ -35,6 +35,7 @@ function Footer() {
             <a href="mailto:newcity.hardware.sl@gmail.com" className="flex items-center gap-1 hover:text-blue-400"><FiMail /> Email</a>
           </div>
           <p className="text-xs text-slate-400">&copy; 2025 New City Hardware. All rights reserved.</p>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:underline"> Terms and Privacy Policy </a>
         </div>
 
       </div>
