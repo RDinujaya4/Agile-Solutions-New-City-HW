@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff; /* Optional: white background */
+  background-color: #ffffff;
 }
 
 .loading-text {

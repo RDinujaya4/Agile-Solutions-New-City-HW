@@ -15,7 +15,6 @@ export default function useProducts(filters) {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Real-time brand listener
   useEffect(() => {
     const brandUnsub = onSnapshot(
       collectionGroup(db, 'items'),
@@ -35,7 +34,6 @@ export default function useProducts(filters) {
     return () => brandUnsub();
   }, []);
 
-  // 🔄 Product fetch on filter change (no real-time)
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);

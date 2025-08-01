@@ -42,7 +42,7 @@ function App() {
   const { loading } = useAuth();
 
   useEffect(() => {
-    trackVisitor(); // track visit on load
+    trackVisitor();
   }, []);
 
   if (loading) return <Loader />;

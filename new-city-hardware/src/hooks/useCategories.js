@@ -22,7 +22,6 @@ export default function useCategories() {
           });
         }
 
-        // Add "All Products" option
         const totalItems = categoryList.reduce((sum, c) => sum + c.items, 0);
         setCategories([{ name: 'All Products', items: totalItems }, ...categoryList]);
       } catch (error) {

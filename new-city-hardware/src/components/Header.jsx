@@ -15,6 +15,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import toast from "react-hot-toast";
 import Swal from 'sweetalert2';
+import { Toast } from '../utils/toast';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,7 +37,11 @@ function Header() {
 
     if (result.isConfirmed) {
       await signOut(auth);
-      toast.success('Logged out successfully');
+      Toast.fire({
+        icon: 'success',
+        title: 'Logged out successfully',
+      });
+
       navigate('/login');
     }
   };
@@ -49,7 +54,6 @@ function Header() {
   return (
     <header className="bg-slate-900 text-white shadow h-16 z-50 relative">
       <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center overflow-hidden">
-        {/* Logo + Brand Name */}
         <Link to="/" className="flex items-center space-x-2 h-full">
           <div className="h-full flex items-center overflow-hidden">
             <img
@@ -63,7 +67,6 @@ function Header() {
           </span>
         </Link>
 
-        {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-6 text-sm">
           <Link to="/" className="hover:text-blue-400">
             Home
@@ -112,7 +115,6 @@ function Header() {
           )}
         </nav>
 
-        {/* Mobile Toggle Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-white focus:outline-none"
@@ -121,7 +123,6 @@ function Header() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-slate-800 text-sm flex flex-col items-start px-6 py-4 space-y-3">
           <Link

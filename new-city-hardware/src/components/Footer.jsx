@@ -1,13 +1,10 @@
-import { Link } from 'react-router-dom';
 import { FiHome, FiBox, FiInfo, FiMail, FiFacebook, FiInstagram, FiArrowUp } from 'react-icons/fi';
-
 
 function Footer() {
   return (
     <footer className="bg-slate-900 text-white text-sm">
       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
 
-        {/* Contact Info */}
         <div className="space-y-1">
           <h3 className="text-base font-semibold">Contact Us</h3>
           <p>No 33/1, Hanwella Road, Kirindiwela</p>
@@ -20,7 +17,6 @@ function Footer() {
           </p>
         </div>
 
-        {/* Quick Links */}
         <div className="flex flex-col lg:items-center">
           <h3 className="text-base font-semibold mb-2">Quick Links</h3>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
@@ -31,7 +27,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Socials */}
         <div className="flex flex-col lg:items-end">
           <h3 className="text-base font-semibold mb-2">Follow Us</h3>
           <div className="flex space-x-4 mb-3">
@@ -44,7 +39,6 @@ function Footer() {
 
       </div>
 
-      {/* Scroll to top button */}
       <div className="fixed bottom-6 right-6 lg:hidden z-50">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
