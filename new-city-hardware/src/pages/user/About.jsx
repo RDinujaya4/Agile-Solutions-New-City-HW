@@ -145,14 +145,14 @@ function About() {
           Contact Us
         </button> */}
         <button
-        onClick={() => {
-          navigate('/contact');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        className="mt-6 px-6 py-3 bg-white text-blue-700 font-medium rounded-xl hover:bg-slate-100 transition"
-      >
-        Contact Us
-      </button>
+          onClick={() => {
+            navigate('/contact');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="mt-6 px-6 py-3 bg-white text-blue-700 font-medium rounded-xl hover:bg-slate-100 transition"
+        >
+          Contact Us
+        </button>
       </section>
     </main>
   );
