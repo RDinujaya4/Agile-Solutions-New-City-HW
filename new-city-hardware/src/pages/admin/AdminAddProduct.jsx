@@ -1,5 +1,3 @@
-// ✅ Full Working AdminAddProduct Page with Firestore + Firebase Storage + Real-time Category Updates
-
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import {
@@ -16,6 +14,7 @@ import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
+import { Toast } from '../../utils/toast';
 
 export default function AdminAddProduct() {
   const [categories, setCategories] = useState([]);
@@ -36,33 +35,40 @@ export default function AdminAddProduct() {
     discount: 0,
   });
 
-  // Admin Check on Mount
   useEffect(() => {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
       if (!user) {
-        toast.error("You must be logged in to view this page.");
+        Toast.fire({
+          icon: 'error',
+          title: 'You must be logged in to view this page.',
+        });
         navigate('/login');
         return;
       }
       try {
         const idTokenResult = await user.getIdTokenResult(true);
         if (!idTokenResult.claims.admin) {
-          toast.error("You don't have admin permissions to view this page.");
+          Toast.fire({
+            icon: 'error',
+            title: "You don't have admin permissions to view this page.",
+          });
           navigate('/');
         }else{
           console.log("✅ Admin verified.");
         }
       } catch (error) {
         console.error("Error checking admin claim:", error);
-        toast.error("Failed to verify admin status. Please try logging in again.");
+        Toast.fire({
+          icon: 'error',
+          title: 'Failed to verify admin status. Please try logging in again.',
+        });
         navigate('/login');
       }
     };
     checkAdminStatus();
   }, [navigate]);
 
-  // 🔁 Real-time categories
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'categories'), (snapshot) => {
       const catList = snapshot.docs.map((doc) => doc.data().name);
@@ -75,23 +81,26 @@ export default function AdminAddProduct() {
   const handleAddCategory = async () => {
     if (newCategory && !categories.includes(newCategory)) {
       try {
-        // 1. Add to categories collection
         await addDoc(collection(db, 'categories'), { name: newCategory });
 
-        // 2. Create corresponding empty document in 'products' collection
         const productCategoryDoc = doc(db, 'products', newCategory);
         await setDoc(productCategoryDoc, {
           createdAt: serverTimestamp(),
           name: newCategory,
         });
 
-        // 3. Pre-fill product category and reset
         setProduct({ ...product, category: newCategory });
         setNewCategory('');
-        toast.success('Category added');
+        Toast.fire({
+          icon: 'success',
+          title: 'Category added',
+        });
       } catch (err) {
         console.error(err);
-        toast.error('Failed to add category');
+        Toast.fire({
+          icon: 'error',
+          title: 'Failed to add category',
+        });
       }
     }
   };
@@ -108,7 +117,10 @@ export default function AdminAddProduct() {
     e.preventDefault();
 
     if (!imageFile) {
-      toast.error('Please select an image');
+      Toast.fire({
+        icon: 'error',
+        title: 'Please select an image',
+      });
       return;
     }
 
@@ -142,11 +154,18 @@ export default function AdminAddProduct() {
       const productRef = doc(collection(categoryRef, 'items'));
       await setDoc(productRef, productData);
 
-      toast.success('Product added successfully');
+      Toast.fire({
+        icon: 'success',
+        title: 'Product added successfully',
+      });
+
       resetForm();
     } catch (err) {
       console.error(err);
-      toast.error('Failed to add product');
+      Toast.fire({
+        icon: 'error',
+        title: 'Failed to add product',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -174,11 +193,10 @@ export default function AdminAddProduct() {
       <AdminSidebar />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-10 flex flex-col lg:flex-row gap-6">
-        {/* Form Section */}
+
         <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-lg p-4 sm:p-6">
           <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Add New Product</h1>
 
-          {/* Category Select */}
           <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
@@ -192,7 +210,6 @@ export default function AdminAddProduct() {
               ))}
             </select>
 
-            {/* Add New Category */}
             <div className="mt-4">
               <label className="text-sm block mb-1">Or Add New Category</label>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -214,7 +231,6 @@ export default function AdminAddProduct() {
             </div>
           </div>
 
-          {/* Product Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
@@ -303,7 +319,6 @@ export default function AdminAddProduct() {
           </form>
         </div>
 
-        {/* Preview Section */}
         <div className="w-full lg:w-1/3 bg-white shadow-md rounded-xl p-4 sm:p-6 h-fit">
           <h2 className="text-lg sm:text-xl font-semibold mb-4">Live Product Preview</h2>
 

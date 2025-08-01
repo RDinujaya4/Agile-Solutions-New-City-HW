@@ -17,6 +17,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { ref, deleteObject } from 'firebase/storage';
 import { storage } from '../../firebase';
 import { auth } from '../../firebase';
+import { Toast } from '../../utils/toast';
 
 export default function AdminUpdateProducts() {
   const [products, setProducts] = useState([]);
@@ -28,33 +29,40 @@ export default function AdminUpdateProducts() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  // Admin Check on Mount
   useEffect(() => {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
       if (!user) {
-        toast.error("You must be logged in to view this page.");
+        Toast.fire({
+          icon: 'error',
+          title: "You must be logged in to view this page.",
+        });
         navigate('/login');
         return;
       }
       try {
         const idTokenResult = await user.getIdTokenResult(true);
         if (!idTokenResult.claims.admin) {
-          toast.error("You don't have admin permissions to view this page.");
+          Toast.fire({
+            icon: 'error',
+            title: "You don't have admin permissions to view this page.",
+          });
           navigate('/');
         }else{
           console.log("✅ Admin verified.");
         }
       } catch (error) {
         console.error("Error checking admin claim:", error);
-        toast.error("Failed to verify admin status. Please try logging in again.");
+        Toast.fire({
+          icon: 'error',
+          title: "Failed to verify admin status. Please try logging in again.",
+        });
         navigate('/login');
       }
     };
     checkAdminStatus();
   }, [navigate]);
 
-  // 🔁 Fetch all products
   const fetchAllProducts = async () => {
     setLoading(true);
     let all = [];
@@ -74,7 +82,6 @@ export default function AdminUpdateProducts() {
     fetchAllProducts();
   }, []);
 
-  // 🔁 Real-time categories
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'categories'), (snap) => {
       setCategories(snap.docs.map(d => d.data().name));
@@ -117,7 +124,6 @@ export default function AdminUpdateProducts() {
     const finalFeatured = featured ?? true;
     const finalCreatedAt = createdAt ?? new Date();
 
-    // Dynamically set label
     const stockCount = parseInt(stocks);
     let label = 'In Stock';
     if (stockCount === 0) label = 'Out of Stock';
@@ -152,7 +158,10 @@ export default function AdminUpdateProducts() {
         )
       );
 
-      toast.success('Product updated successfully');
+      Toast.fire({
+        icon: 'success',
+        title: "Product updated successfully.",
+      });
       closeModal();
       fetchAllProducts();
     } catch (err) {
@@ -191,7 +200,6 @@ export default function AdminUpdateProducts() {
       <main className="flex-1 p-4 md:p-10">
         <h1 className="text-2xl font-bold mb-4">Products</h1>
 
-        {/* Filter Dropdown */}
         <div className="mb-6">
           <select
             className="w-full md:w-60 px-4 py-2 rounded border"
@@ -205,7 +213,6 @@ export default function AdminUpdateProducts() {
           </select>
         </div>
 
-        {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
             [...Array(6)].map((_, i) => (
@@ -226,7 +233,7 @@ export default function AdminUpdateProducts() {
                 key={product.id}
                 className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between"
               >
-                {/* Product Image */}
+
                 <div className="relative">
                   <div className="w-full h-40 flex items-center justify-center bg-white rounded-lg overflow-hidden">
                     <img
@@ -236,7 +243,6 @@ export default function AdminUpdateProducts() {
                     />
                   </div>
 
-                  {/* Stock Label */}
                   <span
                     className={`absolute top-1 right-1 px-2 py-1 text-[11px] sm:text-xs rounded font-semibold text-white ${
                       product.label === 'Low Stock'
@@ -250,7 +256,6 @@ export default function AdminUpdateProducts() {
                   </span>
                 </div>
 
-                {/* Product Info */}
                 <div className="mt-3 space-y-1">
                   <p className="font-semibold text-sm sm:text-base line-clamp-2">
                     {product.name}
@@ -258,7 +263,6 @@ export default function AdminUpdateProducts() {
                   <p className="text-xs sm:text-sm text-gray-600">Stock: {product.stocks}</p>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="mt-4 flex flex-wrap justify-between gap-2">
                   <button
                     onClick={() => setViewProduct(product)}
@@ -284,13 +288,11 @@ export default function AdminUpdateProducts() {
           )}
         </div>
 
-        {/* View Modal */}
         {viewProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
             <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-lg relative overflow-y-auto max-h-[90vh]">
               <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">Product Details</h2>
 
-              {/* Image */}
               <div className="w-full h-48 sm:h-56 flex items-center justify-center bg-white rounded mb-4 overflow-hidden">
                 <img
                   src={viewProduct.image}
@@ -299,7 +301,6 @@ export default function AdminUpdateProducts() {
                 />
               </div>
 
-              {/* Product Info */}
               <div className="space-y-1 text-sm sm:text-base">
                 <p><strong>Name:</strong> {viewProduct.name}</p>
                 <p><strong>Category:</strong> {viewProduct.category}</p>
@@ -310,7 +311,6 @@ export default function AdminUpdateProducts() {
                 <p className="mt-2"><strong>Description:</strong> {viewProduct.description}</p>
               </div>
 
-              {/* Close Button */}
               <button
                 onClick={() => setViewProduct(null)}
                 className="mt-6 w-full bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
@@ -321,7 +321,6 @@ export default function AdminUpdateProducts() {
           </div>
         )}
 
-        {/* Update Modal */}
         {modalOpen && editingProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white/80 backdrop-blur-xl border border-gray-300 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-xl relative">

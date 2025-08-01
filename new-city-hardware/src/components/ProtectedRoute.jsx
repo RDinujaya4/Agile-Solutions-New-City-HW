@@ -22,7 +22,6 @@ export default function ProtectedRoute({ children, roleRequired }) {
           const role = userDoc.data().role;
           setIsAuthorized(role === roleRequired);
         } else {
-          // If user doc doesn't exist, treat as unauthorized
           setIsAuthorized(false);
         }
       } catch (err) {

@@ -13,7 +13,7 @@ import { FiArrowLeft, FiShoppingCart } from "react-icons/fi";
 import { useRef } from 'react';
 import { FiBox } from "react-icons/fi";
 import { FiAlertCircle } from "react-icons/fi";
-
+import { Toast } from '../../utils/toast';
 
 export default function ProductView() {
   const { id, category } = useParams();
@@ -33,20 +33,25 @@ export default function ProductView() {
           const productData = docSnap.data();
           setProduct(productData);
 
-          // ✅ Prevent double increment
           if (!hasUpdatedView.current) {
-            hasUpdatedView.current = true; // mark before calling
+            hasUpdatedView.current = true;
             await updateDoc(productRef, {
               views: increment(1),
             });
           }
         } else {
-          toast.error("Product not found.");
+          Toast.fire({
+            icon: 'error',
+            title: "Product not found.",
+          });
           navigate("/products");
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load product.");
+        Toast.fire({
+          icon: 'error',
+          title: "Failed to load product.",
+        });
         navigate("/products");
       } finally {
         setLoading(false);
@@ -67,15 +72,19 @@ export default function ProductView() {
 
     if (cartSnap.exists()) {
       if (currentQty >= product.stocks) {
-        return toast.error(
-          `You already added the max stock (${product.stocks}).`
-        );
+        return Toast.fire({
+          icon: 'error',
+          title: `You already added the max stock (${product.stocks}).`,
+        });
       }
 
       await updateDoc(cartRef, {
         quantity: currentQty + 1,
       });
-      toast.success(`${product.name} quantity updated in cart.`);
+      Toast.fire({
+        icon: 'success',
+        title: `${product.name} quantity updated in cart.`,
+      });
     } else {
       await setDoc(cartRef, {
         name: product.name,
@@ -86,28 +95,27 @@ export default function ProductView() {
         stocks: product.stocks,
         category: product.category,
       });
-      toast.success(`${product.name} added to cart.`);
+      Toast.fire({
+        icon: 'success',
+        title: `${product.name} added to cart.`,
+      });
     }
   };
 
   if (loading) {
     return (
       <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
-        {/* Back Button */}
         <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
           <button className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black">
             <FiArrowLeft /> Back to Products
           </button>
         </div>
 
-        {/* Skeleton Layout */}
         <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10 animate-pulse">
-          {/* Image Placeholder */}
           <div className="flex justify-center">
             <div className="w-full h-96 bg-gray-200 rounded-2xl"></div>
           </div>
 
-          {/* Right Placeholder Text */}
           <div className="flex flex-col gap-6 justify-between">
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded w-3/4"></div>
@@ -134,7 +142,7 @@ export default function ProductView() {
 
   return (
     <main className="min-h-screen bg-white text-black px-4 py-10 flex flex-col items-center relative">
-      {/* Back Button */}
+
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
         <button
           onClick={() => navigate("/products")}
@@ -144,23 +152,19 @@ export default function ProductView() {
         </button>
       </div>
 
-      {/* Product Section */}
       <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* Left Image Section */}
+
         <div className="flex flex-col items-center">
           <div className="relative w-full h-96 flex items-center justify-center">
-            
-            {/* Left vertical line */}
+
             <div className="absolute left-0 top-0 bottom-0 flex justify-center">
               <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
             </div>
 
-            {/* Right vertical line */}
             <div className="absolute right-0 top-0 bottom-0 flex justify-center">
               <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
             </div>
 
-            {/* Image Box */}
             <div className="w-full h-full overflow-hidden rounded-2xl z-10 relative">
               <img
                 src={product.image}
@@ -177,7 +181,6 @@ export default function ProductView() {
           </div>
         </div>
 
-        {/* Right Details Section */}
         <div className="flex flex-col gap-6 justify-between">
           <div>
             
@@ -216,7 +219,6 @@ export default function ProductView() {
             </button>
           </div>
 
-          {/* Accordion-like Sections */}
           <div className="border-t pt-4">
             <h2 className="font-semibold text-md mb-2">Description & Fit</h2>
             <p className="text-sm text-gray-600">
@@ -250,7 +252,6 @@ export default function ProductView() {
           <div className="border-t pt-4">
             <h2 className="font-semibold text-md mb-2">Pickup</h2>
             <ul className="text-sm text-gray-600 space-y-1">
-              {/* <li>Discount: <span className="font-medium text-black">Disc 50%</span></li> */}
               <li>Package: <span className="font-medium text-black">Regular Package</span></li>
               <li>Est. Pickup: <span className="font-medium text-black">Please come within 7 days after pre-order your product</span></li>
             </ul>

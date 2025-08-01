@@ -24,6 +24,7 @@ import authImage from "../assets/Signup.jpg";
 import toast from 'react-hot-toast';
 import { sendPasswordResetEmail } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
+import { Toast } from '../utils/toast';
 
 export default function Auth() {
   const [isSignup, setIsSignup] = useState(true);
@@ -135,7 +136,10 @@ export default function Auth() {
 
         const allValid = Object.values(passwordStrength).every((v) => v === true);
           if (!allValid) {
-            toast.error("Please choose a stronger password.");
+            Toast.fire({
+              icon: 'warning',
+              title: 'Please choose a stronger password.',
+            });
             setLoading(false);
             return;
           }
@@ -157,7 +161,10 @@ export default function Auth() {
           createdAt: new Date(),
         });
 
-        toast.success("Signup successful!");
+        Toast.fire({
+          icon: 'success',
+          title: "Signup successful!",
+        });
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const role = userDoc.exists() ? userDoc.data().role : "user";
         navigate(role === "admin" ? "/admindash" : "/");
@@ -171,7 +178,10 @@ export default function Auth() {
         );
         
         await auth.currentUser.getIdToken(true);
-        toast.success("Login successful!");
+        Toast.fire({
+          icon: 'success',
+          title: "Login successful!",
+        });
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const role = userDoc.exists() ? userDoc.data().role : "user";
         navigate(role === "admin" ? "/admindash" : "/");
@@ -226,10 +236,8 @@ export default function Auth() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-800">
         <div className="animate-pulse flex flex-col md:flex-row w-full max-w-5xl p-4 gap-6">
-          {/* Left Image Skeleton */}
           <div className="hidden md:block md:w-1/2 bg-gray-700 rounded-2xl h-[75vh]"></div>
 
-          {/* Right Form Skeleton */}
           <div className="flex-1 space-y-4 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/10">
             <div className="h-6 bg-gray-700 rounded w-1/2"></div>
             <div className="h-4 bg-gray-700 rounded w-1/3"></div>
@@ -250,7 +258,6 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">
-      {/* Left Image */}
       <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate-800">
         <div className="p-6">
           <img
@@ -261,7 +268,6 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Right Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-4 bg-slate-800">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 sm:p-10 w-full max-w-xl text-white border border-white/10 mt-[-30px]">
           <div className="text-center mb-6">

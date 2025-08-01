@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Timestamp, query, where } from 'firebase/firestore';
+import { Toast } from '../../utils/toast';
 
 export default function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -26,21 +27,30 @@ export default function AdminDashboard() {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
       if (!user) {
-        toast.error("You must be logged in to view this page.");
+        Toast.fire({
+          icon: 'error',
+          title: "You must be logged in to view this page.",
+        });
         navigate('/login');
         return;
       }
       try {
         const idTokenResult = await user.getIdTokenResult(true);
         if (!idTokenResult.claims.admin) {
-          toast.error("You don't have admin permissions to view this page.");
+          Toast.fire({
+            icon: 'error',
+            title: "You don't have admin permissions to view this page.",
+          });
           navigate('/');
         }else{
           console.log("✅ Admin verified.");
         }
       } catch (error) {
         console.error("Error checking admin claim:", error);
-        toast.error("Failed to verify admin status. Please try logging in again.");
+        Toast.fire({
+          icon: 'error',
+          title: "Failed to verify admin status. Please try logging in again.",
+        });
         navigate('/login');
       }
     };
@@ -119,20 +129,17 @@ export default function AdminDashboard() {
         if (snap.exists()) {
           const data = snap.data();
 
-          // Populate monthly visitors
           if (data.monthly) {
             for (let m = 0; m < 12; m++) {
-              // Construct month string 'yyyy-MM'
               const monthKey = `${currentYear}-${(m + 1).toString().padStart(2, '0')}`;
               monthly[m] = data.monthly[monthKey] || 0;
             }
           }
           setMonthlyVisitors(monthly);
 
-          // Populate daily visitors for current month
           if (data.daily) {
             for (const dayKey in data.daily) {
-              const dateObj = parseISO(dayKey); // 'yyyy-MM-dd'
+              const dateObj = parseISO(dayKey);
               if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
                 const d = getDate(dateObj);
                 dailyMap[d] = (dailyMap[d] || 0) + data.daily[dayKey];
@@ -148,25 +155,30 @@ export default function AdminDashboard() {
           setDailyVisitors(dailyArray);
 
         } else {
-          // If no visitor data exists yet
           setMonthlyVisitors(Array(12).fill(0));
           setDailyVisitors(Array(new Date(currentYear, currentMonth + 1, 0).getDate()).fill(0));
         }
 
       } catch (error) {
         console.error("Error fetching visitor stats:", error);
-        toast.error("Failed to fetch visitor statistics. Check permissions.");
+        Toast.fire({
+          icon: 'error',
+          title: "Failed to fetch visitor statistics. Check permissions.",
+        });
       }
     };
 
     fetchVisitorStats();
-  }, []); // Re-run if current month/year changes
+  }, []);
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const generateSalesReport = async () => {
     if (!startDate || !endDate) {
-      toast.error("Please select both start and end dates.");
+      Toast.fire({
+        icon: 'error',
+        title: "Please select both start and end dates.",
+      });
       return;
     }
 
@@ -183,7 +195,10 @@ export default function AdminDashboard() {
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        toast("No picked up orders in this date range.");
+        Toast.fire({
+          icon: 'warning',
+          title: "No picked up orders in this date range.",
+        });
         return;
       }
 
@@ -219,16 +234,25 @@ export default function AdminDashboard() {
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
 
       saveAs(blob, `Sales_Report_${startDate}_to_${endDate}.xlsx`);
-      toast.success("Excel report downloaded.");
+      Toast.fire({
+        icon: 'success',
+        title: "Excel report downloaded.",
+      });
     } catch (error) {
       console.error("Error generating sales report:", error);
-      toast.error("Failed to generate report. Check Firestore rules or date format.");
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to generate report. Check Firestore rules or date format.",
+      });
     }
   };
 
  const handleExportSalesReport = async () => {
   if (!startDate || !endDate) {
-    toast.error('Please select both start and end dates');
+    Toast.fire({
+      icon: 'error',
+      title: "Please select both start and end dates.",
+    });
     return;
   }
 
@@ -295,7 +319,6 @@ export default function AdminDashboard() {
       ItemTotal: grandTotal,
     });
 
-    // Generate Excel sheet
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Detailed Sales Report');
@@ -307,7 +330,10 @@ export default function AdminDashboard() {
     saveAs(blob, `Detailed_Sales_Report_${startDate}_to_${endDate}.xlsx`);
   } catch (error) {
     console.error("Error exporting sales report:", error);
-    toast.error("Failed to export sales report.");
+    Toast.fire({
+      icon: 'error',
+      title: "Failed to export sales report.",
+    });
   }
 };
 

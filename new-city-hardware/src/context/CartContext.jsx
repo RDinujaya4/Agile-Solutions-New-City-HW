@@ -42,7 +42,7 @@ export function CartProvider({ children }) {
     return () => {
       unsubscribeAuth();
       if (unsubscribeCart) {
-        unsubscribeCart(); // cleanup cart listener on unmount
+        unsubscribeCart();
       }
     };
   }, []);

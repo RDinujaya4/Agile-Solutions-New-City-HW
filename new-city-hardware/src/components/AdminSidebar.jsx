@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import defaultProfile from '../assets/admin-image.png';
 import {
@@ -24,6 +23,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import useAutoLogout from '../hooks/useAutoLogout';
+import { Toast } from '../utils/toast';
 
 const Badge = ({ count }) => (
   <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
@@ -49,14 +49,12 @@ export default function AdminSidebar() {
   }, []);
 
   useEffect(() => {
-    // Live listener for Pending Orders
     const unsubscribeOrders = onSnapshot(
       query(collection(db, 'orders'), where('status', '==', 'Pending')),
       (snapshot) => {
         setPendingOrderCount(snapshot.size);
       }
     );
-    // Live listener for Low Stock across all categories
     const fetchLowStockLive = async () => {
       const categorySnapshots = await getDocs(collection(db, 'products'));
 
@@ -76,7 +74,6 @@ export default function AdminSidebar() {
                 [categoryDoc.id]: lowStock,
               };
 
-              // Update total count
               const total = Object.values(updatedMap).reduce((sum, count) => sum + count, 0);
               setLowStockCount(total);
 
@@ -97,7 +94,6 @@ export default function AdminSidebar() {
       unsubscribeLowStock = cleanup;
     });
 
-    // Cleanup listeners on unmount
     return () => {
       unsubscribeOrders();
       if (unsubscribeLowStock) unsubscribeLowStock();
@@ -117,7 +113,10 @@ export default function AdminSidebar() {
 
     if (result.isConfirmed) {
       await signOut(auth);
-      toast.success('Logged out successfully');
+      Toast.fire({
+        icon: 'success',
+        title: "Logged out successfully",
+      });
       navigate('/login');
     }
   };
@@ -147,7 +146,6 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* Toggle Button for Mobile */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(true)}
@@ -158,7 +156,6 @@ export default function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mobile Overlay Sidebar */}
       {isOpen && (
         <>
           <div
@@ -205,7 +202,6 @@ export default function AdminSidebar() {
         </>
       )}
 
-      {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 bg-white border-r border-gray-300 p-6 space-y-6 min-h-screen">
         <div className="flex items-center gap-3">
           <img

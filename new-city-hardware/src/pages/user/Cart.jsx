@@ -16,6 +16,7 @@ import { auth } from '../../firebase';
 import { useAuthState } from '../../hooks/useAuthState';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
+import { Toast } from '../../utils/toast';
 
 export default function Cart() {
   const { user, authLoading } = useAuthState();
@@ -53,17 +54,22 @@ export default function Cart() {
       const itemData = itemSnap.data();
 
       if (!itemData) {
-        toast.error("Item not found in cart.");
+        Toast.fire({
+          icon: 'error',
+          title: "Item not found in cart.",
+        });
         return;
       }
 
-      // Fetch product stock directly before updating quantity
       const productRef = doc(db, 'products', itemData.category, 'items', id);
       const productSnap = await getDoc(productRef);
       const stockAvailable = productSnap.data()?.stocks || 0;
 
       if (newQty > stockAvailable) {
-        toast.error(`Only ${stockAvailable} items in stock for "${itemData.name}".`);
+        Toast.fire({
+          icon: 'error',
+          title: `Only ${stockAvailable} items in stock for "${itemData.name}".`,
+        });
         return;
       }
 
@@ -74,7 +80,10 @@ export default function Cart() {
       setEditableQuantities((prev) => ({ ...prev, [id]: newQty }));
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast.error("Failed to update item quantity.");
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to update item quantity.",
+      });
     }
   };
 
@@ -83,10 +92,16 @@ export default function Cart() {
     try {
       await deleteDoc(doc(db, 'carts', userId, 'items', id));
       setCartItems(prev => prev.filter(item => item.id !== id));
-      toast.success("Item removed from cart.");
+      Toast.fire({
+        icon: 'success',
+        title: "Item removed from cart.",
+      });
     } catch (error) {
       console.error("Error deleting item:", error);
-      toast.error("Failed to remove item from cart.");
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to remove item from cart.",
+      });
     }
   };
 
@@ -105,7 +120,10 @@ export default function Cart() {
 
   const handleCreateOrder = async () => {
     if (!userId || cartItems.length === 0) {
-      toast.error("Your cart is empty.");
+      Toast.fire({
+        icon: 'error',
+        title: "Your cart is empty.",
+      });
       return;
     }
     const invalidQty = cartItems.some((item) => {
@@ -114,11 +132,13 @@ export default function Cart() {
     });
 
     if (invalidQty) {
-      toast.error("Please ensure all items have quantity of at least 1.");
+      Toast.fire({
+        icon: 'warning',
+        title: "Please ensure all items have quantity of at least 1.",
+      });
       return;
     }
 
-    //  Show confirm dialog first
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You can't cancel the order later!\nMake sure to double check what you order.",
@@ -129,36 +149,34 @@ export default function Cart() {
       confirmButtonText: "Yes, Confirm",
     });
 
-    //  If user cancels, exit
     if (!result.isConfirmed) return;
 
     const batch = writeBatch(db);
 
     try {
-      // Step 1: Check stock availability and prepare stock updates
       for (const item of cartItems) {
         const productRef = doc(db, 'products', item.category, 'items', item.id);
         const productSnap = await getDoc(productRef);
         const productData = productSnap.data();
 
         if (!productData || item.quantity > productData.stocks) {
-          toast.error(`"${item.name}" has only ${productData?.stocks || 0} in stock. Order cannot be placed.`);
+          Toast.fire({
+            icon: 'error',
+            title: `"${item.name}" has only ${productData?.stocks || 0} in stock. Order cannot be placed.`,
+          });
           return;
         }
 
         // batch.update(productRef, { stocks: productData.stocks - item.quantity }); this is where stock reduce if not using cloud function.
       }
 
-      // 🔢 Generate order ID and number
       const newOrderRef = doc(collection(db, 'orders'));
       const orderId = newOrderRef.id;
       const humanReadableOrderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
 
-      // ✅ Step 2: Fetch user details
       const userDetailsSnap = await getDoc(doc(db, 'users', userId));
       const userDetails = userDetailsSnap.exists() ? userDetailsSnap.data() : {};
 
-      // ✅ Step 3: Create main order
       const orderData = {
         userId,
         orderNumber: humanReadableOrderNumber,
@@ -172,7 +190,6 @@ export default function Cart() {
 
       batch.set(newOrderRef, orderData);
 
-      // ✅ Step 4: Add order items and delete from cart
       for (const item of cartItems) {
         const orderItemRef = doc(collection(newOrderRef, 'items'), item.id);
         batch.set(orderItemRef, {
@@ -190,12 +207,10 @@ export default function Cart() {
         batch.delete(cartItemRef);
       }
 
-      // ✅ Step 5: Commit batch
       await batch.commit();
 
       setCartItems([]);
 
-      // 🟢 Show success message
       Swal.fire({
         title: `Order ${humanReadableOrderNumber} placed successfully!`,
         text: "Thank you for shopping with us.",
@@ -221,7 +236,7 @@ export default function Cart() {
         <p className="text-2xl text-center text-gray-500">Your cart is empty.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Cart Items */}
+
           <div className="md:col-span-2 space-y-6">
             {cartItems.map((item) => (
               <div
@@ -229,7 +244,7 @@ export default function Cart() {
                 className="flex items-center justify-between bg-white p-5 rounded-2xl border border-gray-300 shadow-sm hover:shadow-md transition"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 w-full">
-                  {/* Product Image */}
+
                   <div className="w-full sm:w-24 h-24 flex-shrink-0">
                     <img
                       src={item.image}
@@ -238,11 +253,9 @@ export default function Cart() {
                     />
                   </div>
 
-                  {/* Product Info */}
                   <div className="flex-1">
                     <h2 className="font-semibold text-base sm:text-lg mb-2 sm:mb-1">{item.name}</h2>
 
-                    {/* Quantity Controls */}
                     <div className="flex items-center gap-3 mt-1">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -318,7 +331,6 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-300 sticky top-20 h-fit">
             <h2 className="text-xl font-bold mb-4">Order Summary</h2>
             <div className="space-y-3 text-sm mb-4">

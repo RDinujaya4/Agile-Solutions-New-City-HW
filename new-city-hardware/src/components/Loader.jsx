@@ -1,6 +1,4 @@
-// src/components/Loader.jsx
-import React from 'react';
-import '../styles/Loader.css'; // Import CSS file for animation
+import '../styles/Loader.css';
 
 export default function Loader() {
   return (
