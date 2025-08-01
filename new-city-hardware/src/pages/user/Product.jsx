@@ -26,6 +26,7 @@ import {
   FiList,
   FiFilter,
   FiShoppingCart,
+  FiMenu,
 } from 'react-icons/fi';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
