@@ -148,19 +148,32 @@ export default function ProductView() {
       <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Image Section */}
         <div className="flex flex-col items-center">
-          <div className="w-full h-96 overflow-hidden rounded-2xl border">
-          <div className="relative w-full h-full">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="object-contain w-full h-full"
-            />
-            {product.discount > 0 && (
-              <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
-                {product.discount}% OFF
-              </div>
-            )}
-          </div>
+          <div className="relative w-full h-96 flex items-center justify-center">
+            
+            {/* Left vertical line */}
+            <div className="absolute left-0 top-0 bottom-0 flex justify-center">
+              <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
+            </div>
+
+            {/* Right vertical line */}
+            <div className="absolute right-0 top-0 bottom-0 flex justify-center">
+              <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
+            </div>
+
+            {/* Image Box */}
+            <div className="w-full h-full overflow-hidden rounded-2xl z-10 relative">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="object-contain w-full h-full"
+              />
+
+              {product.discount > 0 && (
+                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
+                  {product.discount}% OFF
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
