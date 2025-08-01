@@ -490,23 +490,23 @@ export default function Auth() {
                     </div>
                   )}
                   {isSignup && (
-                  <div className="flex items-start mt-4">
-                    <input
-                      type="checkbox"
-                      checked={agree}
-                      onChange={(e) => setAgree(e.target.checked)}
-                      className="mt-1 mr-2"                  
-                    />
-                    <p className="text-sm">
-                      I agree to the{' '}
-                      <a href="/terms" target="_blank" className="text-blue-600 underline">
-                        Terms of Service and Privacy Policy
-                      </a>
-                    </p>
-                  </div>
+                    <div className="flex items-start space-x-3 mt-4">
+                      <input
+                        id="terms"
+                        type="checkbox"
+                        checked={agree}
+                        onChange={(e) => setAgree(e.target.checked)}
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <p className="text-sm">
+                        I agree to the{' '}
+                        <a href="/terms" target="_blank" className="text-blue-600 underline">
+                          Terms of Service and Privacy Policy
+                        </a>
+                      </p>
+                    </div>
                   )}
                 </div>
-                
 
                 <button
                   type="submit"
