@@ -328,7 +328,7 @@ export default function Products() {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white border border-gray-200 rounded-2xl shadow hover:shadow-md transition w-full max-w-xs mx-auto sm:max-w-sm md:max-w-md"
+                className="bg-gray-100 border border-gray-200 rounded-2xl shadow hover:shadow-md transition w-full max-w-xs mx-auto sm:max-w-sm md:max-w-md"
               >
                 {/* Product Image */}
                 <Link to={`/product/${product.category}/${product.id}`}>
