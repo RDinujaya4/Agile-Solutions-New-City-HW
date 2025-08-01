@@ -8,12 +8,13 @@ import {
   deleteDoc,
   setDoc,
   getDoc,
-  query, // Make sure query is imported
+  query,
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { Toast } from '../../utils/toast';
 
 export default function AdminCustomerOrders() {
   const [orders, setOrders] = useState([]);
@@ -32,18 +33,27 @@ export default function AdminCustomerOrders() {
           console.log('Admin claim:', idTokenResult.claims.admin);
 
           if (!idTokenResult.claims.admin) {
-            toast.error("You don't have admin permissions to view this page.");
+            Toast.fire({
+              icon: 'error',
+              title: "You don't have admin permissions to view this page.",
+            });
             navigate('/');
             return;
           }
           await fetchOrders();
         } catch (error) {
           console.error("Error checking admin claim:", error);
-          toast.error("Failed to verify admin status. Please try logging in again.");
+          Toast.fire({
+            icon: 'error',
+            title: "Failed to verify admin status. Please try logging in again.",
+          });
           navigate('/login');
         }
       } else {
-        toast.error("You must be logged in to view this page.");
+        Toast.fire({
+          icon: 'error',
+          title: "You must be logged in to view this page.",
+        });
         navigate('/login');
       }
     };
@@ -58,7 +68,6 @@ export default function AdminCustomerOrders() {
 
       const allOrders = [];
 
-      // Fetch normal orders
       for (const orderDoc of ordersColSnap.docs) {
         const orderData = orderDoc.data();
         const orderId = orderDoc.id;
@@ -82,7 +91,6 @@ export default function AdminCustomerOrders() {
         });
       }
 
-      // Fetch picked up orders
       for (const pickupDoc of pickupColSnap.docs) {
         const orderData = pickupDoc.data();
         const orderId = pickupDoc.id;
@@ -111,7 +119,10 @@ export default function AdminCustomerOrders() {
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
-      toast.error('Failed to fetch orders. Check console for details.');
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to fetch orders. Check console for details.",
+      });
     }
   };
 
@@ -151,13 +162,15 @@ export default function AdminCustomerOrders() {
       const orderSnap = await getDoc(orderRef);
 
       if (!orderSnap.exists()) {
-        toast.error("Order not found.");
+        Toast.fire({
+          icon: 'error',
+          title: "Order not found.",
+        });
         return;
       }
 
       const dataToArchive = orderSnap.data();
 
-      // Copy to pickupOrders with pickedUpAt
       await setDoc(doc(db, "pickupOrders", order.orderId), {
         ...dataToArchive,
         status: "PickedUp",
@@ -165,7 +178,6 @@ export default function AdminCustomerOrders() {
         pickedUpAt: new Date(),
       });
 
-      // Copy items subcollection
       const itemsSnap = await getDocs(collection(db, "orders", order.orderId, "items"));
       for (const itemDoc of itemsSnap.docs) {
         await setDoc(
@@ -174,17 +186,22 @@ export default function AdminCustomerOrders() {
         );
       }
 
-      // Delete original order and its items
       for (const itemDoc of itemsSnap.docs) {
         await deleteDoc(doc(db, "orders", order.orderId, "items", itemDoc.id));
       }
       await deleteDoc(orderRef);
 
-      toast.success(`Order ${order.orderNumber} marked as picked up.`);
+      Toast.fire({
+        icon: 'success',
+        title: `Order ${order.orderNumber} marked as picked up.`,
+      });
       setOrders((prev) => prev.filter((o) => o.orderId !== order.orderId));
     } catch (err) {
       console.error("Error picking up order:", err);
-      toast.error("Failed to mark as picked up.");
+      Toast.fire({
+        icon: 'error',
+        title: 'Failed to mark as picked up.',
+      });
     }
   };
 
@@ -204,7 +221,6 @@ export default function AdminCustomerOrders() {
     try {
       const itemsSnap = await getDocs(collection(db, "orders", order.orderId, "items"));
 
-      // Restore stock and update label
       for (const itemDoc of itemsSnap.docs) {
         const item = itemDoc.data();
         const productRef = doc(db, "products", item.category, "items", item.productid);
@@ -225,7 +241,6 @@ export default function AdminCustomerOrders() {
         }
       }
 
-      // Move to removedOrders
       const orderRef = doc(db, "orders", order.orderId);
       const orderSnap = await getDoc(orderRef);
 
@@ -246,18 +261,23 @@ export default function AdminCustomerOrders() {
           );
         }
 
-        // Delete original order and its items
         for (const itemDoc of itemsSnap.docs) {
           await deleteDoc(doc(db, "orders", order.orderId, "items", itemDoc.id));
         }
         await deleteDoc(orderRef);
       }
 
-      toast.success(`Order ${order.orderNumber} canceled and stock restored.`);
+      Toast.fire({
+        icon: 'success',
+        title: `Order ${order.orderNumber} canceled and stock restored.`,
+      });
       setOrders((prev) => prev.filter((o) => o.orderId !== order.orderId));
     } catch (err) {
       console.error("Error canceling order:", err);
-      toast.error("Failed to cancel order.");
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to cancel order.",
+      });
     }
   };
 
