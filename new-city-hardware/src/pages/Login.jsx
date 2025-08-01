@@ -222,7 +222,31 @@ export default function Auth() {
     }
   }, [userInfo, navigate]);
 
-  if (authLoading) return <div>Loading...</div>;
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-800">
+        <div className="animate-pulse flex flex-col md:flex-row w-full max-w-5xl p-4 gap-6">
+          {/* Left Image Skeleton */}
+          <div className="hidden md:block md:w-1/2 bg-gray-700 rounded-2xl h-[75vh]"></div>
+
+          {/* Right Form Skeleton */}
+          <div className="flex-1 space-y-4 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/10">
+            <div className="h-6 bg-gray-700 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/3"></div>
+
+            <div className="space-y-4 mt-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-10 bg-gray-700 rounded w-full"></div>
+              ))}
+
+              <div className="h-10 bg-yellow-500/60 rounded w-full mt-4"></div>
+              <div className="h-4 bg-gray-600 rounded w-2/3 mt-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">
