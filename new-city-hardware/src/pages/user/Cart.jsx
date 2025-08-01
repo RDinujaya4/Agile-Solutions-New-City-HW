@@ -90,12 +90,18 @@ export default function Cart() {
     }
   };
 
-  const total = cartItems.reduce((sum, item) => {
-    const discountedPrice = item.discount > 0
-      ? item.price * (1 - item.discount / 100)
-      : item.price;
-    return sum + discountedPrice * item.quantity;
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const totalDiscount = cartItems.reduce((sum, item) => {
+    const discount = item.discount || 0;
+    const discountAmount = (item.price * discount / 100) * item.quantity;
+    return sum + discountAmount;
   }, 0);
+
+  const finalTotal = total - totalDiscount;
 
   const handleCreateOrder = async () => {
     if (!userId || cartItems.length === 0) {
@@ -156,7 +162,7 @@ export default function Cart() {
       const orderData = {
         userId,
         orderNumber: humanReadableOrderNumber,
-        total,
+        total: finalTotal,
         createdAt: Timestamp.now(),
         status: 'Pending',
         progress: 'Processing',
@@ -340,15 +346,16 @@ export default function Cart() {
                 <span className="font-medium text-gray-800">Rs.{total.toFixed(2)}</span>
               </div>
             <div className="flex justify-between">
-                <span className="text-gray-600">Discount</span>
-                <span className="text-green-600">- Rs.{(total * 0).toFixed(2)}</span>
-              </div>
-              <hr className="my-2 border-gray-300" />
-              
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>Rs.{(total * 1).toFixed(2)}</span>
-              </div>
+              <span className="text-gray-600">Discount</span>
+              <span className="text-green-600">- Rs.{totalDiscount.toFixed(2)}</span>
+            </div>
+
+            <hr className="my-2 border-gray-300" />
+
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total</span>
+              <span>Rs.{finalTotal.toFixed(2)}</span>
+            </div>
               
             </div>
 
