@@ -134,7 +134,10 @@ export default function Products() {
       const currentQty = docSnap.exists() ? docSnap.data().quantity : 0;
 
       if (currentQty + 1 > product.stocks) {
-        return toast.error(`Only ${product.stocks} items in stock.`);
+        return Toast.fire({
+          icon: 'error',
+          title: `Only ${product.stocks} items in stock.`,
+        });
       }
 
       if (docSnap.exists()) {
@@ -151,18 +154,24 @@ export default function Products() {
           stocks: product.stocks,
           category: product.category
         });
-      }toast.success(`${product.name} added to cart.`);
+      }Toast.fire({
+        icon: 'success',
+        title: `${product.name} added to cart.`,
+      });
+
     } catch (err) {
       console.error(err);
-      toast.error("Failed to add to cart.");
+      Toast.fire({
+        icon: 'error',
+        title: "Failed to add to cart.",
+      });
     } finally {
-      setAddingId(null); // reset
+      setAddingId(null);
     }
   };
 
   return (
   <main className="min-h-screen bg-white text-black flex">
-    {/* Sidebar */}
     {isSidebarOpen && (
       <aside className="w-60 sticky top-0 h-screen overflow-y-auto bg-gray-100 border-r border-gray-200 p-6 space-y-4 z-20">
         <div className="flex justify-between items-center mb-4">
@@ -210,7 +219,6 @@ export default function Products() {
       </aside>
     )}
 
-    {/* Main Content */}
     <div className="flex-1 px-4 py-10 bg-white">
       <div className="max-w-7xl mx-auto">
         {!isSidebarOpen && (
@@ -228,7 +236,6 @@ export default function Products() {
           <h1 className="text-4xl font-bold">Our Products</h1>
         </div>
 
-        {/* Filter Bar */}
         <section className="mb-12">
           <div className="bg-gray-100 border border-gray-200 rounded-2xl p-6 flex flex-wrap justify-between items-center gap-4">
             <div className="flex items-center bg-white px-4 py-2 rounded-xl flex-1 min-w-[200px] max-w-md border border-gray-300">
@@ -242,7 +249,6 @@ export default function Products() {
               />
             </div>
 
-            {/* Dropdowns */}
             <select
               value={filters.brand}
               onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
@@ -274,7 +280,6 @@ export default function Products() {
               <option>Best Selling</option>
             </select>
 
-            {/* Toggle View */}
             <div className="flex gap-2">
               <button
                 onClick={() => setLayout('grid')}
@@ -294,7 +299,6 @@ export default function Products() {
               </button>
             </div>
 
-            {/* Clear */}
             <button
               onClick={() => setFilters({ search: '', brand: 'All Brands', price: '', sort: 'Featured', category: 'All Products' })}
               className="flex items-center gap-2 px-5 py-2 bg-white text-black border border-gray-300 rounded-xl hover:bg-gray-100 transition"
@@ -305,7 +309,6 @@ export default function Products() {
           </div>
         </section>
 
-        {/* Product Grid/List */}
         {loading ? (
           <div
             className={`grid gap-6 ${
@@ -334,7 +337,6 @@ export default function Products() {
                 key={product.id}
                 className="bg-gray-100 border border-gray-200 rounded-2xl shadow hover:shadow-md transition w-full max-w-xs mx-auto sm:max-w-sm md:max-w-md"
               >
-                {/* Product Image */}
                 <Link to={`/product/${product.category}/${product.id}`}>
                   <div className="relative">
                     <div className="w-full h-48 sm:h-52 md:h-56 flex items-center justify-center bg-white-100 rounded-t-2xl overflow-hidden">
@@ -352,7 +354,6 @@ export default function Products() {
                       </div>
                     </div>
 
-                    {/* Label Badge */}
                     <span
                       className={`absolute top-2 right-2 text-[11px] sm:text-xs px-2 py-1 rounded-full font-semibold text-white ${
                         product.label === 'Out of Stock'
@@ -367,7 +368,6 @@ export default function Products() {
                   </div>
                 </Link>
 
-                {/* Product Info */}
                 <div className="p-4 sm:p-5 space-y-2">
                   <h2 className="text-base sm:text-lg font-semibold text-black line-clamp-2">
                     {product.name}

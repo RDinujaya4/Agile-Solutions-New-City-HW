@@ -2,6 +2,7 @@ import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
 import { useState } from "react";
 import { toast } from 'react-hot-toast';
 import ReCAPTCHA from "react-google-recaptcha";
+import { Toast } from '../../utils/toast';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -15,7 +16,10 @@ export default function Contact() {
     setSuccess(null);
 
     if (!recaptchaToken) {
-      toast.error("Please verify you're not a robot.");
+      Toast.fire({
+        icon: 'warning',
+        title: "Please verify you're not a robot.",
+      });
       setLoading(false);
       return;
     }
@@ -28,17 +32,26 @@ export default function Contact() {
       });
 
       if (response.status === 429) {
-        toast.error("You already sent a message. Try again later.");
+        Toast.fire({
+          icon: 'error',
+          title: "You already sent a message. Try again later.",
+        });
       } else if (response.ok) {
         setSuccess("Message sent successfully!");
-        toast.success("Your message has been sent!");
+        Toast.fire({
+          icon: 'success',
+          title: "Your message has been sent!",
+        });
         setForm({ name: "", email: "", message: "" });
       } else {
         toast.error("Failed to send message.");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong.");
+      Toast.fire({
+        icon: 'question',
+        title: 'Something went wrong.',
+      });
     }
 
   setLoading(false);
@@ -47,14 +60,13 @@ export default function Contact() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-300 via-white-800 to-blue-900 text-white px-4 py-12">
       <div className="max-w-6xl mx-auto">
-        {/* Title */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold">Contact Us</h1>
           <p className="text-slate-200 mt-2">We’d love to hear from you. Reach out with questions or feedback.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
-          {/* Contact Info */}
+
           <div className="bg-white/10 backdrop-blur-lg p-6 rounded-2xl border border-white/10 space-y-6">
             <div>
               <h2 className="text-xl font-semibold mb-2">Our Store</h2>
@@ -77,7 +89,6 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Form */}
           <div className="md:col-span-2 bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/10">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>

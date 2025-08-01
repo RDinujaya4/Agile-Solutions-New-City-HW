@@ -1,17 +1,13 @@
 import { useState } from 'react';
 import { FiSearch, FiMapPin, FiClock, FiPhone, FiMail, FiPackage, FiUsers, FiAward, FiStar } from 'react-icons/fi';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
 
-// Category Images
 import powerTools from '../../assets/power-tools.png';
 import handTools from '../../assets/hand-tools.png';
 import plumbing from '../../assets/plumbing.png';
@@ -56,7 +52,7 @@ function Home() {
           return unique;
         }, []);
 
-      setSearchResults(filtered.slice(0, 6)); // limit to 6
+      setSearchResults(filtered.slice(0, 6));
     });
 
     return () => unsubscribe();
@@ -64,7 +60,7 @@ function Home() {
 
   return (
     <main className="text-slate-100">
-     {/* Hero Section with Background */}
+ 
       <section
         className="mt-4 py-32 px-4 text-center bg-cover bg-center bg-no-repeat relative"
         style={{
@@ -72,7 +68,7 @@ function Home() {
         }}
       >
         <div className="absolute inset-0 bg-slate bg-opacity-50"></div>
-           {/* Content Box with transparent background */}
+
           <div className="relative z-10 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-lg">
             <h2 className="text-4xl font-bold text-black">
               Trusted for over 35 years
@@ -107,7 +103,6 @@ function Home() {
           </div>
       </section>
 
-      {/* Stats Section */}
       <section className="bg-white py-16 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
           <div>
@@ -133,7 +128,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
       <section className="bg-white py-16 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center">
           <div className="p-6 border border-slate-200 rounded-xl shadow-sm">
@@ -151,8 +145,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Categories */}
-      // inside the map function of categories section
       <section className="max-w-6xl mx-auto px-4 py-16">
         <h3 className="text-2xl text-slate-600 font-semibold mb-8 text-center">Popular Categories</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -174,7 +166,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Visit Section */}
       <section className="bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <span className="text-sm bg-slate-400 text-black font-semibold px-3 py-1 rounded-full inline-block mb-4">
@@ -186,7 +177,7 @@ function Home() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Location */}
+
             <div className="bg-white text-slate-800 p-6 rounded-xl shadow-lg text-left">
               <div className="flex items-center mb-4">
                 <div className="bg-blue-100 p-3 rounded-xl text-blue-600 text-xl mr-3">
@@ -197,7 +188,6 @@ function Home() {
               <p className="mb-2">No 33/1, Hanwella Road, <br /> Kirindiwela</p>
             </div>
 
-            {/* Store Hours */}
             <div className="bg-white text-slate-800 p-6 rounded-xl shadow-lg text-left">
               <div className="flex items-center mb-4">
                 <div className="bg-green-100 p-3 rounded-xl text-green-600 text-xl mr-3">
@@ -209,7 +199,6 @@ function Home() {
               <p className="text-yellow-500 mt-2 font-medium">✨ Extended holiday hours</p>
             </div>
 
-            {/* Contact */}
             <div className="bg-white text-slate-800 p-6 rounded-xl shadow-lg text-left">
               <div className="flex items-center mb-4">
                 <div className="bg-purple-100 p-3 rounded-xl text-purple-600 text-xl mr-3">
@@ -228,7 +217,6 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-white text-black py-14 text-center px-4">
         <h3 className="text-2xl font-bold">Need help finding the right tool?</h3>
         <p className="mt-2">Visit our store or contact us for expert advice.</p>

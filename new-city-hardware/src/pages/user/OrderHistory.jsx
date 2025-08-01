@@ -112,10 +112,8 @@ export default function OrderHistory() {
     return (
       <div key={order.id} className="bg-gray-100 rounded-lg shadow-lg p-5 mb-6 border border-gray-200">
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Milestones */}
           <div className="w-full md:w-1/3">{renderMilestone(order.status, order.progress)}</div>
 
-          {/* Order Summary */}
           <div className="w-full md:w-2/3 space-y-2">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Order #{order.orderNumber}</h4>
@@ -125,7 +123,6 @@ export default function OrderHistory() {
             <p className="text-sm text-gray-600">Username: {order.username}</p>
             <p className="text-sm text-gray-600">Total: Rs.{order.total}</p>
 
-            {/* Items */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
               {visibleItems.map((item, idx) => (
                 <div
@@ -171,7 +168,6 @@ export default function OrderHistory() {
           Please make a Pre order and view your order history.
         </p>
       ) : loading ? (
-        // ⬇️ Skeleton loader stays the same
         <div className="space-y-6">
           {[...Array(2)].map((_, index) => (
             <div
@@ -213,7 +209,6 @@ export default function OrderHistory() {
         </div>
       ) : (
         <>
-          {/* Current Orders */}
           {orders.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-3">Current Orders</h3>
@@ -221,7 +216,6 @@ export default function OrderHistory() {
             </div>
           )}
 
-          {/* Previous Orders */}
           {pickupOrders.length + removedOrders.length > 0 && (
             <div className="mt-10">
               <h3 className="text-lg font-semibold mb-3">Previous Orders</h3>
@@ -231,7 +225,6 @@ export default function OrderHistory() {
             </div>
           )}
 
-          {/* No Orders */}
           {orders.length === 0 &&
             pickupOrders.length === 0 &&
             removedOrders.length === 0 && (
