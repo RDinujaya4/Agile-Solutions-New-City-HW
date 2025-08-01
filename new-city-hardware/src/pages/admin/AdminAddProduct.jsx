@@ -10,7 +10,6 @@ import {
 } from 'firebase/firestore';
 import { db, storage } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';

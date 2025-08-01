@@ -13,7 +13,6 @@ import {
 } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import toast, { Toaster } from 'react-hot-toast';
 import { ref, deleteObject } from 'firebase/storage';
 import { storage } from '../../firebase';
 import { auth } from '../../firebase';

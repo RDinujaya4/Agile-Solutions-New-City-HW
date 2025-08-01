@@ -11,7 +11,6 @@ import {
   query,
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { Toast } from '../../utils/toast';

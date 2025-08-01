@@ -8,13 +8,11 @@ import {
   deleteDoc,
   setDoc,
   getDoc,
-  writeBatch, // Import writeBatch for atomic operations
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Timestamp } from 'firebase/firestore';
-import { auth } from '../../firebase';
 import { useAuthState } from '../../hooks/useAuthState';
-import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { Toast } from '../../utils/toast';
 
@@ -276,7 +274,10 @@ export default function Cart() {
                             const inputQty = parseInt(editableQuantities[item.id], 10);
 
                             if (isNaN(inputQty) || inputQty < 1) {
-                              toast.error("Enter at least 1 item.");
+                              Toast.fire({
+                                icon: 'warning',
+                                title: "Enter at least 1 item.",
+                              });
                               updateQuantity(item.id, 1);
                               setEditableQuantities((prev) => ({ ...prev, [item.id]: 1 }));
                               return;
@@ -287,7 +288,10 @@ export default function Cart() {
                             const stock = productSnap.data()?.stocks || 0;
 
                             if (inputQty > stock) {
-                              toast.error(`Only ${stock} items in stock for "${item.name}". Quantity adjusted.`);
+                              Toast.fire({
+                                icon: 'warning',
+                                title: `Only ${stock} items in stock for "${item.name}". Quantity adjusted.`,
+                              });
                               updateQuantity(item.id, stock);
                               setEditableQuantities((prev) => ({ ...prev, [item.id]: stock }));
                             } else {
