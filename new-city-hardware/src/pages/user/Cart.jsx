@@ -95,6 +95,14 @@ export default function Cart() {
     0
   );
 
+  const totalDiscount = cartItems.reduce((sum, item) => {
+    const discount = item.discount || 0;
+    const discountAmount = (item.price * discount / 100) * item.quantity;
+    return sum + discountAmount;
+  }, 0);
+
+  const finalTotal = total - totalDiscount;
+
   const handleCreateOrder = async () => {
     if (!userId || cartItems.length === 0) {
       toast.error("Your cart is empty.");
@@ -154,7 +162,7 @@ export default function Cart() {
       const orderData = {
         userId,
         orderNumber: humanReadableOrderNumber,
-        total,
+        total: finalTotal,
         createdAt: Timestamp.now(),
         status: 'Pending',
         progress: 'Processing',
@@ -287,7 +295,18 @@ export default function Cart() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-semibold text-gray-800 mb-2">Rs.{(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="text-lg font-semibold text-gray-800 mb-2">
+                    {item.discount > 0 ? (
+                      <>
+                        Rs.{(item.price * (1 - item.discount / 100) * item.quantity).toFixed(2)}
+                        <span className="ml-2 text-sm line-through text-gray-400">
+                          Rs.{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <>Rs.{(item.price * item.quantity).toFixed(2)}</>
+                    )}
+                  </p>
                   <button
                     className="text-red-500 hover:text-red-600 text-sm"
                     onClick={() => deleteItem(item.id)}
@@ -306,7 +325,18 @@ export default function Cart() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between">
                   <span className="text-gray-600">{item.name} x {item.quantity}</span>
-                  <span className="font-medium text-gray-800">Rs.{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium text-gray-800">
+                    {item.discount > 0 ? (
+                      <>
+                        Rs.{(item.price * (1 - item.discount / 100) * item.quantity).toFixed(2)}
+                        <span className="ml-1 text-xs text-gray-400 line-through">
+                          Rs.{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <>Rs.{(item.price * item.quantity).toFixed(2)}</>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
@@ -316,15 +346,16 @@ export default function Cart() {
                 <span className="font-medium text-gray-800">Rs.{total.toFixed(2)}</span>
               </div>
             <div className="flex justify-between">
-                <span className="text-gray-600">Discount</span>
-                <span className="text-green-600">- Rs.{(total * 0).toFixed(2)}</span>
-              </div>
-              <hr className="my-2 border-gray-300" />
-              
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>Rs.{(total * 1).toFixed(2)}</span>
-              </div>
+              <span className="text-gray-600">Discount</span>
+              <span className="text-green-600">- Rs.{totalDiscount.toFixed(2)}</span>
+            </div>
+
+            <hr className="my-2 border-gray-300" />
+
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total</span>
+              <span>Rs.{finalTotal.toFixed(2)}</span>
+            </div>
               
             </div>
 
