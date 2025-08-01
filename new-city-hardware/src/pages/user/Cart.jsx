@@ -90,10 +90,12 @@ export default function Cart() {
     }
   };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cartItems.reduce((sum, item) => {
+    const discountedPrice = item.discount > 0
+      ? item.price * (1 - item.discount / 100)
+      : item.price;
+    return sum + discountedPrice * item.quantity;
+  }, 0);
 
   const handleCreateOrder = async () => {
     if (!userId || cartItems.length === 0) {
@@ -287,7 +289,18 @@ export default function Cart() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-semibold text-gray-800 mb-2">Rs.{(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="text-lg font-semibold text-gray-800 mb-2">
+                    {item.discount > 0 ? (
+                      <>
+                        Rs.{(item.price * (1 - item.discount / 100) * item.quantity).toFixed(2)}
+                        <span className="ml-2 text-sm line-through text-gray-400">
+                          Rs.{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <>Rs.{(item.price * item.quantity).toFixed(2)}</>
+                    )}
+                  </p>
                   <button
                     className="text-red-500 hover:text-red-600 text-sm"
                     onClick={() => deleteItem(item.id)}
@@ -306,7 +319,18 @@ export default function Cart() {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between">
                   <span className="text-gray-600">{item.name} x {item.quantity}</span>
-                  <span className="font-medium text-gray-800">Rs.{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium text-gray-800">
+                    {item.discount > 0 ? (
+                      <>
+                        Rs.{(item.price * (1 - item.discount / 100) * item.quantity).toFixed(2)}
+                        <span className="ml-1 text-xs text-gray-400 line-through">
+                          Rs.{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <>Rs.{(item.price * item.quantity).toFixed(2)}</>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>

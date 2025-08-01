@@ -136,6 +136,7 @@ export default function AdminUpdateProducts() {
         brand,
         price: parseFloat(price),
         stocks: stockCount,
+        discount: parseInt(editingProduct.discount) || 0,
         description,
         category,
         image,
@@ -146,10 +147,10 @@ export default function AdminUpdateProducts() {
       });
 
       setProducts(prev =>
-  prev.map(p =>
-    p.id === editingProduct.id ? { ...editingProduct } : p
-  )
-);
+        prev.map(p =>
+          p.id === editingProduct.id ? { ...editingProduct } : p
+        )
+      );
 
       toast.success('Product updated successfully');
       closeModal();
@@ -340,6 +341,9 @@ export default function AdminUpdateProducts() {
 
                 <label>Stocks</label>
                 <input className="w-full border rounded px-3 py-2" name="stocks" type="number" value={editingProduct.stocks} onChange={handleChange} placeholder="Stocks" />
+
+                <label>Discount (%)</label>
+                <input className="w-full border rounded px-3 py-2" name="discount" type="number" value={editingProduct.discount || 0} onChange={handleChange} placeholder="e.g. 10" />
 
                 <label>Brand</label>
                 <input className="w-full border rounded px-3 py-2" name="brand" value={editingProduct.brand} onChange={handleChange} placeholder="Brand" />

@@ -33,6 +33,7 @@ export default function AdminAddProduct() {
     description: '',
     category: '',
     image: '',
+    discount: 0,
   });
 
   // Admin Check on Mount
@@ -124,6 +125,7 @@ export default function AdminAddProduct() {
         image: imageUrl,
         price: parseFloat(product.price),
         stocks: parseInt(product.stocks),
+        discount: parseInt(product.discount) || 0,
         label:
           parseInt(product.stocks) === 0
             ? 'Out of Stock'
@@ -159,6 +161,7 @@ export default function AdminAddProduct() {
       description: '',
       category: '',
       image: '',
+      discount: 0,
     });
     setNewCategory('');
     setImageFile(null);
@@ -247,6 +250,14 @@ export default function AdminAddProduct() {
               value={product.stocks}
               onChange={(e) => setProduct({ ...product, stocks: e.target.value })}
               required
+            />
+
+            <input
+              type="number"
+              placeholder="Discount %"
+              className="w-full border rounded px-3 py-2"
+              value={product.discount}
+              onChange={(e) => setProduct({ ...product, discount: e.target.value })}
             />
 
             <textarea

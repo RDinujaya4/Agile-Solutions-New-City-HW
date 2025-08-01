@@ -141,6 +141,7 @@ export default function Products() {
         await setDoc(cartItemRef, {
           name: product.name,
           price: product.price,
+          discount: product.discount || 0,
           image: product.image,
           quantity: 1,
           stocks: product.stocks,
@@ -333,11 +334,18 @@ export default function Products() {
                 <Link to={`/product/${product.category}/${product.id}`}>
                   <div className="relative">
                     <div className="w-full h-48 sm:h-52 md:h-56 flex items-center justify-center bg-white-100 rounded-t-2xl overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="object-contain w-full h-full"
-                      />
+                      <div className="relative w-full h-full">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain rounded"
+                        />
+                        {product.discount > 0 && (
+                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow">
+                            {product.discount}% OFF
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Label Badge */}
@@ -362,9 +370,18 @@ export default function Products() {
                   </h2>
 
                   <div className="flex flex-wrap justify-between items-center pt-3 gap-y-2">
-                    <span className="text-black font-bold text-sm sm:text-base">
-                      Rs. {product.price}
-                    </span>
+                    {product.discount > 0 ? (
+                      <span className="text-sm sm:text-base text-red-600 font-semibold">
+                        Rs. {(product.price * (1 - product.discount / 100)).toFixed(2)} 
+                        <span className="text-gray-400 line-through ml-2 text-xs">
+                          Rs. {product.price.toFixed(2)}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-black font-bold text-sm sm:text-base">
+                        Rs. {product.price.toFixed(2)}
+                      </span>
+                    )}
                     <button
                       disabled={product.stocks === 0}
                       onClick={() => handleAddToCart(product)}

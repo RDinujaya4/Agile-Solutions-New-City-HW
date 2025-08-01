@@ -80,6 +80,7 @@ export default function ProductView() {
       await setDoc(cartRef, {
         name: product.name,
         price: product.price,
+        discount: product.discount || 0,
         image: product.image,
         quantity: 1,
         stocks: product.stocks,
@@ -148,11 +149,18 @@ export default function ProductView() {
         {/* Left Image Section */}
         <div className="flex flex-col items-center">
           <div className="w-full h-96 overflow-hidden rounded-2xl border">
-          <img
-                src={product.image}
-                alt={product.name}
-                className="object-contain max-h-90 mx-auto"
-              />
+          <div className="relative w-full h-full">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="object-contain w-full h-full"
+            />
+            {product.discount > 0 && (
+              <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
+                {product.discount}% OFF
+              </div>
+            )}
+          </div>
           </div>
         </div>
 
@@ -161,7 +169,19 @@ export default function ProductView() {
           <div>
             
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
+            {product.discount > 0 ? (
+              <p className="text-xl font-semibold mb-4 text-red-600">
+                Rs. {(product.price * (1 - product.discount / 100)).toFixed(2)}
+                <span className="text-gray-500 line-through ml-2 text-base">
+                  Rs. {product.price.toFixed(2)}
+                </span>
+                <span className="ml-2 text-sm bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+                  {product.discount}% OFF
+                </span>
+              </p>
+            ) : (
+              <p className="text-xl font-semibold mb-4">Rs. {product.price}</p>
+            )}
 
             <button
               onClick={handleBuy}
