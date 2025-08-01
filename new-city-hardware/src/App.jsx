@@ -18,6 +18,7 @@ import Cart from './pages/user/Cart.jsx';
 import Login from './pages/Login';
 import ProductView from './pages/user/ProductView.jsx';
 import OrderHistory from './pages/user/OrderHistory.jsx';
+import TermsAndPrivacy from './pages/TermsAndPrivacy.jsx';
 
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminAddProduct from './pages/admin/AdminAddProduct.jsx';
@@ -62,6 +63,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<OrderHistory/>}/>
             <Route path="/login" element={<Login />} />
+            <Route path="/terms" element={<TermsAndPrivacy />} />
 
             {/* Admin Protected Routes */}
             <Route path="/admindash" element={

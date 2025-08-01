@@ -30,6 +30,7 @@ export default function Auth() {
   const [isSignup, setIsSignup] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [agree, setAgree] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -123,14 +124,19 @@ export default function Auth() {
           !formData.email ||
           !formData.password
         ) {
-          alert("Please fill in all fields");
+          Toast.fire({ icon: 'warning', title: 'Please fill in all fields.' });
           setLoading(false);
           return;
         }
 
         if (!usernameAvailable) {
-          alert("Username already taken");
+          Toast.fire({ icon: 'error', title: 'Username already taken.' });
           setLoading(false);
+          return;
+        }
+
+        if (!agree) {
+          Toast.fire({ icon: 'warning', title: 'You must agree to the Terms and Privacy Policy.' });
           return;
         }
 
@@ -188,7 +194,10 @@ export default function Auth() {
       }
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      Toast.fire({
+        icon: 'error',
+        title: "Enter valid email and password.",
+      });
     } finally {
       setLoading(false);
     }
@@ -215,7 +224,10 @@ export default function Auth() {
         });
       }
 
-      alert("Signed in with Google!");
+      Toast.fire({
+        icon: 'info',
+        title: 'Signed in with Google!',
+      });
       const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
       const role = userDoc.exists() ? userDoc.data().role : "user";
       navigate(role === "admin" ? "/admindash" : "/");
@@ -302,16 +314,25 @@ export default function Auth() {
                 onSubmit={async (e) => {
                   e.preventDefault();
                   if (!formData.email) {
-                    toast.error("Please enter your email");
+                    Toast.fire({
+                      icon: 'error',
+                      title: 'Please enter your email',
+                    });
                     return;
                   }
                   try {
                     await sendPasswordResetEmail(auth, formData.email);
-                    toast.success("Password reset email sent!");
+                    Toast.fire({
+                      icon: 'success',
+                      title: 'Password reset email sent!',
+                    });
                     setIsForgotPassword(false);
                   } catch (error) {
                     console.error(error);
-                    toast.error("Failed to send reset email");
+                    Toast.fire({
+                      icon: 'error',
+                      title: 'Failed to send reset email',
+                    });
                   }
                 }}
               >
@@ -338,145 +359,162 @@ export default function Auth() {
                   Send Reset Email
                 </button>
               </motion.form>
-            ) : (
-          <motion.form
-            key="login"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-4" 
-            onSubmit={handleSubmit}>
-            {isSignup && (
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="text-sm text-gray-300">First Name</label>
-                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
-                    <FiUser className="text-gray-400 mr-2" />
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      className="bg-transparent focus:outline-none w-full"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, firstName: e.target.value })
-                      }
-                    />
+                ) : (
+              <motion.form
+                key="login"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-2" 
+                onSubmit={handleSubmit}>
+                {isSignup && (
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="text-sm text-gray-300">First Name</label>
+                      <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                        <FiUser className="text-gray-400 mr-2" />
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          className="bg-transparent focus:outline-none w-full"
+                          value={formData.firstName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, firstName: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-sm text-gray-300">Last Name</label>
+                      <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                        <FiUser className="text-gray-400 mr-2" />
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          className="bg-transparent focus:outline-none w-full"
+                          value={formData.lastName}
+                          onChange={(e) =>
+                            setFormData({ ...formData, lastName: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <label className="text-sm text-gray-300">Last Name</label>
-                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
-                    <FiUser className="text-gray-400 mr-2" />
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      className="bg-transparent focus:outline-none w-full"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, lastName: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {isSignup && (
-              <div>
-                <label className="text-sm text-gray-300">Username</label>
-                <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
-                  <FiUser className="text-gray-400 mr-2" />
-                  <input
-                    type="text"
-                    placeholder="Username"
-                    className="bg-transparent focus:outline-none w-full"
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                  />
+                {isSignup && (
+                  <div>
+                    <label className="text-sm text-gray-300">Username</label>
+                    <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                      <FiUser className="text-gray-400 mr-2" />
+                      <input
+                        type="text"
+                        placeholder="Username"
+                        className="bg-transparent focus:outline-none w-full"
+                        value={formData.username}
+                        onChange={(e) =>
+                          setFormData({ ...formData, username: e.target.value })
+                        }
+                      />
+                    </div>
+                    {formData.username.trim().length >= 3 &&
+                      usernameAvailable !== null && (
+                        <p
+                          className={`text-sm mt-1 ${
+                            usernameAvailable ? "text-green-400" : "text-red-500"
+                          }`}
+                        >
+                          {usernameAvailable
+                            ? "Username is available"
+                            : "Username is taken"}
+                        </p>
+                      )}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-sm text-gray-300">Email</label>
+                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                    <FiMail className="text-gray-400 mr-2" />
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      className="bg-transparent focus:outline-none w-full"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
-                {formData.username.trim().length >= 3 &&
-                  usernameAvailable !== null && (
-                    <p
-                      className={`text-sm mt-1 ${
-                        usernameAvailable ? "text-green-400" : "text-red-500"
-                      }`}
+
+                <div>
+                  <label className="text-sm text-gray-300">Password</label>
+                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
+                    <FiLock className="text-gray-400 mr-2" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      className="bg-transparent focus:outline-none w-full"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-gray-400 ml-2"
                     >
-                      {usernameAvailable
-                        ? "Username is available"
-                        : "Username is taken"}
-                    </p>
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                  {isSignup && formData.password.length > 0 && (
+                    <div className="text-xs mt-2 text-gray-400 space-y-1 transition-opacity duration-300">
+                      <p className={passwordStrength.length ? "text-green-400" : "text-red-400"}>
+                        • At least 8 characters
+                      </p>
+                      <p className={passwordStrength.uppercase ? "text-green-400" : "text-red-400"}>
+                        • At least one uppercase letter
+                      </p>
+                      <p className={passwordStrength.lowercase ? "text-green-400" : "text-red-400"}>
+                        • At least one lowercase letter
+                      </p>
+                      <p className={passwordStrength.number ? "text-green-400" : "text-red-400"}>
+                        • At least one number
+                      </p>
+                      <p className={passwordStrength.special ? "text-green-400" : "text-red-400"}>
+                        • At least one special character (!@#$%^...)
+                      </p>
+                    </div>
                   )}
-              </div>
-            )}
-
-            <div>
-              <label className="text-sm text-gray-300">Email</label>
-              <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
-                <FiMail className="text-gray-400 mr-2" />
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="bg-transparent focus:outline-none w-full"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-300">Password</label>
-              <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2">
-                <FiLock className="text-gray-400 mr-2" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  className="bg-transparent focus:outline-none w-full"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 ml-2"
-                >
-                  {showPassword ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-              {isSignup && formData.password.length > 0 && (
-                <div className="text-xs mt-2 text-gray-400 space-y-1 transition-opacity duration-300">
-                  <p className={passwordStrength.length ? "text-green-400" : "text-red-400"}>
-                    • At least 8 characters
-                  </p>
-                  <p className={passwordStrength.uppercase ? "text-green-400" : "text-red-400"}>
-                    • At least one uppercase letter
-                  </p>
-                  <p className={passwordStrength.lowercase ? "text-green-400" : "text-red-400"}>
-                    • At least one lowercase letter
-                  </p>
-                  <p className={passwordStrength.number ? "text-green-400" : "text-red-400"}>
-                    • At least one number
-                  </p>
-                  <p className={passwordStrength.special ? "text-green-400" : "text-red-400"}>
-                    • At least one special character (!@#$%^...)
-                  </p>
+                  {isSignup && (
+                  <div className="flex items-start mt-4">
+                    <input
+                      type="checkbox"
+                      checked={agree}
+                      onChange={(e) => setAgree(e.target.checked)}
+                      className="mt-1 mr-2"                  
+                    />
+                    <p className="text-sm">
+                      I agree to the{' '}
+                      <a href="/terms" target="_blank" className="text-blue-600 underline">
+                        Terms of Service and Privacy Policy
+                      </a>
+                    </p>
+                  </div>
+                  )}
                 </div>
-              )}
-            </div>
+                
 
-            <button
-              type="submit"
-              className="w-full bg-yellow-400 text-black font-bold py-2 rounded-xl hover:bg-yellow-300 transition"
-            >
-              {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
-            </button>
-          </motion.form>
+                <button
+                  type="submit"
+                  className="w-full bg-yellow-400 text-black font-bold py-2 rounded-xl hover:bg-yellow-300 transition"
+                >
+                  {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
+                </button>
+              </motion.form>
           )}
         </AnimatePresence>
           <div className="text-sm text-center text-gray-400 mt-6">
