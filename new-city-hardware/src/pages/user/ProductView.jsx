@@ -155,29 +155,24 @@ export default function ProductView() {
       <div className="w-full max-w-6xl mt-20 sm:mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
 
         <div className="flex flex-col items-center">
-          <div className="relative w-full h-96 flex items-center justify-center">
+          <div className="relative w-full h-96 flex items-center justify-center overflow-hidden rounded-2xl z-10">
 
-            <div className="absolute left-0 top-0 bottom-0 flex justify-center">
-              <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
-            </div>
+            <img
+              src={product.image}
+              alt={product.name}
+              className="object-contain max-h-full max-w-full"
+            />
 
-            <div className="absolute right-0 top-0 bottom-0 flex justify-center">
-              <div className="w-[3px] h-[140%] bg-gray-300 translate-y-[-0%]"></div>
-            </div>
+            {product.discount > 0 && (
+              <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
+                {product.discount}% OFF
+              </div>
+            )}
 
-            <div className="w-full h-full overflow-hidden rounded-2xl z-10 relative">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="object-contain w-full h-full"
-              />
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-[90%] w-[3px] bg-gray-300"></div>
 
-              {product.discount > 0 && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow">
-                  {product.discount}% OFF
-                </div>
-              )}
-            </div>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 h-[90%] w-[3px] bg-gray-300"></div>
+
           </div>
         </div>
 
