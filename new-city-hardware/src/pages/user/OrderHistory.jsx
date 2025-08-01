@@ -228,7 +228,7 @@ export default function OrderHistory() {
           {orders.length === 0 &&
             pickupOrders.length === 0 &&
             removedOrders.length === 0 && (
-              <p className="text-center text-gray-600">No orders found.</p>
+              <p className="text-center text-gray-600 text-xl">No orders found.</p>
             )}
         </>
       )}
