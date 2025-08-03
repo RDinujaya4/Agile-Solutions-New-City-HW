@@ -129,6 +129,13 @@ export default function Auth() {
           return;
         }
 
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|lk|info|io|co)$/;
+        if (!emailRegex.test(formData.email)) {
+          Toast.fire({ icon: 'error', title: 'Enter a valid email address.' });
+          setLoading(false);
+          return;
+        }
+
         if (!usernameAvailable) {
           Toast.fire({ icon: 'error', title: 'Username already taken.' });
           setLoading(false);
