@@ -15,28 +15,35 @@ import plumbing from '../../assets/plumbing.png';
 import electrical from '../../assets/electrical.png';
 import paints from '../../assets/paints.png';
 import fasteners from '../../assets/fasteners.png';
-import Homebg from '../../assets/Homebg.jpg';
-import tool1 from '../../assets/hero-slide/tool1.png';
-import tool2 from '../../assets/hero-slide/tool2.png';
-import tool3 from '../../assets/hero-slide/tool3.png';
-import tool4 from '../../assets/hero-slide/tool4.png';
+import leftImg1 from '../../assets/hero-slide/leftImg1.png';
+import leftImg2 from '../../assets/hero-slide/leftImg2.png';
+import rightImg1 from '../../assets/hero-slide/rightImg1.png';
+import rightImg2 from '../../assets/hero-slide/rightImg2.png';
+import fullImg1 from '../../assets/hero-slide/fullImg1.png';
+import fullImg2 from '../../assets/hero-slide/fullImg2.png';
 
 function Home() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
-  const heroImages = [tool1, tool2, tool3, tool4];
-  const [currentImage, setCurrentImage] = useState(0);
-  const [direction, setDirection] = useState('left');
+
+  const heroSlides = [
+    { src: leftImg1, position: 'left' },
+    { src: leftImg2, position: 'left' },
+    { src: rightImg1, position: 'right' },
+    { src: rightImg2, position: 'right' },
+    { src: fullImg1, position: 'full' },
+    { src: fullImg2, position: 'full' },
+  ];
+
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-      setDirection((prev) => (prev === 'left' ? 'right' : 'left'));
-    }, 5000);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
-
 
   const categories = [
     { name: 'Power Tools', image: powerTools },
@@ -91,23 +98,42 @@ function Home() {
       <section className="relative h-[100vh] bg-gradient-to-br from-black to-slate-600 via-white-800 overflow-hidden flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.img
-            key={currentImage}
-            src={heroImages[currentImage]}
-            alt={`Hero ${currentImage}`}
-            className={`absolute top-1/2 ${direction === 'left' ? 'left-0' : 'right-0'} w-[600px] opacity-10 -translate-y-1/2 object-contain pointer-events-none`}
+            key={currentSlide}
+            src={heroSlides[currentSlide].src}
+            alt={`Slide ${currentSlide}`}
+            className={`
+              absolute top-1/2 
+              ${heroSlides[currentSlide].position === 'left' ? 'left-0' : ''}
+              ${heroSlides[currentSlide].position === 'right' ? 'right-0' : ''}
+              ${heroSlides[currentSlide].position === 'full' ? 'left-1/2 -translate-x-1/2' : ''}
+              ${heroSlides[currentSlide].position === 'full' ? 'w-[1200px]' : 'w-[500px]'} 
+              opacity-10 -translate-y-1/2 object-contain pointer-events-none
+            `}
             initial={{
-              x: direction === 'left' ? '-100%' : '100%',
+              x:
+                heroSlides[currentSlide].position === 'left'
+                  ? '-100%'
+                  : heroSlides[currentSlide].position === 'right'
+                  ? '100%'
+                  : 0,
               opacity: 0.8,
+              scale: heroSlides[currentSlide].position === 'full' ? 1.05 : 1,
             }}
             animate={{
-              x: '0%',
-              opacity: 0.8,
+              x: 0,
+              opacity: heroSlides[currentSlide].position === 'full' ? 0.5 : 0.8,
+              scale: 1,
             }}
             exit={{
-              x: direction === 'left' ? '-100%' : '100%',
+              x:
+                heroSlides[currentSlide].position === 'left'
+                  ? '-100%'
+                  : heroSlides[currentSlide].position === 'right'
+                  ? '100%'
+                  : 0,
               opacity: 0,
             }}
-            transition={{ duration: 1.5 }}
+            transition={{ duration: 1 }}
           />
         </AnimatePresence>
 
@@ -342,12 +368,11 @@ function Home() {
                 icon: <FiClock size={24} />,
                 title: 'Store Hours',
                 content: (
-                  <>
-                    Mon–Sat: 7:00 AM – 8:00 PM
-                    <br />
-                    Sunday: 9:00 AM – 6:00 PM
+                  <div>
+                    <p>Mon–Sat: 7:00 AM – 8:00 PM</p>
+                    <p>Sunday: 9:00 AM – 6:00 PM</p>
                     <p className="text-yellow-400 mt-1 font-medium">✨ Extended holiday hours</p>
-                  </>
+                  </div>
                 ),
                 color: 'bg-green-100 text-green-600',
               },
@@ -355,14 +380,13 @@ function Home() {
                 icon: <FiPhone size={24} />,
                 title: 'Contact Us',
                 content: (
-                  <>
-                    (555) 123-4567 / 0767795630
-                    <br />
+                  <div>
+                    <p>(555) 123-4567 / 0767795630</p>
                     <span className="inline-flex items-center gap-2 mt-1">
                       <FiMail size={16} className="text-slate-400" />
                       newcity.hardware.sl@gmail.com
                     </span>
-                  </>
+                  </div>
                 ),
                 color: 'bg-purple-100 text-purple-600',
               },
@@ -382,7 +406,7 @@ function Home() {
                   </div>
                   <h4 className="text-lg font-semibold">{item.title}</h4>
                 </div>
-                <p className="text-sm leading-relaxed">{item.content}</p>
+                <div className="text-sm leading-relaxed space-y-1">{item.content}</div>
               </motion.div>
             ))}
           </motion.div>
