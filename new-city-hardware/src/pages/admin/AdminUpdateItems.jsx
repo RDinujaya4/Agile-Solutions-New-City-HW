@@ -126,7 +126,7 @@ export default function AdminUpdateProducts() {
     const stockCount = parseInt(stocks);
     let label = 'In Stock';
     if (stockCount === 0) label = 'Out of Stock';
-    else if (stockCount < 5) label = 'Low Stock';
+    else if (stockCount < 6) label = 'Low Stock';
 
     const oldRef = doc(db, 'products', oldCategory || category, 'items', id);
     const newRef = doc(db, 'products', category, 'items', id);
