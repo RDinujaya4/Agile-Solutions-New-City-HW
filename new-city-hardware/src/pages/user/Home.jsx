@@ -15,35 +15,11 @@ import plumbing from '../../assets/plumbing.png';
 import electrical from '../../assets/electrical.png';
 import paints from '../../assets/paints.png';
 import fasteners from '../../assets/fasteners.png';
-import leftImg1 from '../../assets/hero-slide/leftImg1.png';
-import leftImg2 from '../../assets/hero-slide/leftImg2.png';
-import rightImg1 from '../../assets/hero-slide/rightImg1.png';
-import rightImg2 from '../../assets/hero-slide/rightImg2.png';
-import fullImg1 from '../../assets/hero-slide/fullImg1.png';
-import fullImg2 from '../../assets/hero-slide/fullImg2.png';
 
 function Home() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
-
-  const heroSlides = [
-    { src: leftImg1, position: 'left' },
-    { src: leftImg2, position: 'left' },
-    { src: rightImg1, position: 'right' },
-    { src: rightImg2, position: 'right' },
-    { src: fullImg1, position: 'full' },
-    { src: fullImg2, position: 'full' },
-  ];
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
 
   const categories = [
     { name: 'Power Tools', image: powerTools },
@@ -95,55 +71,14 @@ function Home() {
       transition={{ duration: 0.6 }}
     >
  
-      <section className="relative h-[100vh] bg-gradient-to-br from-black to-slate-600 via-white-800 overflow-hidden flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentSlide}
-            src={heroSlides[currentSlide].src}
-            alt={`Slide ${currentSlide}`}
-            className={`
-              absolute top-1/2 
-              ${heroSlides[currentSlide].position === 'left' ? 'left-0' : ''}
-              ${heroSlides[currentSlide].position === 'right' ? 'right-0' : ''}
-              ${heroSlides[currentSlide].position === 'full' ? 'left-1/2 -translate-x-1/2' : ''}
-              ${heroSlides[currentSlide].position === 'full' ? 'w-[1200px]' : 'w-[500px]'} 
-              opacity-10 -translate-y-1/2 object-contain pointer-events-none
-            `}
-            initial={{
-              x:
-                heroSlides[currentSlide].position === 'left'
-                  ? '-100%'
-                  : heroSlides[currentSlide].position === 'right'
-                  ? '100%'
-                  : 0,
-              opacity: 0.8,
-              scale: heroSlides[currentSlide].position === 'full' ? 1.05 : 1,
-            }}
-            animate={{
-              x: 0,
-              opacity: heroSlides[currentSlide].position === 'full' ? 0.5 : 0.8,
-              scale: 1,
-            }}
-            exit={{
-              x:
-                heroSlides[currentSlide].position === 'left'
-                  ? '-100%'
-                  : heroSlides[currentSlide].position === 'right'
-                  ? '100%'
-                  : 0,
-              opacity: 0,
-            }}
-            transition={{ duration: 1 }}
-          />
-        </AnimatePresence>
-
-        <motion.div
-          className="relative z-10 text-center text-white px-6"
+      <section className="relative h-[100vh] bg-gradient-to-b from-[#8192f3] via-[#9dabdd] to-[#c5d7ff] overflow-hidden flex items-center justify-center">
+       <motion.div
+          className="relative z-10 text-center px-6 text-[#3F4A7A]"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold drop-shadow-lg">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold drop-shadow-lg text-white">
             Welcome to New City Hardware
           </h1>
           <motion.p
@@ -161,14 +96,15 @@ function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            <FiSearch className="absolute top-3.5 left-4 text-slate-400" size={20} />
+            <FiSearch className="absolute top-3.5 left-4 text-[#7A88BA]" size={20} />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products..."
-              className="w-full pl-12 pr-4 py-3 rounded-xl text-white border border-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#F0F4FF] text-[#2A345B] border border-[#C9D2F4] placeholder:text-[#6C7BAD] focus:outline-none focus:ring-2 focus:ring-[#7F9FEA]"
             />
+
             {searchResults.length > 0 && (
               <div className="absolute z-20 bg-white text-black w-full mt-2 rounded-xl shadow-lg border border-gray-300 max-h-80 overflow-y-auto">
                 {searchResults.map((item, index) => (
