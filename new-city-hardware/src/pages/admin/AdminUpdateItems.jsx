@@ -323,34 +323,34 @@ export default function AdminUpdateProducts() {
         {modalOpen && editingProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white/80 backdrop-blur-xl border border-gray-300 p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-xl relative">
-              <h2 className="text-xl font-bold mb-6 text-center">Update Product</h2>
+              <h2 className="text-xl font-bold mb-6 text-center" data-cy="modal-title" >Update Product</h2>
               <div className="space-y-3">
                 <label>Name</label>
-                <input className="w-full border rounded px-3 py-2" name="name" value={editingProduct.name} onChange={handleChange} placeholder="Name" />
+                <input className="w-full border rounded px-3 py-2" data-cy="input-name" name="name" value={editingProduct.name} onChange={handleChange} placeholder="Name" />
 
                 <label>Category</label>
-                <select className="w-full border rounded px-3 py-2" name="category" value={editingProduct.category} onChange={handleChange}>
+                <select className="w-full border rounded px-3 py-2" data-cy="select-category" name="category" value={editingProduct.category} onChange={handleChange}>
                   <option value="">Select Category</option>
                   {categories.map((cat, i) => <option key={i} value={cat}>{cat}</option>)}
                 </select>
 
                 <label>Price</label>
-                <input className="w-full border rounded px-3 py-2" name="price" type="number" value={editingProduct.price} onChange={handleChange} placeholder="Price" />
+                <input className="w-full border rounded px-3 py-2" data-cy="input-price" name="price" type="number" value={editingProduct.price} onChange={handleChange} placeholder="Price" />
 
                 <label>Stocks</label>
-                <input className="w-full border rounded px-3 py-2" name="stocks" type="number" value={editingProduct.stocks} onChange={handleChange} placeholder="Stocks" />
+                <input className="w-full border rounded px-3 py-2" data-cy="input-stocks" name="stocks" type="number" value={editingProduct.stocks} onChange={handleChange} placeholder="Stocks" />
 
                 <label>Discount (%)</label>
-                <input className="w-full border rounded px-3 py-2" name="discount" type="number" value={editingProduct.discount || 0} onChange={handleChange} placeholder="e.g. 10" />
+                <input className="w-full border rounded px-3 py-2" data-cy="input-discount" name="discount" type="number" value={editingProduct.discount || 0} onChange={handleChange} placeholder="e.g. 10" />
 
                 <label>Brand</label>
-                <input className="w-full border rounded px-3 py-2" name="brand" value={editingProduct.brand} onChange={handleChange} placeholder="Brand" />
+                <input className="w-full border rounded px-3 py-2" data-cy="input-brand" name="brand" value={editingProduct.brand} onChange={handleChange} placeholder="Brand" />
 
                 <label>Description</label>
-                <textarea className="w-full border rounded px-3 py-2" name="description" rows={3} value={editingProduct.description} onChange={handleChange} placeholder="Description" />
+                <textarea className="w-full border rounded px-3 py-2" data-cy="input-description" name="description" rows={3} value={editingProduct.description} onChange={handleChange} placeholder="Description" />
 
                 <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-                  <button onClick={saveProduct} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Update</button>
+                  <button onClick={saveProduct} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" data-cy="btn-update-submit" >Update</button>
                   <button onClick={closeModal} className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Cancel</button>
                 </div>
               </div>

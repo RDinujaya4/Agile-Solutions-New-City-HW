@@ -64,18 +64,6 @@ export default function LowStockAlerts() {
     };
   }, []);
 
-  const ignoreItem = (id) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-  };
-
-  const markAsDone = (id) => {
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, done: true } : item
-      )
-    );
-  };
-
   const uniqueCategories = ['All', ...new Set(items.map(item => item.category))];
   const filteredItems = selectedCategory === 'All'
   ? items
@@ -132,27 +120,6 @@ export default function LowStockAlerts() {
                         <p className="text-sm text-gray-600"><strong>Item:</strong> {item.name}</p>
                         <p className="text-red-600 font-semibold text-sm">Current Stock: {item.stocks}</p>
                       </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <button
-                        className={`text-sm px-4 py-2 rounded transition ${
-                          item.done
-                            ? 'bg-blue-500 text-white cursor-not-allowed opacity-80'
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                        }`}
-                        onClick={() => markAsDone(item.id)}
-                        disabled={item.done}
-                      >
-                        {item.done ? 'Marked Done' : 'Mark as Done'}
-                      </button>
-                      <button
-                        onClick={() => ignoreItem(item.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded transition"
-                        disabled={item.done}
-                      >
-                        Ignore
-                      </button>
                     </div>
                   </div>
                 ))}

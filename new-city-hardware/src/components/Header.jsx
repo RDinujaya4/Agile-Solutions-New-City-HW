@@ -117,6 +117,7 @@ function Header() {
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          data-cy="mobile-menu-toggle"
           className="md:hidden text-white focus:outline-none"
         >
           {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
@@ -136,6 +137,7 @@ function Header() {
             to="/products"
             onClick={() => setIsMobileMenuOpen(false)}
             className="hover:text-blue-400"
+            data-cy="nav-link-products"
           >
             Products
           </Link>

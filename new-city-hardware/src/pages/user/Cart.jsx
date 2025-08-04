@@ -256,6 +256,7 @@ export default function Cart() {
 
                     <div className="flex items-center gap-3 mt-1">
                       <button
+                        data-cy="qty-decrease"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
@@ -302,6 +303,7 @@ export default function Cart() {
                           className="w-16 border rounded px-2 py-1 text-center text-gray-900 font-medium"
                         />
                       <button
+                        data-cy="qty-increase"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
                       >
