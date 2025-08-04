@@ -25,3 +25,11 @@ dist-ssr
 
 #env file added
 .env
+
+#cypress
+# Ignore Cypress tests and artifacts
+cypress/
+cypress.config.js
+cypress.config.ts
+cypress.env.json
+cypress-log.txt
