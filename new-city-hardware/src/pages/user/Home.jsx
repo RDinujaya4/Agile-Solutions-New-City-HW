@@ -18,21 +18,25 @@ import fasteners from '../../assets/fasteners.png';
 import Homebg from '../../assets/Homebg.jpg';
 import tool1 from '../../assets/hero-slide/tool1.png';
 import tool2 from '../../assets/hero-slide/tool2.png';
-import gear from '../../assets/hero-slide/gear.png';
+import tool3 from '../../assets/hero-slide/tool3.png';
+import tool4 from '../../assets/hero-slide/tool4.png';
 
 function Home() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
-  const heroImages = [tool1, tool2, gear];
+  const heroImages = [tool1, tool2, tool3, tool4];
   const [currentImage, setCurrentImage] = useState(0);
+  const [direction, setDirection] = useState('left');
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % heroImages.length);
+      setDirection((prev) => (prev === 'left' ? 'right' : 'left'));
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
 
   const categories = [
     { name: 'Power Tools', image: powerTools },
@@ -85,16 +89,25 @@ function Home() {
     >
  
       <section className="relative h-[100vh] bg-gradient-to-br from-black to-slate-600 via-white-800 overflow-hidden flex items-center justify-center">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           <motion.img
             key={currentImage}
             src={heroImages[currentImage]}
-            alt="Hero Background"
-            className="absolute top-1/2 left-1/4 w-[900px] max-w-none opacity-10 -translate-x-1/2 -translate-y-1/2 object-contain pointer-events-none"
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 0.7, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ duration: 1 }}
+            alt={`Hero ${currentImage}`}
+            className={`absolute top-1/2 ${direction === 'left' ? 'left-0' : 'right-0'} w-[600px] opacity-10 -translate-y-1/2 object-contain pointer-events-none`}
+            initial={{
+              x: direction === 'left' ? '-100%' : '100%',
+              opacity: 0.8,
+            }}
+            animate={{
+              x: '0%',
+              opacity: 0.8,
+            }}
+            exit={{
+              x: direction === 'left' ? '-100%' : '100%',
+              opacity: 0,
+            }}
+            transition={{ duration: 1.5 }}
           />
         </AnimatePresence>
 
