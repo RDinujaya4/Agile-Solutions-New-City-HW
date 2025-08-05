@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 
 import powerTools from '../../assets/power-tools.png';
 import handTools from '../../assets/hand-tools.png';
@@ -16,7 +16,7 @@ import electrical from '../../assets/electrical.png';
 import paints from '../../assets/paints.png';
 import fasteners from '../../assets/fasteners.png';
 import help from '../../assets/help_img.jpg';
-import heroImage from '../../assets/worker-hero.png';
+import heroImage from '../../assets/worker-hero1.png';
 
 function Home() {
   const navigate = useNavigate();
@@ -111,7 +111,7 @@ function Home() {
         <motion.img
           src={heroImage}
           alt="Working Man"
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[500px] z-0"
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[600px] z-0"
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -123,7 +123,7 @@ function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.6 }}
         >
-          Trusted by builders for over 35 years. Quality tools, expert advice, and fast service all in one place.
+          Trusted by builders for over 35 years. <br />Quality tools, expert advice, and fast service all in one place.
         </motion.p>
 
         <motion.div
