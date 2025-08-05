@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiSearch, FiMapPin, FiClock, FiPhone, FiMail, FiPackage, FiUsers, FiAward, FiStar } from 'react-icons/fi';
+import { FiSearch, FiMapPin, FiClock, FiPhone, FiMail, FiPackage, FiUsers, FiAward, FiStar, FiHelpCircle, FiShoppingCart, FiTruck } from 'react-icons/fi';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -8,7 +8,6 @@ import { useEffect, useRef } from 'react';
 import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { FiHelpCircle, FiShoppingCart, FiTruck } from 'react-icons/fi';
 
 import powerTools from '../../assets/power-tools.png';
 import handTools from '../../assets/hand-tools.png';
@@ -17,6 +16,7 @@ import electrical from '../../assets/electrical.png';
 import paints from '../../assets/paints.png';
 import fasteners from '../../assets/fasteners.png';
 import help from '../../assets/help_img.jpg';
+import heroImage from '../../assets/worker-hero.png';
 
 function Home() {
   const navigate = useNavigate();
@@ -88,31 +88,51 @@ function Home() {
       transition={{ duration: 0.6 }}
     >
  
-      <section className="relative h-[100vh] bg-gradient-to-b from-[#8192f3] via-[#9dabdd] to-[#c5d7ff] overflow-hidden flex items-center justify-center">
-       <motion.div
-          className="relative z-10 text-center px-6 text-[#3F4A7A]"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold drop-shadow-lg text-white">
-            Welcome to New City Hardware
-          </h1>
-          <motion.p
-            className="mt-4 text-lg sm:text-xl max-w-2xl mx-auto text-white/90"
+      <section className="relative h-[90vh] bg-gradient-to-b from-[#BFC7F3] via-[#C9D2F4] to-[#7F9FEA] overflow-hidden px-6 sm:px-10">
+        <div className="absolute top-[8%] w-full text-center z-10">
+          <motion.h1
+            className="text-[4.5rem] sm:text-[6.5rem] lg:text-[8.5rem] font-extrabold uppercase text-white tracking-tight leading-none"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            NEW CITY
+          </motion.h1>
+          <motion.span
+            className="block text-2xl sm:text-3xl font-semibold text-white tracking-widest mt-2 ml-[80px] sm:ml-[430px]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
           >
-            Trusted by builders for over 35 years. Quality tools, expert advice, and fast service all in one place.
-          </motion.p>
+            HARDWARE
+          </motion.span>
+        </div>
 
-          <motion.div
-            className="mt-8 max-w-xl mx-auto relative"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
+        <motion.img
+          src={heroImage}
+          alt="Working Man"
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[500px] z-0"
+          initial={{ opacity: 0, y: 80 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+        />
+
+        <motion.p
+          className="absolute bottom-44 left-6 text-white text-base sm:text-lg max-w-md sm:max-w-lg leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+        >
+          Trusted by builders for over 35 years. Quality tools, expert advice, and fast service all in one place.
+        </motion.p>
+
+        <motion.div
+          className="absolute bottom-65 right-6 sm:right-10 w-[280px] sm:w-[450px] z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.6 }}
+        >
+          <div className="relative">
             <FiSearch className="absolute top-3.5 left-4 text-[#7A88BA]" size={20} />
             <input
               type="text"
@@ -136,7 +156,7 @@ function Home() {
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         </motion.div>
       </section>
 
