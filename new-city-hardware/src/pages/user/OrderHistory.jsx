@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../context/AuthContext";
-import { FiBox, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
+import { FiBox, FiCheckCircle, FiClock, FiXCircle, FiAlertCircle } from "react-icons/fi";
 
 export default function OrderHistory() {
   const { user } = useAuth();
@@ -164,9 +164,12 @@ export default function OrderHistory() {
       <h2 className="text-4xl font-semibold mb-6 text-center">Your Order History</h2>
 
       {!user ? (
-        <p className="text-center text-red-500 text-lg">
-          Please make a Pre order and view your order history.
-        </p>
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 text-base sm:text-lg font-medium px-4 py-3 rounded-md shadow-sm max-w-xl">
+            <FiAlertCircle size={20} className="text-red-500" />
+            <p>Please make a Pre-order to view your order history.</p>
+          </div>
+        </div>
       ) : loading ? (
         <div className="space-y-6">
           {[...Array(2)].map((_, index) => (

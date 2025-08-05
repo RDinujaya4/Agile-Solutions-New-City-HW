@@ -127,7 +127,7 @@ function Home() {
         </motion.p>
 
         <motion.div
-          className="absolute bottom-65 right-6 sm:right-10 w-[280px] sm:w-[450px] z-10"
+          className="absolute bottom-75 right-6 sm:right-10 w-[280px] sm:w-[450px] z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.6 }}
