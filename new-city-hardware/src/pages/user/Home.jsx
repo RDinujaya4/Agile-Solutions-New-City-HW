@@ -4,10 +4,10 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 
 import powerTools from '../../assets/power-tools.png';
 import handTools from '../../assets/hand-tools.png';
@@ -20,6 +20,9 @@ function Home() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [search, setSearch] = useState('');
+  const sliderRef = useRef(null);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true });
 
   const categories = [
     { name: 'Power Tools', image: powerTools },
@@ -57,6 +60,18 @@ function Home() {
 
     return () => unsubscribe();
   }, [search]);
+
+  useEffect(() => {
+    if (isInView && sliderRef.current) {
+      sliderRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+    }
+  }, [isInView]);
+
+  const scroll = (offset) => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
 
   return (
     <main className="text-slate-100">
@@ -213,53 +228,81 @@ function Home() {
         </motion.div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <motion.h3
-          className="text-2xl text-slate-700 font-semibold mb-10 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          Popular Categories
-        </motion.h3>
-
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={{
-            visible: { transition: { staggerChildren: 0.2 } },
-          }}
-        >
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.name}
-              onClick={() => {navigate(`/products?category=${encodeURIComponent(cat.name)}`);window.scrollTo({ top: 0, behavior: 'smooth' });}}
-              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer border border-slate-200"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.5 }}
+      <section ref={sectionRef} className="bg-gradient-to-b from-[#c2c2f1] via-[#f8f7f7] to-[#ffffff] py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-10">
+            <motion.h3
+              className="text-2xl sm:text-3xl font-semibold text-gray-900"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
             >
-              <div className="overflow-hidden">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-40 object-cover transform hover:scale-110 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-4 text-center">
-                <h4 className="text-lg font-medium text-slate-700">{cat.name}</h4>
-                <p className="mt-2 text-sm text-slate-600">
-                  Explore top-rated items in {cat.name.toLowerCase()}.
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              Popular Categories
+            </motion.h3>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => scroll(-300)}
+                className="text-gray-600 hover:text-blue-500 transition text-xl"
+                aria-label="Scroll left"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => scroll(300)}
+                className="text-gray-600 hover:text-blue-500 transition text-xl"
+                aria-label="Scroll right"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <motion.div
+            ref={sliderRef}
+            className="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={{
+              visible: { transition: { staggerChildren: 0.2 } },
+            }}
+          >
+            {categories.map((cat) => (
+              <motion.div
+                key={cat.name}
+                onClick={() => {
+                  navigate(`/products?category=${encodeURIComponent(cat.name)}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="w-[240px] flex-shrink-0 cursor-pointer"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="w-full aspect-[3/4] bg-gray-100 overflow-hidden">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+                <div className="mt-3 px-1">
+                  <h4 className="text-sm font-medium text-center text-gray-900">{cat.name}</h4>
+                </div>
+              </motion.div>
+            ))}
+            
+          </motion.div>
+          <div className="mt-16 text-center text-gray-800 font-bold text-4xl sm:text-4xl leading-snug">
+            BUILT TO LAST<br />
+            TRUSTED BY PROFESSIONALS ACROSS SRI LANKA.
+          </div>
+        </div>
       </section>
 
       <section className="bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white py-24 px-4">
