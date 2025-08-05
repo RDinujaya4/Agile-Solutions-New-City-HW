@@ -9,15 +9,6 @@ import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
 import { motion, useInView } from 'framer-motion';
 
-import powerTools from '../../assets/power-tools.png';
-import handTools from '../../assets/hand-tools.png';
-import plumbing from '../../assets/plumbing.png';
-import electrical from '../../assets/electrical.png';
-import paints from '../../assets/paints.png';
-import fasteners from '../../assets/fasteners.png';
-import help from '../../assets/help_img.jpg';
-import heroImage from '../../assets/worker-hero1.png';
-
 function Home() {
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
@@ -27,12 +18,30 @@ function Home() {
   const isInView = useInView(sectionRef, { once: true });
 
   const categories = [
-    { name: 'Power Tools', image: powerTools },
-    { name: 'Hand Tools', image: handTools },
-    { name: 'Plumbing', image: plumbing },
-    { name: 'Electrical Tools', image: electrical },
-    { name: 'Paint & Supplies', image: paints },
-    { name: 'Fasteners', image: fasteners },
+    { 
+      name: 'Power Tools', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fpower-tools.png?alt=media&token=73d52560-aadf-439c-afd3-c96eb382372a' ,
+    },
+    { 
+      name: 'Hand Tools', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fhand-tools.png?alt=media&token=860d5512-9c3b-4a1e-ba9e-4173b7870f0e',
+    },
+    { 
+      name: 'Plumbing', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fplumbing.png?alt=media&token=d891c280-8ff3-427a-88e0-62bb461cf2bd' ,
+    },
+    { 
+      name: 'Electrical Tools', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Felectrical.png?alt=media&token=be84c180-93f9-423a-b73c-7caf7c817dd9' ,
+    },
+    { 
+      name: 'Paint & Supplies', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fpaints.png?alt=media&token=40d59842-e84d-41ea-b8a2-2da017601606' ,
+    },
+    { 
+      name: 'Fasteners', 
+      image: 'https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Ffasteners.png?alt=media&token=84dcbc62-f455-43c1-84f4-5f506c8d8def' ,
+    },
   ];
 
   useEffect(() => {
@@ -109,9 +118,10 @@ function Home() {
         </div>
 
         <motion.img
-          src={heroImage}
+          src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fworker-hero1.png?alt=media&token=0c4ca0b5-d9a1-400c-a1d8-0fba77eb1ffc"
           alt="Working Man"
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[600px] z-0"
+          loading="lazy"
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[590px] z-0"
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -127,7 +137,7 @@ function Home() {
         </motion.p>
 
         <motion.div
-          className="absolute bottom-75 right-6 sm:right-10 w-[280px] sm:w-[450px] z-10"
+          className="absolute bottom-73 right-6 sm:right-50 w-[280px] sm:w-[450px] z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.6 }}
@@ -290,6 +300,7 @@ function Home() {
                   <img
                     src={cat.image}
                     alt={cat.name}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   />
                 </div>
@@ -536,8 +547,9 @@ function Home() {
                 viewport={{ once: true }}
               >
                 <img
-                  src={help}
+                  src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fhelp_img.jpg?alt=media&token=c3f5a07c-c97f-402a-a05b-38f4d2aab133"
                   alt="Expert Assistance"
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </motion.div>

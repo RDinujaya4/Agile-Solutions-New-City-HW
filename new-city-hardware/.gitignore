@@ -33,3 +33,8 @@ cypress.config.js
 cypress.config.ts
 cypress.env.json
 cypress-log.txt
+
+#firebase
+.firebase
+.firebaserc
+firebase.json

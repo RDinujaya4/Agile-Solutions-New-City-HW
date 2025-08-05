@@ -20,8 +20,6 @@ import { auth, db, googleProvider } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import authImage from "../assets/Signup.jpg";
-import toast from 'react-hot-toast';
 import { sendPasswordResetEmail } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toast } from '../utils/toast';
@@ -280,8 +278,9 @@ export default function Auth() {
       <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate-800">
         <div className="p-6">
           <img
-            src={authImage}
+            src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/login_page%2FSignup.jpg?alt=media&token=2fdeeddb-049d-4758-a162-a66d12d7fb47"
             alt="Authentication"
+            loading="lazy"
             className="w-full h-[75vh] object-cover rounded-2xl shadow-lg"
           />
         </div>

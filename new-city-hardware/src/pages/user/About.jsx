@@ -1,5 +1,4 @@
 import { FiTool, FiUsers, FiMapPin, FiAward } from 'react-icons/fi';
-import AboutUs from '../../assets/AboutUs.png';
 import { useNavigate } from 'react-router-dom';
 
 function About() {
@@ -30,8 +29,9 @@ function About() {
           </div>
           <div className="rounded-xl overflow-hidden shadow-md">
               <img
-                src={AboutUs}
+                src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/about_page%2FAboutUs.png?alt=media&token=f7f34239-32e6-4fc3-857b-300a1889dac5"
                 alt="New City Hardware Logo"
+                loading="lazy"
                 className="w-full h-full object-cover"
             />
           </div>
