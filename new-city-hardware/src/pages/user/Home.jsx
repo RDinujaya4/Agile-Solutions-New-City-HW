@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'react';
 import { db } from '../../firebase';
 import { collectionGroup, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { FiHelpCircle, FiShoppingCart, FiTruck } from 'react-icons/fi';
 
 import powerTools from '../../assets/power-tools.png';
 import handTools from '../../assets/hand-tools.png';
@@ -139,97 +140,78 @@ function Home() {
         </motion.div>
       </section>
 
-      <section className="bg-white py-20 px-4">
-        <motion.div
-          className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-10 text-center"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ staggerChildren: 0.2 }}
-          variants={{
-            visible: { transition: { staggerChildren: 0.3 } },
-          }}
-        >
-          {[
-            {
-              icon: <FiPackage className="mx-auto text-blue-600 text-3xl mb-2" />,
-              title: '15,000+',
-              subtitle: 'Products Available',
-            },
-            {
-              icon: <FiUsers className="mx-auto text-green-600 text-3xl mb-2" />,
-              title: '75,000+',
-              subtitle: 'Happy Customers',
-            },
-            {
-              icon: <FiAward className="mx-auto text-purple-600 text-3xl mb-2" />,
-              title: '35+',
-              subtitle: 'Years Experience',
-            },
-            {
-              icon: <FiStar className="mx-auto text-orange-500 text-3xl mb-2" />,
-              title: '4.9',
-              subtitle: 'Average Rating',
-            },
-          ].map((item, index) => (
-            <motion.div
-              key={index}
-              className="shadow-lg p-6 rounded-xl border border-slate-200"
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.5 }}
+      <section className="bg-[#F8FAFF] py-20 px-4 mt-16">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            className="bg-gradient-to-tr from-[#BFC7F3] via-[#C9D2F4] to-[#7F9FEA] text-white p-10 sm:p-14 shadow-xl rounded-none"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <motion.h2
+              className="text-3xl sm:text-4xl font-bold text-center mb-12 text-black"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.7 }}
+              viewport={{ once: true }}
             >
-              {item.icon}
-              <h4 className="text-xl text-slate-700 font-bold">{item.title}</h4>
-              <p className="text-sm text-slate-500">{item.subtitle}</p>
+              WHY CHOOSE NEW CITY HARDWARE?
+            </motion.h2>
+
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                visible: { transition: { staggerChildren: 0.3 } },
+              }}
+            >
+              {[
+                {
+                  icon: <FiHelpCircle size={28} />,
+                  title: 'Expert Advice',
+                  text: 'Get guidance on choosing the right tools for your project.',
+                  color: 'bg-blue-100 text-blue-600',
+                },
+                {
+                  icon: <FiShoppingCart size={28} />,
+                  title: 'Custom Orders',
+                  text: 'We help you source special tools or bulk orders with ease.',
+                  color: 'bg-green-100 text-green-600',
+                },
+                {
+                  icon: <FiTruck size={28} />,
+                  title: 'Fast Service',
+                  text: 'Get your hardware essentials quickly and affordably.',
+                  color: 'bg-yellow-100 text-yellow-600',
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  className="bg-white text-slate-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition hover:scale-[1.03]"
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`p-3 rounded-xl text-xl ${item.color}`}>
+                      {item.icon}
+                    </div>
+                    <h4 className="text-lg font-semibold">{item.title}</h4>
+                  </div>
+                  <p className="text-sm leading-relaxed">{item.text}</p>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
+          </motion.div>
+        </div>
       </section>
 
-      <section className="bg-white py-20 px-4">
-        <motion.div
-          className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={{
-            visible: { transition: { staggerChildren: 0.3 } },
-          }}
-        >
-          {[
-            {
-              title: 'Expert Advice',
-              text: 'Get guidance on choosing the right tools for your project.',
-            },
-            {
-              title: 'Custom Orders',
-              text: 'We help you source special tools or bulk orders with ease.',
-            },
-            {
-              title: 'Fast Service',
-              text: 'Get your hardware essentials quickly and affordably.',
-            },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              className="bg-white p-6 rounded-xl border border-slate-200 shadow-md hover:shadow-xl transition hover:scale-[1.03]"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.6 }}
-            >
-              <h4 className="text-lg text-slate-700 font-semibold mb-2">{item.title}</h4>
-              <p className="text-sm text-slate-600">{item.text}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      <section ref={sectionRef} className="bg-gradient-to-b from-[#c8ddf4] via-[#f0f7fb] to-[#ffffff] py-20 px-4">
+      <section ref={sectionRef} className="bg-gradient-to-b from-[#c8ddf4] via-[#f0f7fb] to-[#ffffff] py-20 px-4 mt-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-10">
             <motion.h3
@@ -305,7 +287,76 @@ function Home() {
         </div>
       </section>
 
-      <section className="bg-[#ecf0f9] py-24 px-4">
+      <section className="bg-[#e7ebed] py-20 px-4">
+        <div className="max-100-6xl mx-auto">
+          <motion.div
+            className="bg-gradient-to-b from-[#b8c8d8] via-[#b8b8e0] to-[#97a3cd] p-10 sm:p-14 rounded-none shadow-xl"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <motion.h2
+              className="text-3xl sm:text-4xl font-bold text-black text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              TRUSTED BY THOUSANDS NATIONWIDE
+            </motion.h2>
+
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-4 gap-10 text-center"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                visible: { transition: { staggerChildren: 0.3 } },
+              }}
+            >
+              {[
+                {
+                  icon: <FiPackage className="mx-auto text-blue-700 text-4xl mb-3" />,
+                  title: '15,000+',
+                  subtitle: 'Products Available',
+                },
+                {
+                  icon: <FiUsers className="mx-auto text-green-600 text-4xl mb-3" />,
+                  title: '75,000+',
+                  subtitle: 'Happy Customers',
+                },
+                {
+                  icon: <FiAward className="mx-auto text-purple-600 text-4xl mb-3" />,
+                  title: '35+',
+                  subtitle: 'Years Experience',
+                },
+                {
+                  icon: <FiStar className="mx-auto text-yellow-400 text-4xl mb-3" />,
+                  title: '4.9',
+                  subtitle: 'Average Rating',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-white p-6 rounded-xl shadow-md"
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {item.icon}
+                  <h4 className="text-xl font-bold text-slate-800">{item.title}</h4>
+                  <p className="text-sm text-slate-600">{item.subtitle}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="bg-[#ecf0f9] py-24 px-4 mt-16">
         <div className="max-100-5xl mx-auto">
           <motion.div
             className="bg-gradient-to-tr from-[#85a1e4] to-[#7dbdee] text-white p-10 sm:p-14 shadow-xl"
