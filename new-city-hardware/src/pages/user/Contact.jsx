@@ -58,7 +58,7 @@ export default function Contact() {
 };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-400 via-white-800 to-blue-900 text-white px-4 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-[#8694ec] via-[#93a4e1] to-[#edf2fe] text-white px-4 py-12">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold">Contact Us</h1>
@@ -98,7 +98,7 @@ export default function Contact() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Enter Name"
-                  className="w-full bg-white/20 text-white placeholder-slate-300 px-4 py-3 rounded-xl focus:outline-none"
+                  className="w-full bg-white/20 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none"
                   required
                 />
               </div>
@@ -110,7 +110,7 @@ export default function Contact() {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="Enter your Email"
-                  className="w-full bg-white/20 text-white placeholder-slate-300 px-4 py-3 rounded-xl focus:outline-none"
+                  className="w-full bg-white/20 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none"
                   required
                 />
               </div>
@@ -122,7 +122,7 @@ export default function Contact() {
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   placeholder="Your message..."
-                  className="w-full bg-white/20 text-white placeholder-slate-300 px-4 py-3 rounded-xl focus:outline-none"
+                  className="w-full bg-white/20 text-white placeholder-slate-500 px-4 py-3 rounded-xl focus:outline-none"
                   required
                 />
               </div>
