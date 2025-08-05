@@ -15,6 +15,7 @@ import plumbing from '../../assets/plumbing.png';
 import electrical from '../../assets/electrical.png';
 import paints from '../../assets/paints.png';
 import fasteners from '../../assets/fasteners.png';
+import help from '../../assets/help_img.jpg';
 
 function Home() {
   const navigate = useNavigate();
@@ -228,9 +229,8 @@ function Home() {
         </motion.div>
       </section>
 
-      <section ref={sectionRef} className="bg-gradient-to-b from-[#c2c2f1] via-[#f8f7f7] to-[#ffffff] py-20 px-4">
+      <section ref={sectionRef} className="bg-gradient-to-b from-[#c8ddf4] via-[#f0f7fb] to-[#ffffff] py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Header row */}
           <div className="flex items-center justify-between mb-10">
             <motion.h3
               className="text-2xl sm:text-3xl font-semibold text-gray-900"
@@ -305,117 +305,174 @@ function Home() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-slate-800 via-blue-900 to-purple-900 text-white py-24 px-4">
-        <motion.div
-          className="max-w-6xl mx-auto text-center"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm bg-white text-slate-900 font-semibold px-4 py-1 rounded-full inline-block mb-6 shadow">
-            📍 Visit Us Today
-          </span>
-          <h3 className="text-3xl font-bold mb-4">Come See Our Store</h3>
-          <p className="text-md text-slate-200 max-w-2xl mx-auto mb-16">
-            Experience our vibrant showroom filled with quality tools, friendly service, and expert advice for all your project needs.
-          </p>
-
+      <section className="bg-[#ecf0f9] py-24 px-4">
+        <div className="max-100-5xl mx-auto">
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
+            className="bg-gradient-to-tr from-[#85a1e4] to-[#7dbdee] text-white p-10 sm:p-14 shadow-xl"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            variants={{
-              visible: { transition: { staggerChildren: 0.25 } },
-            }}
           >
-            {[
-              {
-                icon: <FiMapPin size={24} />,
-                title: 'Our Location',
-                content: (
-                  <>
-                    No 33/1, Hanwella Road,
-                    <br />
-                    Kirindiwela
-                  </>
-                ),
-                color: 'bg-blue-100 text-blue-600',
-              },
-              {
-                icon: <FiClock size={24} />,
-                title: 'Store Hours',
-                content: (
-                  <div>
-                    <p>Mon–Sat: 7:00 AM – 8:00 PM</p>
-                    <p>Sunday: 9:00 AM – 6:00 PM</p>
-                    <p className="text-yellow-400 mt-1 font-medium">✨ Extended holiday hours</p>
+            <motion.span
+              className="text-sm bg-white text-slate-900 font-semibold px-4 py-1 rounded-full inline-block mb-6 shadow"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              📍 Visit Us Today
+            </motion.span>
+
+            <motion.h3
+              className="text-3xl sm:text-4xl font-bold mb-4"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.7 }}
+              viewport={{ once: true }}
+            >
+              Come See Our Store
+            </motion.h3>
+
+            <motion.p
+              className="text-md text-slate-100 max-w-2xl  mb-16"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Experience our vibrant showroom filled with quality tools, friendly service, and expert advice for all your project needs.
+            </motion.p>
+
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                visible: { transition: { staggerChildren: 0.25 } },
+              }}
+            >
+              {[
+                {
+                  icon: <FiMapPin size={24} />,
+                  title: 'Our Location',
+                  content: (
+                    <>
+                      No 33/1, Hanwella Road,
+                      <br />
+                      Kirindiwela
+                    </>
+                  ),
+                  color: 'bg-blue-100 text-blue-600',
+                },
+                {
+                  icon: <FiClock size={24} />,
+                  title: 'Store Hours',
+                  content: (
+                    <div>
+                      <p>Mon–Sat: 7:00 AM – 8:00 PM</p>
+                      <p>Sunday: 9:00 AM – 6:00 PM</p>
+                      <p className="text-yellow-400 mt-1 font-medium">✨ Extended holiday hours</p>
+                    </div>
+                  ),
+                  color: 'bg-green-100 text-green-600',
+                },
+                {
+                  icon: <FiPhone size={24} />,
+                  title: 'Contact Us',
+                  content: (
+                    <div>
+                      <p>(555) 123-4567 / 0767795630</p>
+                      <span className="inline-flex items-center gap-2 mt-1">
+                        <FiMail size={16} className="text-slate-400" />
+                        newcity.hardware.sl@gmail.com
+                      </span>
+                    </div>
+                  ),
+                  color: 'bg-purple-100 text-purple-600',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-white text-slate-800 p-6 rounded-xl shadow-xl text-left"
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className={`${item.color} p-3 rounded-xl text-xl mr-3`}>
+                      {item.icon}
+                    </div>
+                    <h4 className="text-lg font-semibold">{item.title}</h4>
                   </div>
-                ),
-                color: 'bg-green-100 text-green-600',
-              },
-              {
-                icon: <FiPhone size={24} />,
-                title: 'Contact Us',
-                content: (
-                  <div>
-                    <p>(555) 123-4567 / 0767795630</p>
-                    <span className="inline-flex items-center gap-2 mt-1">
-                      <FiMail size={16} className="text-slate-400" />
-                      newcity.hardware.sl@gmail.com
-                    </span>
-                  </div>
-                ),
-                color: 'bg-purple-100 text-purple-600',
-              },
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                className="bg-white text-slate-800 p-6 rounded-xl shadow-lg text-left"
-                variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="flex items-center mb-4">
-                  <div className={`${item.color} p-3 rounded-xl text-xl mr-3`}>
-                    {item.icon}
-                  </div>
-                  <h4 className="text-lg font-semibold">{item.title}</h4>
-                </div>
-                <div className="text-sm leading-relaxed space-y-1">{item.content}</div>
-              </motion.div>
-            ))}
+                  <div className="text-sm leading-relaxed space-y-1">{item.content}</div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
-      <section className="bg-white text-center py-20 px-4">
-        <motion.div
-          className="max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-3xl font-bold text-slate-800 mb-4">
-            Need help finding the right tool?
-          </h3>
-          <p className="text-slate-600 text-md mb-6">
-            Visit our store or contact us for expert advice tailored to your needs.
-          </p>
-          <button
-            onClick={() => {
-              navigate('/contact');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="mt-2 inline-block px-8 py-3 bg-slate-900 text-white font-semibold rounded-xl shadow hover:bg-slate-700 transition"
+      <section className="bg-[#F8FAFF] py-20 px-4 mt-16">
+        <div className="max-w-7xl mx-auto">
+          <motion.h2
+            className="text-center text-3xl sm:text-4xl font-bold text-black mb-14"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
           >
-            Contact Us
-          </button>
-        </motion.div>
+            THE HARDWARE YOU NEED, DELIVERED RIGHT
+          </motion.h2>
+          <motion.div
+            className="bg-gradient-to-tr from-[#BFC7F3] via-[#C9D2F4] to-[#7F9FEA] p-6 sm:p-10 rounded-none"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              <div className="bg-white p-10 sm:p-14 shadow-md w-full h-full">
+                <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                  OUR EXCLUSIVE SERVICE
+                </p>
+                <h3 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">
+                  Expert Guidance
+                </h3>
+                <p className="text-slate-600 text-md mb-6 leading-relaxed">
+                  Need help finding the right tool or material? Our in-store experts are here to guide you.
+                  Contact us now for personalized assistance with your construction or repair needs.
+                </p>
+                <button
+                  onClick={() => {
+                    navigate('/contact');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="inline-block px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition"
+                >
+                  Contact Us
+                </button>
+              </div>
+
+              <motion.div
+                className="w-full h-full flex items-center justify-center"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <img
+                  src={help}
+                  alt="Expert Assistance"
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
       </section>
     </motion.div>
     </main>
