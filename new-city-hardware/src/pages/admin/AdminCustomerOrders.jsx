@@ -73,7 +73,7 @@ export default function AdminCustomerOrders() {
         const itemsSnap = await getDocs(collection(db, 'orders', orderId, 'items'));
         const items = itemsSnap.docs.map(doc => {
           const d = doc.data();
-          return `${d.name} ${d.quantity}`;
+          return { name: d.name, quantity: d.quantity };
         });
 
         allOrders.push({
@@ -96,7 +96,7 @@ export default function AdminCustomerOrders() {
         const itemsSnap = await getDocs(collection(db, 'pickupOrders', orderId, 'items'));
         const items = itemsSnap.docs.map(doc => {
           const d = doc.data();
-          return `${d.name} ${d.quantity}`;
+          return { name: d.name, quantity: d.quantity };
         });
 
         allOrders.push({
@@ -356,13 +356,16 @@ export default function AdminCustomerOrders() {
 
                 <div className="mt-3">
                   <strong>Ordered Items:</strong>
-                  <ul className="list-disc ml-5 text-red-600 font-medium mt-1">
+                  <ul className="ml-5 mt-2 space-y-1">
                     {order.items.length > 0 ? (
                       order.items.map((item, i) => (
-                        <li key={i}>{item}</li>
+                        <li key={i} className="font-medium">
+                          <span className="text-red-600">x{item.quantity}</span>{' '}
+                          <span className="text-black">{item.name}</span>
+                        </li>
                       ))
                     ) : (
-                      <li>No items found for this order.</li>
+                      <li className="text-red-600 font-medium">No items found for this order.</li>
                     )}
                   </ul>
                 </div>

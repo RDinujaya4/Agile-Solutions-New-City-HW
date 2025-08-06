@@ -276,12 +276,12 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-800">
       <div className="hidden md:flex md:w-1/2 items-center justify-center bg-slate-800">
-        <div className="p-6">
+        <div className="flex justify-center items-center p-4">
           <img
             src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/login_page%2FSignup.jpg?alt=media&token=2fdeeddb-049d-4758-a162-a66d12d7fb47"
             alt="Authentication"
             loading="lazy"
-            className="w-full h-[75vh] object-cover rounded-2xl shadow-lg"
+            className="w-full max-w-[700px] h-[60vh] sm:h-[70vh] md:h-[75vh] object-cover rounded-2xl shadow-lg mx-auto"
           />
         </div>
       </div>

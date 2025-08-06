@@ -98,7 +98,7 @@ function Home() {
     >
  
       <section className="relative h-[90vh] bg-gradient-to-b from-[#BFC7F3] via-[#C9D2F4] to-[#7F9FEA] overflow-hidden px-6 sm:px-10">
-        <div className="absolute top-[8%] w-full text-center z-10">
+        <div className="absolute top-[2%] w-full text-center z-10">
           <motion.h1
             className="text-[4.5rem] sm:text-[6.5rem] lg:text-[8.5rem] font-extrabold uppercase text-white tracking-tight leading-none"
             initial={{ opacity: 0, y: 50 }}
@@ -108,7 +108,7 @@ function Home() {
             NEW CITY
           </motion.h1>
           <motion.span
-            className="block text-2xl sm:text-3xl font-semibold text-white tracking-widest mt-2 ml-[80px] sm:ml-[430px]"
+            className="block text-2xl sm:text-3xl font-semibold text-white tracking-widest mt-2 ml-[0px] sm:ml-[430px]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
@@ -121,14 +121,14 @@ function Home() {
           src="https://firebasestorage.googleapis.com/v0/b/newcityhardware-5b084.firebasestorage.app/o/home_page%2Fworker-hero1.png?alt=media&token=0c4ca0b5-d9a1-400c-a1d8-0fba77eb1ffc"
           alt="Working Man"
           loading="lazy"
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[320px] sm:w-[420px] md:w-[590px] z-0"
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[360px] sm:w-[420px] md:w-[600px] max-w-full z-0"
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         />
 
         <motion.p
-          className="absolute bottom-44 left-6 text-white text-base sm:text-lg max-w-md sm:max-w-lg leading-relaxed"
+          className="absolute bottom-5 sm:bottom-5 left-6 sm:left-10 text-white text-base sm:text-lg max-w-md sm:max-w-lg leading-relaxed sm:text-left text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.6 }}
@@ -137,19 +137,19 @@ function Home() {
         </motion.p>
 
         <motion.div
-          className="absolute bottom-73 right-6 sm:right-50 w-[280px] sm:w-[450px] z-10"
+          className="absolute bottom-85 sm:bottom-57 right-20 sm:right-123 w-[280px] sm:w-[450px] z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.6 }}
         >
           <div className="relative">
-            <FiSearch className="absolute top-3.5 left-4 text-[#7A88BA]" size={20} />
+            <FiSearch className="absolute top-3.5 left-4 text-[#ffffff]" size={20} />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products..."
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#F0F4FF] text-[#2A345B] border border-[#C9D2F4] placeholder:text-[#6C7BAD] focus:outline-none focus:ring-2 focus:ring-[#7F9FEA]"
+              className="w-full pl-12 pr-4 py-3 rounded-xl text-[#ffffff] border border-[#ffffff] placeholder:text-[#ffffff] focus:outline-none focus:ring-2 focus:ring-[#ffffff]"
             />
 
             {searchResults.length > 0 && (
