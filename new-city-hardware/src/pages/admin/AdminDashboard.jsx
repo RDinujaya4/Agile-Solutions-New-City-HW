@@ -15,6 +15,7 @@ import { Toast } from '../../utils/toast';
 export default function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
   const [mostViewedProducts, setMostViewedProducts] = useState([]);
   const [monthlyVisitors, setMonthlyVisitors] = useState([]);
   const [dailyVisitors, setDailyVisitors] = useState([]);
@@ -84,6 +85,39 @@ export default function AdminDashboard() {
     };
 
     fetchOrders();
+  }, []);
+
+  useEffect(() => {
+    const fetchCurrentMonthRevenue = async () => {
+      try {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+        const pickupRef = collection(db, "pickupOrders");
+        const q = query(
+          pickupRef,
+          where("pickedUpAt", ">=", Timestamp.fromDate(startOfMonth)),
+          where("pickedUpAt", "<=", Timestamp.fromDate(endOfMonth))
+        );
+
+        const snap = await getDocs(q);
+        let total = 0;
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (typeof data.total === 'number') {
+            total += data.total;
+          }
+        });
+
+        setMonthlyRevenue(total);
+      } catch (error) {
+        console.error("Error fetching monthly revenue:", error);
+      }
+    };
+
+    fetchCurrentMonthRevenue();
   }, []);
 
   useEffect(() => {
@@ -345,7 +379,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-semibold">Dashboard</h1>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl shadow p-4">
             <p className="text-sm text-gray-500">Total Registered Users</p>
             <p className="text-2xl font-bold">{totalUsers}</p>
@@ -354,6 +388,11 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow p-4">
             <p className="text-sm text-gray-500">Total Customer Orders</p>
             <p className="text-2xl font-bold">{totalOrders}</p>
+            <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow p-4">
+            <p className="text-sm text-gray-500">Total Revenue (This Month)</p>
+            <p className="text-2xl font-bold">LKR: {monthlyRevenue.toLocaleString()}</p>
             <p className="text-xs text-gray-400 mt-1">Updated {new Date().toLocaleString()}</p>
           </div>
         </div>

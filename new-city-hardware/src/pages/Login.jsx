@@ -179,6 +179,7 @@ export default function Auth() {
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const role = userDoc.exists() ? userDoc.data().role : "user";
         navigate(role === "admin" ? "/admindash" : "/");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         await setPersistence(auth, browserSessionPersistence);
 
@@ -196,6 +197,7 @@ export default function Auth() {
         const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const role = userDoc.exists() ? userDoc.data().role : "user";
         navigate(role === "admin" ? "/admindash" : "/");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error(error);
