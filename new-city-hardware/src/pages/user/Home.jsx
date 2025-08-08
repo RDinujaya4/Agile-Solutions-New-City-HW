@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  FiSearch, FiMapPin, FiClock, FiPhone, FiMail, FiPackage, FiUsers, FiAward, FiStar,
+  FiMapPin, FiClock, FiPhone, FiMail, FiPackage, FiUsers, FiAward, FiStar,
   FiHelpCircle, FiShoppingCart, FiTruck
 } from 'react-icons/fi';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../../firebase';
-import { collectionGroup, onSnapshot } from 'firebase/firestore';
+// import { db } from '../../firebase';
+// import { collectionGroup, onSnapshot } from 'firebase/firestore';
 import { motion, useInView } from 'framer-motion';
 
 function Home() {
   const navigate = useNavigate();
-  const [searchResults, setSearchResults] = useState([]);
-  const [search, setSearch] = useState('');
+  // const [searchResults, setSearchResults] = useState([]);
+  // const [search, setSearch] = useState('');
   const sliderRef = useRef(null);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true });
@@ -46,33 +46,33 @@ function Home() {
     },
   ];
 
-  useEffect(() => {
-    if (search.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
+  // useEffect(() => {
+  //   if (search.trim() === '') {
+  //     setSearchResults([]);
+  //     return;
+  //   }
 
-    const unsubscribe = onSnapshot(collectionGroup(db, 'items'), (snapshot) => {
-      const allProducts = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  //   const unsubscribe = onSnapshot(collectionGroup(db, 'items'), (snapshot) => {
+  //     const allProducts = snapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
 
-      const filtered = allProducts
-        .filter((product) =>
-          product?.name?.toLowerCase().includes(search.toLowerCase())
-        )
-        .reduce((unique, item) => {
-          const exists = unique.find((p) => p.name === item.name);
-          if (!exists) unique.push(item);
-          return unique;
-        }, []);
+  //     const filtered = allProducts
+  //       .filter((product) =>
+  //         product?.name?.toLowerCase().includes(search.toLowerCase())
+  //       )
+  //       .reduce((unique, item) => {
+  //         const exists = unique.find((p) => p.name === item.name);
+  //         if (!exists) unique.push(item);
+  //         return unique;
+  //       }, []);
 
-      setSearchResults(filtered.slice(0, 6));
-    });
+  //     setSearchResults(filtered.slice(0, 6));
+  //   });
 
-    return () => unsubscribe();
-  }, [search]);
+  //   return () => unsubscribe();
+  // }, [search]);
 
   useEffect(() => {
     if (isInView && sliderRef.current) {
@@ -144,7 +144,7 @@ function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.6 }}
           >
-          <div className="relative">
+          {/* <div className="relative">
   <FiSearch className="absolute top-3.5 left-4 text-black" size={20} />
   <input
     type="text"
@@ -167,7 +167,7 @@ function Home() {
       ))}
     </div>
   )}
-</div>
+</div> */}
 
           </motion.div>
         </section>
